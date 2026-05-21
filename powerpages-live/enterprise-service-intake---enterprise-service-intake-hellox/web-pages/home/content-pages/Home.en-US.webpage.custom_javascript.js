@@ -5,6 +5,8 @@
   const preview = root.querySelector("[data-routing-preview]");
   const review = root.querySelector("[data-review-summary]");
   const result = root.querySelector("[data-submit-result]");
+  const fileList = root.querySelector("[data-file-list]");
+  const form = root.querySelector(".esi-form");
   const submitButton = root.querySelector('button[type="submit"]');
   const steps = Array.from(root.querySelectorAll("[data-step]")).map((item) => item.dataset.step);
   const stepButtons = Array.from(root.querySelectorAll("[data-step-target]"));
@@ -20,8 +22,13 @@
     return field(name)?.selectedOptions?.[0] || null;
   }
 
+  function selectedText(name) {
+    const option = selectedOption(name);
+    return option && option.value ? option.textContent.trim() : "";
+  }
+
   function selectedCategoryName() {
-    return selectedOption("category")?.textContent?.trim() || "";
+    return selectedText("category");
   }
 
   function html(value) {
@@ -54,7 +61,32 @@
       .filter((control) => !control.disabled && control.type !== "button" && control.type !== "submit");
   }
 
+  function isHighImpactRequest() {
+    const severity = Number(field("severity")?.value || 0);
+    const priority = Number(field("priority")?.value || 0);
+    return severity >= 752630002 || priority >= 752630002;
+  }
+
+  function applyConditionalRequirements() {
+    const impact = field("impact");
+    const note = root.querySelector("[data-critical-required]");
+    const required = isHighImpactRequest();
+    if (!impact) return;
+
+    impact.required = required;
+    impact.setCustomValidity(required && !impact.value.trim()
+      ? "Business impact is required for high priority or critical requests."
+      : "");
+
+    if (note) {
+      note.textContent = required
+        ? "Required for this request"
+        : "Required for high priority or critical requests";
+    }
+  }
+
   function validateStep(stepName) {
+    applyConditionalRequirements();
     const controls = controlsForStep(stepName);
     const invalid = controls.find((control) => !control.checkValidity());
 
@@ -63,7 +95,8 @@
     });
 
     if (invalid) {
-      setStepError(stepName, "Complete the required fields on this step before continuing.");
+      const message = invalid.validationMessage || "Complete the required fields on this step before continuing.";
+      setStepError(stepName, message);
       invalid.reportValidity();
       invalid.focus({ preventScroll: false });
       return false;
@@ -81,9 +114,7 @@
     for (let index = currentIndex; index < targetIndex; index += 1) {
       const stepName = steps[index];
       if (stepName !== currentStep) setActiveStep(stepName);
-      if (!validateStep(stepName)) {
-        return false;
-      }
+      if (!validateStep(stepName)) return false;
     }
     return true;
   }
@@ -92,13 +123,16 @@
     if (!steps.includes(stepName)) return;
 
     currentStep = stepName;
+    const activeIndex = stepIndex(stepName);
+
     root.querySelectorAll("[data-step]").forEach((item) => {
       item.classList.toggle("is-active", item.dataset.step === stepName);
     });
 
-    stepButtons.forEach((button) => {
+    stepButtons.forEach((button, index) => {
       const isActive = button.dataset.stepTarget === stepName;
       button.classList.toggle("is-active", isActive);
+      button.classList.toggle("is-complete", index < activeIndex);
       if (isActive) {
         button.setAttribute("aria-current", "step");
       } else {
@@ -106,6 +140,7 @@
       }
     });
 
+    applyConditionalRequirements();
     updateReview();
   }
 
@@ -165,8 +200,9 @@
         '<option value="static-general">General Inquiry</option>'
       ].join("");
       setPreview({
+        status: "warning",
         heading: "Live category lookup is unavailable.",
-        note: "The page can still preview common scenarios; submission requires portal table permissions."
+        note: "The page can still preview common scenarios. Submission requires live Dataverse category access."
       });
     }
   }
@@ -196,33 +232,72 @@
     return cachedRules;
   }
 
+  function previewStateLabel(status) {
+    if (status === "ready") return "Live estimate";
+    if (status === "warning") return "Needs review";
+    if (status === "error") return "Unavailable";
+    if (status === "loading") return "Checking rules";
+    return "Waiting for inputs";
+  }
+
+  function toneFor(value, kind) {
+    if (kind === "approval" && /required/i.test(value || "")) return "is-amber";
+    if (kind === "documentation" && /required|evidence/i.test(value || "")) return "is-red";
+    if (/pending|unavailable/i.test(value || "")) return "";
+    return "is-green";
+  }
+
+  function previewRow(label, value, toneClass) {
+    return `
+      <div>
+        <span>${html(label)}</span>
+        ${toneClass ? `<strong class="esi-badge ${toneClass}">${html(value)}</strong>` : `<strong>${html(value)}</strong>`}
+      </div>`;
+  }
+
   function setPreview(state) {
+    const department = state.department || "Pending";
+    const sla = state.sla || "Pending";
+    const approval = state.approval || "Pending";
+    const documentation = state.documentation || "Standard";
+    const status = state.status || "waiting";
+    const stateClass = status === "ready" ? "is-ready" : status === "warning" ? "is-warning" : status === "error" ? "is-error" : "";
+
     preview.innerHTML = `
-      <span class="esi-preview-label">Routing preview</span>
+      <div class="esi-preview-header">
+        <span class="esi-preview-label">Routing preview</span>
+        <span class="esi-preview-state ${stateClass}">${html(previewStateLabel(status))}</span>
+      </div>
       <h2>${html(state.heading)}</h2>
-      <dl>
-        <div><dt>Department</dt><dd>${html(state.department || "Pending")}</dd></div>
-        <div><dt>Response target</dt><dd>${html(state.sla || "Pending")}</dd></div>
-        <div><dt>Approval</dt><dd>${html(state.approval || "Pending")}</dd></div>
-        <div><dt>Documentation</dt><dd>${html(state.documentation || "Standard")}</dd></div>
-      </dl>
-      <p>${html(state.note)}</p>`;
+      <div class="esi-preview-grid">
+        ${previewRow("Department", department)}
+        ${previewRow("Response target / SLA", sla)}
+        ${previewRow("Approval", approval, toneFor(approval, "approval"))}
+        ${previewRow("Documentation", documentation, toneFor(documentation, "documentation"))}
+      </div>
+      <p class="esi-preview-note">${html(state.note || "The final department and SLA are assigned server-side after submission.")}</p>`;
   }
 
   async function refreshPreview() {
+    applyConditionalRequirements();
     const category = selectedCategoryName();
     const severity = Number(field("severity")?.value || 0);
     const priority = Number(field("priority")?.value || 0);
 
     if (!category || !severity || !priority) {
       setPreview({
+        status: "waiting",
         heading: "Complete category, severity, and priority to preview routing.",
         note: "The final department and SLA are assigned server-side after submission."
       });
       return;
     }
 
-    setPreview({ heading: "Refreshing preview...", note: "Checking active Dataverse routing rules." });
+    setPreview({
+      status: "loading",
+      heading: "Refreshing live routing preview...",
+      note: "Checking active Dataverse routing rules through the Power Pages Web API."
+    });
 
     try {
       const rules = await loadRules();
@@ -233,39 +308,95 @@
 
       if (!match) {
         setPreview({
+          status: "warning",
           heading: "General Intake review expected",
           department: "General Intake",
           sla: "Reviewed after submission",
-          approval: "To be confirmed",
-          documentation: "As needed",
-          note: "No exact rule matched this combination. The request can still be submitted."
+          approval: isHighImpactRequest() ? "Manager approval likely" : "To be confirmed",
+          documentation: isHighImpactRequest() ? "Impact notes required" : "As needed",
+          note: "No exact rule matched this combination. The request can still be submitted and will be routed server-side."
         });
         return;
       }
 
       setPreview({
+        status: "ready",
         heading: match.name,
         department: match.department,
         sla: `${match.responseHours} hour response target`,
         approval: match.requiresApproval ? "Manager approval required" : "No manager approval",
         documentation: match.requiresDocumentation ? "Resolution evidence required" : "Standard supporting files",
-        note: "This is a live preview. Dataverse applies the authoritative rule when the request is saved."
+        note: "This is a live preview. Dataverse applies the authoritative routing rule when the request is saved."
       });
     } catch (error) {
       setPreview({
+        status: "error",
         heading: "Preview temporarily unavailable",
+        department: "Server-side routing",
+        sla: "Applied after save",
+        approval: isHighImpactRequest() ? "Manager approval likely" : "To be confirmed",
+        documentation: isHighImpactRequest() ? "Impact notes required" : "Standard",
         note: error.message || "The server-side plugin still applies routing on save."
       });
     }
   }
 
+  function summaryValue(value, fallback) {
+    return value && String(value).trim() ? String(value).trim() : fallback;
+  }
+
+  function reviewRow(label, value) {
+    return `
+      <div class="esi-review-row">
+        <span>${html(label)}</span>
+        <strong>${html(value)}</strong>
+      </div>`;
+  }
+
   function updateReview() {
     if (!review) return;
-    review.innerHTML = `
-      <p><strong>Title:</strong> ${html(field("title")?.value || "Not entered")}</p>
-      <p><strong>Category:</strong> ${html(selectedCategoryName() || "Not selected")}</p>
-      <p><strong>Severity:</strong> ${html(selectedOption("severity")?.textContent || "Not selected")}</p>
-      <p><strong>Priority:</strong> ${html(selectedOption("priority")?.textContent || "Not selected")}</p>`;
+    const documents = Array.from(field("documents")?.files || []);
+    review.innerHTML = [
+      reviewRow("Title", summaryValue(field("title")?.value, "Not entered")),
+      reviewRow("Category", summaryValue(selectedCategoryName(), "Not selected")),
+      reviewRow("Severity", summaryValue(selectedText("severity"), "Not selected")),
+      reviewRow("Priority", summaryValue(selectedText("priority"), "Not selected")),
+      reviewRow("Business impact", summaryValue(field("impact")?.value, "Not provided")),
+      reviewRow("Supporting documents", documents.length ? `${documents.length} file${documents.length === 1 ? "" : "s"} selected` : "No files selected")
+    ].join("");
+  }
+
+  function formatBytes(bytes) {
+    if (!bytes) return "0 KB";
+    const kb = bytes / 1024;
+    if (kb < 1024) return `${Math.round(kb)} KB`;
+    return `${(kb / 1024).toFixed(1)} MB`;
+  }
+
+  function updateFileList() {
+    if (!fileList) return;
+    const files = Array.from(field("documents")?.files || []);
+    if (!files.length) {
+      fileList.innerHTML = "";
+      return;
+    }
+    fileList.innerHTML = files
+      .map((file) => `<div><strong>${html(file.name)}</strong><span>${html(formatBytes(file.size))}</span></div>`)
+      .join("");
+  }
+
+  function showResult(tone, title, body) {
+    result.className = `esi-result is-visible ${tone === "success" ? "is-success" : tone === "error" ? "is-error" : ""}`;
+    result.innerHTML = `
+      <div class="esi-result-card">
+        <strong>${html(title)}</strong>
+        <span>${html(body)}</span>
+      </div>`;
+  }
+
+  function clearResult() {
+    result.className = "esi-result";
+    result.innerHTML = "";
   }
 
   function extractCreatedId(xhr) {
@@ -276,14 +407,17 @@
 
   async function submitRequest(event) {
     event.preventDefault();
-    const form = event.currentTarget;
-    if (!validateStep("review") || !form.reportValidity()) return;
-
-    submitButton.disabled = true;
-    result.className = "esi-result";
-    result.textContent = "Submitting request...";
+    if (!validateBefore("review") || !validateStep("review") || !form.reportValidity()) return;
 
     const categoryId = field("category").value;
+    if (/^static-/.test(categoryId)) {
+      showResult("error", "Live category lookup required", "The category list could not be loaded from Dataverse, so the request was not submitted.");
+      return;
+    }
+
+    submitButton.disabled = true;
+    showResult("info", "Submitting request...", "Creating the Dataverse service request and capturing document metadata.");
+
     const descriptionParts = [
       field("description").value,
       field("impact").value ? `Business impact: ${field("impact").value}` : ""
@@ -325,18 +459,22 @@
         }
       }
 
-      result.className = "esi-result is-success";
-      result.textContent = confirmation
-        ? `Request submitted. Confirmation number: ${confirmation}.`
-        : "Request submitted. The confirmation number will be available in the internal app.";
+      showResult(
+        "success",
+        "Request submitted",
+        confirmation
+          ? `Confirmation number ${confirmation} has been created. Approval and ERP sync continue through Power Automate when required.`
+          : "The request was submitted. The confirmation number will be available in the internal app."
+      );
+
       form.reset();
+      updateFileList();
       setActiveStep("details");
       updateReview();
       await populateCategories();
       await refreshPreview();
     } catch (error) {
-      result.className = "esi-result is-error";
-      result.textContent = error.message || "The request could not be submitted.";
+      showResult("error", "Submission failed", error.message || "The request could not be submitted.");
     } finally {
       submitButton.disabled = false;
     }
@@ -373,15 +511,29 @@
 
   root.querySelectorAll("input, select, textarea").forEach((control) => {
     control.addEventListener("input", () => {
+      applyConditionalRequirements();
       if (control.checkValidity()) control.classList.remove("is-invalid");
       setStepError(control.closest("[data-step]")?.dataset.step, "");
+      updateReview();
+      if (result.classList.contains("is-error")) clearResult();
     });
   });
 
-  root.querySelectorAll("[data-routing-input]").forEach((input) => input.addEventListener("change", refreshPreview));
-  root.querySelector(".esi-form")?.addEventListener("input", updateReview);
-  root.querySelector(".esi-form")?.addEventListener("submit", submitRequest);
+  root.querySelectorAll("[data-routing-input]").forEach((input) => {
+    input.addEventListener("change", () => {
+      refreshPreview();
+      updateReview();
+    });
+  });
+
+  field("documents")?.addEventListener("change", () => {
+    updateFileList();
+    updateReview();
+  });
+
+  form?.addEventListener("submit", submitRequest);
 
   setActiveStep("details");
+  updateFileList();
   populateCategories().then(refreshPreview);
 })();

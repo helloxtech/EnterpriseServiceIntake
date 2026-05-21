@@ -2,119 +2,187 @@
 {% assign homeurl = website.adx_partialurl %}
 
 <section class="esi-hero">
-  <div class="esi-brand">
-    <div class="esi-brand-mark" aria-hidden="true"></div>
-    <span>Mitacs Service Intake</span>
+  <div class="esi-hero-inner">
+    <div class="esi-hero-copy">
+      <div class="esi-brand">
+        <span class="esi-brand-mark" aria-hidden="true"></span>
+        <span>Mitacs Service Intake</span>
+      </div>
+      <h1>Submit a service request</h1>
+      <p>Use the secure intake wizard to describe the request, add business impact, upload supporting files, and preview the expected routing path before submission.</p>
+    </div>
+    {% if user %}
+    <div class="esi-user-card" aria-label="Signed in customer">
+      <span class="esi-user-label">Signed in</span>
+      <strong>{{ user.fullname | default: user.emailaddress1 | escape }}</strong>
+      <span>Customer portal session</span>
+    </div>
+    {% endif %}
   </div>
-  <h1>Submit a service request</h1>
-  <p>Tell us what you need, validate each step, and preview the expected response path before you submit.</p>
 </section>
 
 {% if user %}
-<main class="esi-shell" data-esi-intake>
-  <div class="esi-security-note">
-    <strong>Signed in as {{ user.fullname | default: user.emailaddress1 | escape }}</strong>
-    <span>Your submission will be associated with your portal account.</span>
+<main class="esi-shell" id="mainContent" data-esi-intake>
+  <div class="esi-workspace-banner">
+    <div>
+      <strong>Secure customer intake</strong>
+      <span>Your request is linked to your portal account. Internal-only notes and routing fields remain hidden from external users.</span>
+    </div>
+    <span class="esi-status-pill">Authenticated</span>
   </div>
 
   <nav class="esi-steps" aria-label="Request steps">
-    <button type="button" class="is-active" data-step-target="details" aria-current="step">1. Details</button>
-    <button type="button" data-step-target="impact">2. Impact</button>
-    <button type="button" data-step-target="documents">3. Documents</button>
-    <button type="button" data-step-target="review">4. Review & submit</button>
+    <button type="button" class="is-active" data-step-target="details" aria-current="step">
+      <span class="esi-step-index">1</span>
+      <span><strong>Request Details</strong><small>What do you need?</small></span>
+    </button>
+    <button type="button" data-step-target="impact">
+      <span class="esi-step-index">2</span>
+      <span><strong>Impact and Urgency</strong><small>Who is affected?</small></span>
+    </button>
+    <button type="button" data-step-target="documents">
+      <span class="esi-step-index">3</span>
+      <span><strong>Documentation</strong><small>Add evidence</small></span>
+    </button>
+    <button type="button" data-step-target="review">
+      <span class="esi-step-index">4</span>
+      <span><strong>Review and Submit</strong><small>Confirm details</small></span>
+    </button>
   </nav>
 
   <div class="esi-layout">
     <form class="esi-form" novalidate>
       <section class="esi-step is-active" data-step="details">
-        <h2>Request details</h2>
+        <div class="esi-section-heading">
+          <span class="esi-section-kicker">Step 1 of 4</span>
+          <h2>Request details</h2>
+          <p>Start with a short title, category, and clear description so the request can be routed correctly.</p>
+        </div>
+
         <label>
-          Request title
-          <input name="title" type="text" required maxlength="200" />
+          <span>Request title <em>Required</em></span>
+          <input name="title" type="text" required maxlength="200" autocomplete="off" placeholder="Example: Unable to access partner reporting dashboard" />
         </label>
+
         <label>
-          Service category
+          <span>Service category <em>Required</em></span>
           <select name="category" data-routing-input required>
             <option value="">Loading categories...</option>
           </select>
         </label>
+
         <label>
-          Description
-          <textarea name="description" rows="5" required></textarea>
+          <span>Description <em>Required</em></span>
+          <textarea name="description" rows="6" required placeholder="Describe the issue, request, or service need. Include affected program, account, or timeline details where helpful."></textarea>
         </label>
+
         <div class="esi-step-error" data-step-error role="alert"></div>
-        <div class="esi-actions">
+        <div class="esi-action-bar">
+          <span>Next: impact and urgency</span>
           <button type="button" class="esi-primary" data-next-step="impact">Continue to impact</button>
         </div>
       </section>
 
       <section class="esi-step" data-step="impact">
-        <h2>Impact and urgency</h2>
+        <div class="esi-section-heading">
+          <span class="esi-section-kicker">Step 2 of 4</span>
+          <h2>Impact and urgency</h2>
+          <p>Severity and priority drive the live routing preview and manager approval path.</p>
+        </div>
+
+        <div class="esi-two-column">
+          <label>
+            <span>Severity <em>Required</em></span>
+            <select name="severity" data-routing-input required>
+              <option value="">Select severity</option>
+              <option value="752630000">Low</option>
+              <option value="752630001">Medium</option>
+              <option value="752630002">High</option>
+              <option value="752630003">Critical</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Priority <em>Required</em></span>
+            <select name="priority" data-routing-input required>
+              <option value="">Select priority</option>
+              <option value="752630000">Low</option>
+              <option value="752630001">Normal</option>
+              <option value="752630002">High</option>
+              <option value="752630003">Urgent</option>
+            </select>
+          </label>
+        </div>
+
         <label>
-          Severity
-          <select name="severity" data-routing-input required>
-            <option value="">Select severity</option>
-            <option value="752630000">Low</option>
-            <option value="752630001">Medium</option>
-            <option value="752630002">High</option>
-            <option value="752630003">Critical</option>
-          </select>
+          <span>Business impact <em data-critical-required>Required for high priority or critical requests</em></span>
+          <textarea name="impact" rows="5" placeholder="Explain deadline risk, customer impact, affected team, or operational blocker."></textarea>
         </label>
-        <label>
-          Priority
-          <select name="priority" data-routing-input required>
-            <option value="">Select priority</option>
-            <option value="752630000">Low</option>
-            <option value="752630001">Normal</option>
-            <option value="752630002">High</option>
-            <option value="752630003">Urgent</option>
-          </select>
-        </label>
-        <label>
-          Business impact
-          <textarea name="impact" rows="4"></textarea>
-        </label>
+
         <div class="esi-step-error" data-step-error role="alert"></div>
-        <div class="esi-actions">
+        <div class="esi-action-bar">
           <button type="button" class="esi-secondary" data-prev-step="details">Back</button>
           <button type="button" class="esi-primary" data-next-step="documents">Continue to documents</button>
         </div>
       </section>
 
       <section class="esi-step" data-step="documents">
-        <h2>Supporting documentation</h2>
-        <p class="esi-muted">Attach files that help explain the request. Critical items require resolution documentation before internal closure.</p>
+        <div class="esi-section-heading">
+          <span class="esi-section-kicker">Step 3 of 4</span>
+          <h2>Supporting documentation</h2>
+          <p>Attach screenshots, forms, or supporting context. File metadata is captured in Dataverse for demo traceability.</p>
+        </div>
+
         <label class="esi-upload">
-          <span>Upload supporting files</span>
+          <span class="esi-upload-title">Upload supporting files</span>
+          <span class="esi-upload-help">Choose one or more files that help internal teams understand the request.</span>
           <input name="documents" type="file" multiple />
         </label>
+        <div class="esi-file-list" data-file-list></div>
+
         <div class="esi-step-error" data-step-error role="alert"></div>
-        <div class="esi-actions">
+        <div class="esi-action-bar">
           <button type="button" class="esi-secondary" data-prev-step="impact">Back</button>
           <button type="button" class="esi-primary" data-next-step="review">Review request</button>
         </div>
       </section>
 
       <section class="esi-step" data-step="review">
-        <h2>Review and submit</h2>
-        <p class="esi-muted">This final step validates the required details before the request is sent to Dataverse.</p>
+        <div class="esi-section-heading">
+          <span class="esi-section-kicker">Step 4 of 4</span>
+          <h2>Review and submit</h2>
+          <p>Submit appears only on this final step. Dataverse will generate the confirmation number and apply server-side routing.</p>
+        </div>
+
         <div class="esi-review" data-review-summary></div>
+
         <label class="esi-check">
           <input type="checkbox" required />
-          I confirm the request details are accurate.
+          <span>I confirm the request details are accurate and ready to submit.</span>
         </label>
+
         <div class="esi-step-error" data-step-error role="alert"></div>
-        <div class="esi-actions">
+        <div class="esi-action-bar">
           <button type="button" class="esi-secondary" data-prev-step="documents">Back</button>
           <button type="submit" class="esi-primary">Submit service request</button>
         </div>
-        <div class="esi-result" data-submit-result role="status" aria-live="polite"></div>
       </section>
+
+      <div class="esi-result" data-submit-result role="status" aria-live="polite"></div>
     </form>
 
     <aside class="esi-preview" aria-live="polite" data-routing-preview>
-      <span class="esi-preview-label">Routing preview</span>
+      <div class="esi-preview-header">
+        <span class="esi-preview-label">Routing preview</span>
+        <span class="esi-preview-state">Waiting for inputs</span>
+      </div>
       <h2>Complete category, severity, and priority to preview routing.</h2>
+      <div class="esi-preview-grid">
+        <div><span>Department</span><strong>Pending</strong></div>
+        <div><span>Response target / SLA</span><strong>Pending</strong></div>
+        <div><span>Approval</span><strong>Pending</strong></div>
+        <div><span>Documentation</span><strong>Standard</strong></div>
+      </div>
       <p>The final department and SLA are assigned server-side after submission.</p>
     </aside>
   </div>
@@ -127,12 +195,22 @@
   };
 </script>
 {% else %}
-<main class="esi-shell" id="mainContent">
+<main class="esi-shell esi-auth-shell" id="mainContent">
   <section class="esi-auth-gate">
-    <span class="esi-preview-label">Secure intake</span>
-    <h2>Sign in to submit a service request</h2>
-    <p>Service requests are tied to your customer profile so you can track your own submissions and internal staff can protect customer-specific information.</p>
-    <a class="esi-primary esi-link-button" href="{% if homeurl %}/{{ homeurl }}{% endif %}{{ website.sign_in_url_substitution }}">Sign in to continue</a>
+    <div>
+      <span class="esi-preview-label">Secure intake</span>
+      <h2>Sign in to submit a service request</h2>
+      <p>Authenticated access is required so customers only see their own requests, uploaded documents, and confirmation history.</p>
+      <a class="esi-primary esi-link-button" href="{% if homeurl %}/{{ homeurl }}{% endif %}{{ website.sign_in_url_substitution }}">Sign in to continue</a>
+    </div>
+    <div class="esi-auth-panel" aria-label="Security controls">
+      <strong>Why sign in?</strong>
+      <ul>
+        <li>Protects customer-specific request data</li>
+        <li>Links submissions to your contact record</li>
+        <li>Enables status tracking after submission</li>
+      </ul>
+    </div>
   </section>
 </main>
 {% endif %}
