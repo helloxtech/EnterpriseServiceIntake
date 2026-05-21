@@ -1,0 +1,13 @@
+<powerpagecomponent powerpagecomponentid="b8e8f467-656c-43f6-be61-d86f560fcd37">
+  <content>{
+  "value": "*"
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Webapi/hx_servicedocument/fields</name>
+  <powerpagecomponenttype>9</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

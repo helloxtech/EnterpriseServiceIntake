@@ -1,0 +1,14 @@
+<powerpagecomponent powerpagecomponentid="0382d699-b454-f111-bec7-000d3a3aca8f">
+  <content>{
+  "botschemaname": "cr0b4_96f84409-58c7-4bc5-baff-44208e501f7f",
+  "configjson": "{\"skillConfigViewName\":\"Enterprise Service Intake bot Answers\"}"
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Bot Consumer</name>
+  <powerpagecomponenttype>27</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

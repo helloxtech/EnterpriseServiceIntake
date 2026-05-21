@@ -1,0 +1,18 @@
+<powerpagecomponent powerpagecomponentid="be4eaacf-9738-481f-9021-0b346fb2ab9d">
+  <content>{
+  "display_name": "Mobile Header",
+  "type": 756150001,
+  "value": "&lt;a href=\"~/\" class=\"esi-site-brand\" aria-label=\"Mitacs Service Intake home\"&gt;\n  &lt;img class=\"esi-site-logo\" src=\"/Logo-sm-64.png\" alt=\"\" aria-hidden=\"true\" /&gt;\n  &lt;span class=\"esi-site-title\"&gt;Mitacs Service Intake&lt;/span&gt;\n&lt;/a&gt;\n"
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Mobile Header</name>
+  <powerpagecomponenttype>7</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <powerpagesitelanguageid>
+    <powerpagesitelanguageid>57f25f3a-586a-4082-812e-92da0adc20d9</powerpagesitelanguageid>
+  </powerpagesitelanguageid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

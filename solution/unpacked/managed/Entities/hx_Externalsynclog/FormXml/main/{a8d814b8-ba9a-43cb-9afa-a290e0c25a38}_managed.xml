@@ -5,34 +5,89 @@
     <IntroducedVersion>1.0.0.0</IntroducedVersion>
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
-    <form>
+    <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{d1940b04-77cb-496f-bbc8-1e807a848dce}" IsUserDefined="1">
+        <tab verticallayout="true" id="{247568b2-b95e-091e-6949-39b0e7d62d82}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
-            <label description="General" languagecode="1033" />
+            <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section showlabel="false" showbar="false" IsUserDefined="0" id="{c04be2eb-660f-41ba-9822-c79957368319}">
+                <section id="{c376dcc0-adff-d79a-693c-018910fa18d5}" name="sync_attempt" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
                   <labels>
-                    <label description="General" languagecode="1033" />
+                    <label description="Sync Attempt" languagecode="1033" />
                   </labels>
                   <rows>
                     <row>
-                      <cell id="{b7559c4c-d064-4566-878b-84c0bdfd3440}">
+                      <cell id="{0e738c1c-e028-1d2b-6064-25f1570ca209}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
                         </labels>
-                        <control id="hx_name" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="hx_name" />
+                        <control id="hx_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_name" />
                       </cell>
                     </row>
                     <row>
-                      <cell id="{40c8196c-d578-4c3a-88d1-f92d120e1cce}">
+                      <cell id="{825d3b11-4b2a-5067-f536-587d7fe08a31}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
                         </labels>
-                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                        <control id="hx_servicerequest" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_servicerequest" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{8bb46063-33f8-cf6c-c75b-fb4fa1191a76}" showlabel="true">
+                        <labels>
+                          <label description="Status" languagecode="1033" />
+                        </labels>
+                        <control id="hx_syncstatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_syncstatus" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{9a6fef45-d76d-a8cd-6b9b-6a06b7510cf6}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_endpointname" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_endpointname" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{f9e5ec8f-092c-3dba-7782-2cca900bb293}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_externalid" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_externalid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{12e98d31-e23c-fe8f-2b5f-60f3aa538eeb}" showlabel="true">
+                        <labels>
+                          <label description="Attempted" languagecode="1033" />
+                        </labels>
+                        <control id="hx_attemptedon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_attemptedon" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section id="{fa714f22-d728-488c-a449-49ea72969d3a}" name="payload_and_response" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                  <labels>
+                    <label description="Payload and Response" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{ef26f1f2-a0ab-f031-d47d-3c04706d13dd}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_requestpayload" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="hx_requestpayload" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{353b5c9f-2af0-04d7-f6b7-fd1a3724617c}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_responsesummary" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="hx_responsesummary" />
                       </cell>
                     </row>
                   </rows>
@@ -42,11 +97,43 @@
           </columns>
         </tab>
       </tabs>
+      <header id="{3503475a-b6f2-257d-3915-a0c84769dc22}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{8bb46063-33f8-cf6c-c75b-fb4fa1191a76}" showlabel="true">
+              <labels>
+                <label description="Status" languagecode="1033" />
+              </labels>
+              <control id="hx_syncstatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_syncstatus" />
+            </cell>
+            <cell id="{12e98d31-e23c-fe8f-2b5f-60f3aa538eeb}" showlabel="true">
+              <labels>
+                <label description="Attempted" languagecode="1033" />
+              </labels>
+              <control id="hx_attemptedon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_attemptedon" />
+            </cell>
+            <cell id="{f9e5ec8f-092c-3dba-7782-2cca900bb293}" showlabel="true">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+              <control id="hx_externalid" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_externalid" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{5cbbde5e-3c1d-4d6e-2fec-09b141726ed3}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row />
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
     </form>
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>
     <LocalizedNames>
-      <LocalizedName description="Information" languagecode="1033" />
+      <LocalizedName description="External Sync Log - Review" languagecode="1033" />
     </LocalizedNames>
     <Descriptions>
       <Description description="A form for this entity." languagecode="1033" />

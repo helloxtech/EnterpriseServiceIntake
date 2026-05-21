@@ -1,0 +1,25 @@
+<powerpagecomponent powerpagecomponentid="0f248fa2-5c9e-4409-98a0-ab31574dfc94">
+  <content>{
+  "append": false,
+  "appendto": false,
+  "create": false,
+  "delete": false,
+  "entitylogicalname": "hx_routingrule",
+  "entityname": "Routing Rule - Read - Global",
+  "read": true,
+  "scope": 756150000,
+  "write": false,
+  "adx_entitypermission_webrole": [
+    "074793e4-f9a3-4031-b22a-fae4fdd37b05",
+    "09180d6e-7448-4db2-88e2-841ee2ab5b9d"
+  ]
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Routing Rule - Read - Global</name>
+  <powerpagecomponenttype>18</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

@@ -1,0 +1,18 @@
+<powerpagecomponent powerpagecomponentid="c1990c1e-1485-4542-9cd6-07a724da5ff2">
+  <content>{
+  "description": "Blank Template",
+  "entityname": "adx_webpage",
+  "isdefault": false,
+  "type": 756150001,
+  "usewebsiteheaderandfooter": true,
+  "webtemplateid": "fb5be22b-0e6f-4d8a-ab88-3cf0a20762b3"
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Default studio template</name>
+  <powerpagecomponenttype>6</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

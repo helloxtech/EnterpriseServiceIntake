@@ -1,0 +1,25 @@
+<powerpagecomponent powerpagecomponentid="661201d9-75ba-45bd-9454-8bd18d428bb5">
+  <content>{
+  "append": true,
+  "appendto": true,
+  "contactrelationship": "hx_ContactHxServicerequestHxCustomercontact",
+  "create": true,
+  "delete": false,
+  "entitylogicalname": "hx_servicerequest",
+  "entityname": "Service Request - Full Control - Contact",
+  "read": true,
+  "scope": 756150001,
+  "write": true,
+  "adx_entitypermission_webrole": [
+    "074793e4-f9a3-4031-b22a-fae4fdd37b05"
+  ]
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Service Request - Full Control - Contact</name>
+  <powerpagecomponenttype>18</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

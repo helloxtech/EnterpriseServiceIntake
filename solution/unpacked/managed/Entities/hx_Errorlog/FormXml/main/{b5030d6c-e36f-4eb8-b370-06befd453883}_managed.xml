@@ -5,34 +5,97 @@
     <IntroducedVersion>1.0.0.0</IntroducedVersion>
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
-    <form>
+    <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{7807aece-84ce-4d51-a672-7e0100b6b1ca}" IsUserDefined="1">
+        <tab verticallayout="true" id="{37bd8480-45de-57a5-3c11-d3c9eb14843e}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
-            <label description="General" languagecode="1033" />
+            <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section showlabel="false" showbar="false" IsUserDefined="0" id="{340c3b80-bc9f-4c6d-83b6-f957b88a4673}">
+                <section id="{2482965a-ff10-f4d2-d0ee-8b2be34791de}" name="triage" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
                   <labels>
-                    <label description="General" languagecode="1033" />
+                    <label description="Triage" languagecode="1033" />
                   </labels>
                   <rows>
                     <row>
-                      <cell id="{3cd5d4f4-529e-485f-a119-7b3d744347ad}">
+                      <cell id="{3632fa0f-a5d1-aba6-6add-8829f8eccdfc}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
                         </labels>
-                        <control id="hx_name" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="hx_name" />
+                        <control id="hx_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_name" />
                       </cell>
                     </row>
                     <row>
-                      <cell id="{fbe8ac92-78e2-404e-9ff6-7290f1dc8fbf}">
+                      <cell id="{c56b4979-ab69-02c1-a0c6-79ebf6fa8609}" showlabel="true">
+                        <labels>
+                          <label description="Source" languagecode="1033" />
+                        </labels>
+                        <control id="hx_sourcecomponent" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_sourcecomponent" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e77a1b61-3632-18c5-b581-680cc4222e90}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
                         </labels>
-                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                        <control id="hx_stage" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_stage" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{a294e313-5185-820e-bee1-3d79369b0b57}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_servicerequest" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_servicerequest" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{a7125eb9-3cc2-4bcf-e5ea-b3ebb8be0086}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_correlationid" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_correlationid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{b614f700-5237-f5ff-e9bc-2b8757f3a01f}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_resolved" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_resolved" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section id="{939419d2-be36-c3ea-f094-eac4e3ceb70f}" name="error_detail" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                  <labels>
+                    <label description="Error Detail" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{41da3353-7e9d-b286-800b-dc02763d303c}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_message" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="hx_message" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{91a22870-f0bf-8e4d-80f7-75d4b909f3d8}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_technicaldetail" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="hx_technicaldetail" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{4b0b8d42-328c-be9a-32c7-780f56c11302}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_payload" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="hx_payload" />
                       </cell>
                     </row>
                   </rows>
@@ -42,11 +105,43 @@
           </columns>
         </tab>
       </tabs>
+      <header id="{3249928b-fcf5-e183-69ff-6222195a24b3}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{c56b4979-ab69-02c1-a0c6-79ebf6fa8609}" showlabel="true">
+              <labels>
+                <label description="Source" languagecode="1033" />
+              </labels>
+              <control id="hx_sourcecomponent" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_sourcecomponent" />
+            </cell>
+            <cell id="{e77a1b61-3632-18c5-b581-680cc4222e90}" showlabel="true">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+              <control id="hx_stage" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_stage" />
+            </cell>
+            <cell id="{b614f700-5237-f5ff-e9bc-2b8757f3a01f}" showlabel="true">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+              <control id="hx_resolved" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_resolved" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{9e445ea7-3df8-6740-5d46-c354e070a472}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row />
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
     </form>
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>
     <LocalizedNames>
-      <LocalizedName description="Information" languagecode="1033" />
+      <LocalizedName description="System Error Log - Triage" languagecode="1033" />
     </LocalizedNames>
     <Descriptions>
       <Description description="A form for this entity." languagecode="1033" />

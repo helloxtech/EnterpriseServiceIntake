@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{98ea7053-ce54-f111-bec7-000d3a3aca8f}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="hx_name" select="1" icon="1" preview="1">
+        <row name="result" id="hx_errorlogid">
+          <cell name="hx_name" width="240" />
+          <cell name="hx_sourcecomponent" width="140" />
+          <cell name="hx_stage" width="140" />
+          <cell name="hx_servicerequest" width="190" />
+          <cell name="hx_correlationid" width="140" />
+          <cell name="hx_resolved" width="140" />
+          <cell name="createdon" width="150" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical" output-format="xml-platform">
+        <entity name="hx_errorlog">
+          <attribute name="hx_errorlogid" />
+          <attribute name="hx_name" />
+          <attribute name="hx_sourcecomponent" />
+          <attribute name="hx_stage" />
+          <attribute name="hx_servicerequest" />
+          <attribute name="hx_correlationid" />
+          <attribute name="hx_resolved" />
+          <attribute name="createdon" />
+          <order attribute="createdon" descending="true" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="All System Error Logs" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

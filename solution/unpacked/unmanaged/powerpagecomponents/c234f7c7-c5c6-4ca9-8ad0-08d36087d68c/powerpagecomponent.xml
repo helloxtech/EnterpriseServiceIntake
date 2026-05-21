@@ -1,0 +1,17 @@
+<powerpagecomponent powerpagecomponentid="c234f7c7-c5c6-4ca9-8ad0-08d36087d68c">
+  <content>{
+  "display_name": "Default",
+  "publishingstateid": "58a93b23-e266-40c6-b635-d6b210e00b57"
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Default</name>
+  <powerpagecomponenttype>4</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <powerpagesitelanguageid>
+    <powerpagesitelanguageid>57f25f3a-586a-4082-812e-92da0adc20d9</powerpagesitelanguageid>
+  </powerpagesitelanguageid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

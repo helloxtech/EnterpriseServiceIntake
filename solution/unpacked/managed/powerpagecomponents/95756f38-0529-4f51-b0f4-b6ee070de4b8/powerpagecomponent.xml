@@ -1,0 +1,25 @@
+<powerpagecomponent powerpagecomponentid="95756f38-0529-4f51-b0f4-b6ee070de4b8">
+  <content>{
+  "append": false,
+  "appendto": false,
+  "create": false,
+  "delete": false,
+  "entitylogicalname": "hx_slapolicy",
+  "entityname": "SLA Policy - Read - Global",
+  "read": true,
+  "scope": 756150000,
+  "write": false,
+  "adx_entitypermission_webrole": [
+    "074793e4-f9a3-4031-b22a-fae4fdd37b05",
+    "09180d6e-7448-4db2-88e2-841ee2ab5b9d"
+  ]
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>SLA Policy - Read - Global</name>
+  <powerpagecomponenttype>18</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

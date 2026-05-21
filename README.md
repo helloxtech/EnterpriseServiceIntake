@@ -31,7 +31,7 @@ The Power Pages site is intentionally private for the interview tenant. Reviewer
 | C# plugins | `src/plugins/ServiceIntake.Plugins/` |
 | PCF control | `src/pcf/SlaStatusIndicator/` |
 | Power Pages source | `src/powerpages/` and `powerpages-live/` |
-| Provisioning/ALM utilities | `src/scripts/ServiceIntake.Provisioning/` |
+| Provisioning/ALM utilities | `src/scripts/ServiceIntake.Provisioning/` and `tools/apply_model_driven_app_design.mjs` |
 | Architecture design brief | `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang.docx` and `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang.pdf` |
 | Submission email draft | `docs/submission/email-draft.md` |
 | Demo script | `docs/demo/demo-script.md` |
@@ -115,6 +115,17 @@ erDiagram
 | Mock ERP endpoint | `https://api.restful-api.dev/objects` returns an external `id` from POST. | `reqres.in` currently requires an API key for POST, so this endpoint keeps the demo self-contained. |
 | Internal UX | Model-driven coordinator app plus PCF SLA/status indicator. | Keeps operational work in Dataverse while using PCF for richer visual status. |
 | External UX | Power Pages private site with multi-step intake, upload step, and dynamic SLA/routing preview. | External users get a clean customer-facing experience without internal fields. |
+
+## Model-Driven App Design
+
+The `Enterprise Service Intake` app uses solution-aware system forms and views for each included table:
+
+- Request operations: `Coordinator Queue`, `Pending Manager Approval`, `Critical Documentation Guardrails`, and `ERP Sync Monitor`.
+- Supporting documentation: `Request Documents - Review`.
+- Configuration: `Active Routing Rules`, `Active Departments`, `Active SLA Policies`, and `Active Service Categories`.
+- Monitoring: `ERP Sync Attempts`, `Open Integration and Automation Errors`, and `All System Error Logs`.
+
+The forms are role-focused instead of generic Dataverse layouts: service requests separate intake, triage, routing/SLA, approval/ERP sync, and resolution guardrails; configuration tables surface active rule inputs; log tables prioritize triage fields and payload details.
 
 ## Security Strategy
 
@@ -203,6 +214,15 @@ pac solution export --name EnterpriseServiceIntake --path solution/export/Enterp
 
 pac solution unpack --zipfile solution/export/Enterprise_ServiceIntake_ForrestZhang_managed.zip --folder solution/unpacked/managed --packagetype Managed --clobber --allowWrite
 pac solution unpack --zipfile solution/export/Enterprise_ServiceIntake_ForrestZhang_unmanaged.zip --folder solution/unpacked/unmanaged --packagetype Unmanaged --clobber --allowWrite
+```
+
+When `dotnet`/`pac` is not available, the model-driven app design can be applied and exported through Dataverse Web API:
+
+```bash
+POWERPLATFORM_ENVIRONMENT_URL="https://mitacs.crm.dynamics.com" \
+POWERPLATFORM_ADMIN_USERNAME="<admin-user>" \
+POWERPLATFORM_ADMIN_PASSWORD="<admin-password>" \
+node tools/apply_model_driven_app_design.mjs --export
 ```
 
 ## Reviewer Accounts

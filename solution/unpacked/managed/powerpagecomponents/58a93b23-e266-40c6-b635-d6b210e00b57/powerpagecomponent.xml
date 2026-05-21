@@ -1,0 +1,15 @@
+<powerpagecomponent powerpagecomponentid="58a93b23-e266-40c6-b635-d6b210e00b57">
+  <content>{
+  "displayorder": 2,
+  "isdefault": true,
+  "isvisible": true
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Published</name>
+  <powerpagecomponenttype>1</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

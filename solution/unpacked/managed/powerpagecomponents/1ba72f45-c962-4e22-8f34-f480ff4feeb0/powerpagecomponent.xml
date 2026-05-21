@@ -1,0 +1,24 @@
+<powerpagecomponent powerpagecomponentid="1ba72f45-c962-4e22-8f34-f480ff4feeb0">
+  <content>{
+  "append": true,
+  "appendto": true,
+  "create": true,
+  "delete": false,
+  "entitylogicalname": "hx_servicerequest",
+  "entityname": "Service Request - Create - Global",
+  "read": false,
+  "scope": 756150000,
+  "write": false,
+  "adx_entitypermission_webrole": [
+    "074793e4-f9a3-4031-b22a-fae4fdd37b05"
+  ]
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Service Request - Create - Global</name>
+  <powerpagecomponenttype>18</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

@@ -5,30 +5,54 @@
     <IntroducedVersion>1.0.0.0</IntroducedVersion>
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
-    <form>
+    <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{16e89f2f-39de-4d5c-b6e8-8a7e60cbc31e}" IsUserDefined="1">
+        <tab verticallayout="true" id="{0e816ceb-106d-66f7-6d47-5cf2952be0c2}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
-            <label description="General" languagecode="1033" />
+            <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section showlabel="false" showbar="false" IsUserDefined="0" id="{bf95c5fe-f1e3-4757-abc8-761738bdd24e}">
+                <section id="{5419f6d1-7649-bc52-d5fa-519c3aa9c46a}" name="category" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
                   <labels>
-                    <label description="General" languagecode="1033" />
+                    <label description="Category" languagecode="1033" />
                   </labels>
                   <rows>
                     <row>
-                      <cell id="{a1b493d8-5e4a-4687-b0e1-947072b4c3a2}">
+                      <cell id="{e92c2997-46d5-42ef-37d2-c1229deb906e}" showlabel="true">
                         <labels>
                           <label description="Name" languagecode="1033" />
                         </labels>
-                        <control id="hx_name" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="hx_name" />
+                        <control id="hx_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_name" />
                       </cell>
                     </row>
                     <row>
-                      <cell id="{c46bc2e6-454d-45af-9186-88f0006e9a05}">
+                      <cell id="{de7764f6-7567-de8a-7a4e-9eb279f81f1a}" showlabel="true">
+                        <labels>
+                          <label description="Code" languagecode="1033" />
+                        </labels>
+                        <control id="hx_code" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_code" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e357fd3c-8cc0-2694-bd52-209a4cccaf47}" showlabel="true">
+                        <labels>
+                          <label description="Active" languagecode="1033" />
+                        </labels>
+                        <control id="hx_active" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_active" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{ee5b0760-2924-ec99-9109-aa2afdc3a503}" showlabel="true">
+                        <labels>
+                          <label description="Docs Required" languagecode="1033" />
+                        </labels>
+                        <control id="hx_defaultdocumentationrequired" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_defaultdocumentationrequired" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{2bbab86b-6962-9958-8a24-c0bc1ef4736e}" showlabel="true">
                         <labels>
                           <label description="Owner" languagecode="1033" />
                         </labels>
@@ -42,11 +66,43 @@
           </columns>
         </tab>
       </tabs>
+      <header id="{fcf0a89d-1e15-318d-a9ac-779857e2b0d8}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{de7764f6-7567-de8a-7a4e-9eb279f81f1a}" showlabel="true">
+              <labels>
+                <label description="Code" languagecode="1033" />
+              </labels>
+              <control id="hx_code" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_code" />
+            </cell>
+            <cell id="{e357fd3c-8cc0-2694-bd52-209a4cccaf47}" showlabel="true">
+              <labels>
+                <label description="Active" languagecode="1033" />
+              </labels>
+              <control id="hx_active" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_active" />
+            </cell>
+            <cell id="{ee5b0760-2924-ec99-9109-aa2afdc3a503}" showlabel="true">
+              <labels>
+                <label description="Docs Required" languagecode="1033" />
+              </labels>
+              <control id="hx_defaultdocumentationrequired" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_defaultdocumentationrequired" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{9b814a0f-3956-9adb-8982-c45fcaadb67d}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row />
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
     </form>
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>
     <LocalizedNames>
-      <LocalizedName description="Information" languagecode="1033" />
+      <LocalizedName description="Service Category - Configuration" languagecode="1033" />
     </LocalizedNames>
     <Descriptions>
       <Description description="A form for this entity." languagecode="1033" />

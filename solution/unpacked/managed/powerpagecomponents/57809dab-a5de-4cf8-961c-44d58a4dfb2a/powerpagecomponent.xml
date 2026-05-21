@@ -1,0 +1,20 @@
+<powerpagecomponent powerpagecomponentid="57809dab-a5de-4cf8-961c-44d58a4dfb2a">
+  <content>{
+  "contentdisposition": 756150000,
+  "enabletracking": false,
+  "excludefromsearch": false,
+  "hiddenfromsitemap": false,
+  "parentpageid": "00f75bc8-96da-4364-b676-9b7fd00707da",
+  "partialurl": "robots.txt",
+  "publishingstateid": "58a93b23-e266-40c6-b635-d6b210e00b57"
+}</content>
+  <filecontent mimetype="application/octet-stream">robots.txt</filecontent>
+  <iscustomizable>1</iscustomizable>
+  <name>robots.txt</name>
+  <powerpagecomponenttype>3</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

@@ -1,0 +1,16 @@
+<powerpagecomponent powerpagecomponentid="7597e339-3a30-4ad8-ae21-af64aa866825">
+  <content>{
+  "managecontentsnippets": false,
+  "managesitemarkers": false,
+  "manageweblinksets": false,
+  "previewunpublishedentities": true
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Preview permission for Blank Template</name>
+  <powerpagecomponenttype>12</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

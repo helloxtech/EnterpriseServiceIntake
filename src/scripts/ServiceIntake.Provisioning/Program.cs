@@ -576,41 +576,249 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         "Service Request - Coordinator",
         new[]
         {
-            new FormSection("Request Intake", new[]
+            new FormSection("Customer and Request", new[]
             {
                 Field("hx_title", "Title", FormControlClass.Text),
                 Field("hx_confirmationnumber", "Confirmation Number", FormControlClass.Text, disabled: true),
                 Field("hx_customercontact", "Customer Contact", FormControlClass.Lookup),
+                Field("hx_customeraccount", "Customer Account", FormControlClass.Lookup),
                 Field("hx_servicecategory", "Service Category", FormControlClass.Lookup),
+                Field("hx_description", "Description", FormControlClass.Memo)
+            }),
+            new FormSection("Triage Inputs", new[]
+            {
                 Field("hx_severity", "Severity", FormControlClass.OptionSet),
                 Field("hx_priority", "Priority", FormControlClass.OptionSet),
-                Field("hx_description", "Description", FormControlClass.Memo)
+                Field("hx_submittedon", "Submitted On", FormControlClass.DateTime, disabled: true),
+                Field("ownerid", "Owner", FormControlClass.Lookup)
             }),
             new FormSection("Routing and SLA", new[]
             {
                 Field("hx_assigneddepartment", "Assigned Department", FormControlClass.Lookup, disabled: true),
                 Field("hx_appliedslapolicy", "Applied SLA Policy", FormControlClass.Lookup, disabled: true),
                 Field("hx_duedate", "SLA Due Date", FormControlClass.DateTime, disabled: true),
+                Field("hx_routingpreviewsummary", "Routing / SLA Summary", FormControlClass.Text, disabled: true)
+            }),
+            new FormSection("Approval and ERP Sync", new[]
+            {
                 Field("hx_requiresapproval", "Requires Approval", FormControlClass.Boolean, disabled: true),
                 Field("hx_approvalstatus", "Approval Status", FormControlClass.OptionSet),
-                Field("hx_routingpreviewsummary", "Routing / SLA Indicator", FormControlClass.Text, disabled: true)
+                Field("hx_integrationsyncstatus", "Integration Sync Status", FormControlClass.OptionSet),
+                Field("hx_externalerpid", "External ERP ID", FormControlClass.Text, disabled: true)
             }),
-            new FormSection("Resolution and Integration", new[]
+            new FormSection("Resolution Guardrail", new[]
             {
                 Field("hx_lifecyclestatus", "Lifecycle Status", FormControlClass.OptionSet),
-                Field("hx_internalresolutionnotes", "Internal Resolution Notes", FormControlClass.Memo),
                 Field("hx_resolutiondocumentationrequired", "Resolution Documentation Required", FormControlClass.Boolean, disabled: true),
                 Field("hx_resolutiondocumentationprovided", "Resolution Documentation Provided", FormControlClass.Boolean),
-                Field("hx_integrationsyncstatus", "Integration Sync Status", FormControlClass.OptionSet),
-                Field("hx_externalerpid", "External ERP ID", FormControlClass.Text, disabled: true),
+                Field("hx_internalresolutionnotes", "Internal Resolution Notes", FormControlClass.Memo),
                 Field("hx_customervisibleupdates", "Customer Visible Updates", FormControlClass.Memo)
             })
         },
         new[]
         {
-            Field("hx_confirmationnumber", "Confirmation Number", FormControlClass.Text, disabled: true),
-            Field("hx_lifecyclestatus", "Lifecycle Status", FormControlClass.OptionSet),
+            Field("hx_confirmationnumber", "Confirmation", FormControlClass.Text, disabled: true),
+            Field("hx_lifecyclestatus", "Lifecycle", FormControlClass.OptionSet),
+            Field("hx_assigneddepartment", "Department", FormControlClass.Lookup, disabled: true),
+            Field("hx_duedate", "SLA Due", FormControlClass.DateTime, disabled: true)
+        });
+
+    EnsureMainForm(
+        service,
+        "hx_servicedocument",
+        "Information",
+        "Service Document - Review",
+        new[]
+        {
+            new FormSection("Document", new[]
+            {
+                Field("hx_name", "Name", FormControlClass.Text),
+                Field("hx_servicerequest", "Service Request", FormControlClass.Lookup),
+                Field("hx_documenttype", "Document Type", FormControlClass.OptionSet),
+                Field("hx_filename", "File Name", FormControlClass.Text)
+            }),
+            new FormSection("Review", new[]
+            {
+                Field("hx_verified", "Verified", FormControlClass.Boolean),
+                Field("hx_notes", "Notes", FormControlClass.Memo),
+                Field("ownerid", "Owner", FormControlClass.Lookup)
+            })
+        },
+        new[]
+        {
+            Field("hx_documenttype", "Type", FormControlClass.OptionSet),
+            Field("hx_verified", "Verified", FormControlClass.Boolean),
             Field("ownerid", "Owner", FormControlClass.Lookup)
+        });
+
+    EnsureMainForm(
+        service,
+        "hx_routingrule",
+        "Information",
+        "Routing Rule - Configuration",
+        new[]
+        {
+            new FormSection("Rule Identity", new[]
+            {
+                Field("hx_name", "Name", FormControlClass.Text),
+                Field("hx_sortorder", "Sort Order", FormControlClass.Text),
+                Field("hx_active", "Active", FormControlClass.Boolean)
+            }),
+            new FormSection("Match Criteria", new[]
+            {
+                Field("hx_servicecategory", "Service Category", FormControlClass.Lookup),
+                Field("hx_matchseverity", "Match Severity", FormControlClass.OptionSet),
+                Field("hx_matchpriority", "Match Priority", FormControlClass.OptionSet)
+            }),
+            new FormSection("Routing Outcome", new[]
+            {
+                Field("hx_department", "Department", FormControlClass.Lookup),
+                Field("hx_slapolicy", "SLA Policy", FormControlClass.Lookup),
+                Field("hx_requiresapproval", "Requires Manager Approval", FormControlClass.Boolean),
+                Field("hx_resolutiondocumentationrequired", "Resolution Documentation Required", FormControlClass.Boolean)
+            })
+        },
+        new[]
+        {
+            Field("hx_sortorder", "Sort", FormControlClass.Text),
+            Field("hx_active", "Active", FormControlClass.Boolean),
+            Field("hx_requiresapproval", "Approval", FormControlClass.Boolean)
+        });
+
+    EnsureMainForm(
+        service,
+        "hx_department",
+        "Information",
+        "Department - Configuration",
+        new[]
+        {
+            new FormSection("Department", new[]
+            {
+                Field("hx_name", "Name", FormControlClass.Text),
+                Field("hx_code", "Code", FormControlClass.Text),
+                Field("hx_manageremail", "Manager Email", FormControlClass.Text),
+                Field("hx_active", "Active", FormControlClass.Boolean)
+            }),
+            new FormSection("Operating Notes", new[]
+            {
+                Field("hx_description", "Description", FormControlClass.Memo),
+                Field("ownerid", "Owner", FormControlClass.Lookup)
+            })
+        },
+        new[]
+        {
+            Field("hx_code", "Code", FormControlClass.Text),
+            Field("hx_active", "Active", FormControlClass.Boolean),
+            Field("ownerid", "Owner", FormControlClass.Lookup)
+        });
+
+    EnsureMainForm(
+        service,
+        "hx_slapolicy",
+        "Information",
+        "SLA Policy - Configuration",
+        new[]
+        {
+            new FormSection("SLA Targets", new[]
+            {
+                Field("hx_name", "Name", FormControlClass.Text),
+                Field("hx_responsehours", "Response Hours", FormControlClass.Text),
+                Field("hx_resolutionhours", "Resolution Hours", FormControlClass.Text),
+                Field("hx_active", "Active", FormControlClass.Boolean)
+            }),
+            new FormSection("Policy Notes", new[]
+            {
+                Field("hx_description", "Description", FormControlClass.Memo),
+                Field("ownerid", "Owner", FormControlClass.Lookup)
+            })
+        },
+        new[]
+        {
+            Field("hx_responsehours", "Response Hours", FormControlClass.Text),
+            Field("hx_resolutionhours", "Resolution Hours", FormControlClass.Text),
+            Field("hx_active", "Active", FormControlClass.Boolean)
+        });
+
+    EnsureMainForm(
+        service,
+        "hx_servicecategory",
+        "Information",
+        "Service Category - Configuration",
+        new[]
+        {
+            new FormSection("Category", new[]
+            {
+                Field("hx_name", "Name", FormControlClass.Text),
+                Field("hx_code", "Code", FormControlClass.Text),
+                Field("hx_active", "Active", FormControlClass.Boolean),
+                Field("hx_defaultdocumentationrequired", "Default Documentation Required", FormControlClass.Boolean),
+                Field("ownerid", "Owner", FormControlClass.Lookup)
+            })
+        },
+        new[]
+        {
+            Field("hx_code", "Code", FormControlClass.Text),
+            Field("hx_active", "Active", FormControlClass.Boolean),
+            Field("hx_defaultdocumentationrequired", "Docs Required", FormControlClass.Boolean)
+        });
+
+    EnsureMainForm(
+        service,
+        "hx_externalsynclog",
+        "Information",
+        "External Sync Log - Review",
+        new[]
+        {
+            new FormSection("Sync Attempt", new[]
+            {
+                Field("hx_name", "Name", FormControlClass.Text),
+                Field("hx_servicerequest", "Service Request", FormControlClass.Lookup),
+                Field("hx_syncstatus", "Sync Status", FormControlClass.OptionSet),
+                Field("hx_endpointname", "Endpoint Name", FormControlClass.Text),
+                Field("hx_externalid", "External ID", FormControlClass.Text),
+                Field("hx_attemptedon", "Attempted On", FormControlClass.DateTime)
+            }),
+            new FormSection("Payload and Response", new[]
+            {
+                Field("hx_requestpayload", "Request Payload", FormControlClass.Memo),
+                Field("hx_responsesummary", "Response Summary", FormControlClass.Memo)
+            })
+        },
+        new[]
+        {
+            Field("hx_syncstatus", "Status", FormControlClass.OptionSet),
+            Field("hx_attemptedon", "Attempted", FormControlClass.DateTime),
+            Field("hx_externalid", "External ID", FormControlClass.Text)
+        });
+
+    EnsureMainForm(
+        service,
+        "hx_errorlog",
+        "Information",
+        "System Error Log - Triage",
+        new[]
+        {
+            new FormSection("Triage", new[]
+            {
+                Field("hx_name", "Name", FormControlClass.Text),
+                Field("hx_sourcecomponent", "Source Component", FormControlClass.OptionSet),
+                Field("hx_stage", "Stage", FormControlClass.Text),
+                Field("hx_servicerequest", "Service Request", FormControlClass.Lookup),
+                Field("hx_correlationid", "Correlation ID", FormControlClass.Text),
+                Field("hx_resolved", "Resolved", FormControlClass.Boolean)
+            }),
+            new FormSection("Error Detail", new[]
+            {
+                Field("hx_message", "Message", FormControlClass.Memo),
+                Field("hx_technicaldetail", "Technical Detail", FormControlClass.Memo),
+                Field("hx_payload", "Payload", FormControlClass.Memo)
+            })
+        },
+        new[]
+        {
+            Field("hx_sourcecomponent", "Source", FormControlClass.OptionSet),
+            Field("hx_stage", "Stage", FormControlClass.Text),
+            Field("hx_resolved", "Resolved", FormControlClass.Boolean)
         });
 
     EnsureSystemView(
@@ -632,8 +840,171 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
             "createdon"
         },
         "<condition attribute='statecode' operator='eq' value='0' />",
+        "hx_duedate",
+        descending: false);
+
+    EnsureSystemView(
+        service,
+        "hx_servicerequest",
+        "Pending Manager Approval",
+        new[]
+        {
+            "hx_confirmationnumber",
+            "hx_title",
+            "hx_servicecategory",
+            "hx_severity",
+            "hx_priority",
+            "hx_assigneddepartment",
+            "hx_approvalstatus",
+            "hx_duedate",
+            "createdon"
+        },
+        string.Join(Environment.NewLine + "      ", new[]
+        {
+            "<condition attribute='statecode' operator='eq' value='0' />",
+            "<condition attribute='hx_requiresapproval' operator='eq' value='1' />",
+            "<condition attribute='hx_approvalstatus' operator='eq' value='752630001' />"
+        }),
+        "createdon",
+        descending: false);
+
+    EnsureSystemView(
+        service,
+        "hx_servicerequest",
+        "Critical Documentation Guardrails",
+        new[]
+        {
+            "hx_confirmationnumber",
+            "hx_title",
+            "hx_severity",
+            "hx_priority",
+            "hx_lifecyclestatus",
+            "hx_resolutiondocumentationrequired",
+            "hx_resolutiondocumentationprovided",
+            "hx_assigneddepartment",
+            "modifiedon"
+        },
+        string.Join(Environment.NewLine + "      ", new[]
+        {
+            "<condition attribute='statecode' operator='eq' value='0' />",
+            "<condition attribute='hx_resolutiondocumentationrequired' operator='eq' value='1' />",
+            "<condition attribute='hx_resolutiondocumentationprovided' operator='eq' value='0' />"
+        }),
+        "modifiedon",
+        descending: true);
+
+    EnsureSystemView(
+        service,
+        "hx_servicerequest",
+        "ERP Sync Monitor",
+        new[]
+        {
+            "hx_confirmationnumber",
+            "hx_title",
+            "hx_approvalstatus",
+            "hx_integrationsyncstatus",
+            "hx_externalerpid",
+            "hx_assigneddepartment",
+            "createdon",
+            "modifiedon"
+        },
+        string.Join(Environment.NewLine + "      ", new[]
+        {
+            "<condition attribute='statecode' operator='eq' value='0' />",
+            "<filter type='or'>",
+            "  <condition attribute='hx_requiresapproval' operator='eq' value='1' />",
+            "  <condition attribute='hx_integrationsyncstatus' operator='eq' value='752630003' />",
+            "</filter>"
+        }),
+        "modifiedon",
+        descending: true);
+
+    EnsureSystemView(
+        service,
+        "hx_servicedocument",
+        "Request Documents - Review",
+        new[]
+        {
+            "hx_name",
+            "hx_servicerequest",
+            "hx_documenttype",
+            "hx_filename",
+            "hx_verified",
+            "createdon",
+            "ownerid"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
         "createdon",
         descending: true);
+
+    EnsureSystemView(
+        service,
+        "hx_routingrule",
+        "Active Routing Rules",
+        new[]
+        {
+            "hx_sortorder",
+            "hx_name",
+            "hx_servicecategory",
+            "hx_matchseverity",
+            "hx_matchpriority",
+            "hx_department",
+            "hx_slapolicy",
+            "hx_requiresapproval",
+            "hx_resolutiondocumentationrequired",
+            "hx_active"
+        },
+        "<condition attribute='hx_active' operator='eq' value='1' />",
+        "hx_sortorder",
+        descending: false);
+
+    EnsureSystemView(
+        service,
+        "hx_department",
+        "Active Departments",
+        new[]
+        {
+            "hx_name",
+            "hx_code",
+            "hx_manageremail",
+            "hx_active",
+            "modifiedon"
+        },
+        "<condition attribute='hx_active' operator='eq' value='1' />",
+        "hx_name",
+        descending: false);
+
+    EnsureSystemView(
+        service,
+        "hx_slapolicy",
+        "Active SLA Policies",
+        new[]
+        {
+            "hx_name",
+            "hx_responsehours",
+            "hx_resolutionhours",
+            "hx_active",
+            "modifiedon"
+        },
+        "<condition attribute='hx_active' operator='eq' value='1' />",
+        "hx_name",
+        descending: false);
+
+    EnsureSystemView(
+        service,
+        "hx_servicecategory",
+        "Active Service Categories",
+        new[]
+        {
+            "hx_name",
+            "hx_code",
+            "hx_defaultdocumentationrequired",
+            "hx_active",
+            "modifiedon"
+        },
+        "<condition attribute='hx_active' operator='eq' value='1' />",
+        "hx_name",
+        descending: false);
 
     EnsureSystemView(
         service,
@@ -644,11 +1015,30 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
             "hx_name",
             "hx_sourcecomponent",
             "hx_stage",
+            "hx_servicerequest",
             "hx_correlationid",
             "hx_resolved",
             "createdon"
         },
         "<condition attribute='hx_resolved' operator='eq' value='0' />",
+        "createdon",
+        descending: true);
+
+    EnsureSystemView(
+        service,
+        "hx_errorlog",
+        "All System Error Logs",
+        new[]
+        {
+            "hx_name",
+            "hx_sourcecomponent",
+            "hx_stage",
+            "hx_servicerequest",
+            "hx_correlationid",
+            "hx_resolved",
+            "createdon"
+        },
+        null,
         "createdon",
         descending: true);
 
@@ -663,7 +1053,8 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
             "hx_syncstatus",
             "hx_endpointname",
             "hx_externalid",
-            "hx_attemptedon"
+            "hx_attemptedon",
+            "createdon"
         },
         null,
         "hx_attemptedon",
@@ -758,7 +1149,8 @@ static string BuildMainFormXml(
     builder.AppendLine("      </sections></column></columns>");
     builder.AppendLine("    </tab>");
     builder.AppendLine("  </tabs>");
-    builder.AppendLine($"  <header id=\"{{{DeterministicGuid($"{entityLogicalName}:header")}}}\" celllabelposition=\"Top\" columns=\"111\" labelwidth=\"115\" celllabelalignment=\"Left\">");
+    var headerColumns = new string('1', Math.Max(1, headerFields.Count));
+    builder.AppendLine($"  <header id=\"{{{DeterministicGuid($"{entityLogicalName}:header")}}}\" celllabelposition=\"Top\" columns=\"{headerColumns}\" labelwidth=\"115\" celllabelalignment=\"Left\">");
     builder.AppendLine("    <rows><row>");
     foreach (var field in headerFields)
     {

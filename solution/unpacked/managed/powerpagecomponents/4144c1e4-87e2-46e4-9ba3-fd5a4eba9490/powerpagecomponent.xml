@@ -1,0 +1,25 @@
+<powerpagecomponent powerpagecomponentid="4144c1e4-87e2-46e4-9ba3-fd5a4eba9490">
+  <content>{
+  "append": false,
+  "appendto": false,
+  "create": false,
+  "delete": false,
+  "entitylogicalname": "hx_department",
+  "entityname": "Department - Read - Global",
+  "read": true,
+  "scope": 756150000,
+  "write": false,
+  "adx_entitypermission_webrole": [
+    "074793e4-f9a3-4031-b22a-fae4fdd37b05",
+    "09180d6e-7448-4db2-88e2-841ee2ab5b9d"
+  ]
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Department - Read - Global</name>
+  <powerpagecomponenttype>18</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

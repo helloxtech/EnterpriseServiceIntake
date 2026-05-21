@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{704ef04c-ce54-f111-bec7-000d3a3aca8f}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="hx_name" select="1" icon="1" preview="1">
+        <row name="result" id="hx_servicedocumentid">
+          <cell name="hx_name" width="240" />
+          <cell name="hx_servicerequest" width="190" />
+          <cell name="hx_documenttype" width="140" />
+          <cell name="hx_filename" width="140" />
+          <cell name="hx_verified" width="140" />
+          <cell name="createdon" width="150" />
+          <cell name="ownerid" width="140" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical" output-format="xml-platform">
+        <entity name="hx_servicedocument">
+          <attribute name="hx_servicedocumentid" />
+          <attribute name="hx_name" />
+          <attribute name="hx_servicerequest" />
+          <attribute name="hx_documenttype" />
+          <attribute name="hx_filename" />
+          <attribute name="hx_verified" />
+          <attribute name="createdon" />
+          <attribute name="ownerid" />
+          <order attribute="createdon" descending="true" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Request Documents - Review" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

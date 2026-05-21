@@ -1,0 +1,17 @@
+<powerpagesites>
+  <powerpagesite powerpagesiteid="8c12ac01-467a-4fa8-8034-50b8028de647">
+    <content>{
+  "defaultbotconsumerid": "0382d699-b454-f111-bec7-000d3a3aca8f",
+  "defaultlanguage": "57f25f3a-586a-4082-812e-92da0adc20d9",
+  "footerwebtemplateid": "6b42e431-9afb-4638-b529-fa75cd3240f7",
+  "headerwebtemplateid": "fa994a79-4a3f-49bc-a60c-4601f2a34cc1",
+  "website_language": 1033
+}</content>
+    <datamodelversion>2.0</datamodelversion>
+    <iscustomizable>1</iscustomizable>
+    <name>Enterprise Service Intake - enterprise-service-intake-hellox</name>
+    <primarydomainname>enterprise-service-intake-hellox.powerappsportals.com</primarydomainname>
+    <statecode>0</statecode>
+    <statuscode>1</statuscode>
+  </powerpagesite>
+</powerpagesites>

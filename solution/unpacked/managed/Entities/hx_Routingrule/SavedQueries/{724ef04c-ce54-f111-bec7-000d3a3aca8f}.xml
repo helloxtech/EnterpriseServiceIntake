@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{724ef04c-ce54-f111-bec7-000d3a3aca8f}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="hx_sortorder" select="1" icon="1" preview="1">
+        <row name="result" id="hx_routingruleid">
+          <cell name="hx_sortorder" width="140" />
+          <cell name="hx_name" width="240" />
+          <cell name="hx_servicecategory" width="140" />
+          <cell name="hx_matchseverity" width="140" />
+          <cell name="hx_matchpriority" width="140" />
+          <cell name="hx_department" width="190" />
+          <cell name="hx_slapolicy" width="190" />
+          <cell name="hx_requiresapproval" width="140" />
+          <cell name="hx_resolutiondocumentationrequired" width="140" />
+          <cell name="hx_active" width="140" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical" output-format="xml-platform">
+        <entity name="hx_routingrule">
+          <attribute name="hx_routingruleid" />
+          <attribute name="hx_sortorder" />
+          <attribute name="hx_name" />
+          <attribute name="hx_servicecategory" />
+          <attribute name="hx_matchseverity" />
+          <attribute name="hx_matchpriority" />
+          <attribute name="hx_department" />
+          <attribute name="hx_slapolicy" />
+          <attribute name="hx_requiresapproval" />
+          <attribute name="hx_resolutiondocumentationrequired" />
+          <attribute name="hx_active" />
+          <order attribute="hx_sortorder" descending="false" />
+          <filter type="and">
+            <condition attribute="hx_active" operator="eq" value="1" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active Routing Rules" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

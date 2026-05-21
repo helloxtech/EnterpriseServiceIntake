@@ -1,0 +1,13 @@
+<powerpagecomponent powerpagecomponentid="ac025b1b-97ad-4bd1-a49b-b63572e38a1a">
+  <content>{
+  "value": "True"
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Profile/ShowMarketingOptionsPanel</name>
+  <powerpagecomponenttype>9</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

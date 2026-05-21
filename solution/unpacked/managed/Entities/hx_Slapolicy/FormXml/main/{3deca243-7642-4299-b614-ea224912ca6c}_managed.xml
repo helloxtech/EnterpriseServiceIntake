@@ -5,30 +5,69 @@
     <IntroducedVersion>1.0.0.0</IntroducedVersion>
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
-    <form>
+    <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{58ede352-a898-4540-b5de-b1c12a9a90a9}" IsUserDefined="1">
+        <tab verticallayout="true" id="{c68dd91d-42ac-3a38-3226-fbff1a32b2c2}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
-            <label description="General" languagecode="1033" />
+            <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section showlabel="false" showbar="false" IsUserDefined="0" id="{d6fdae66-a8bf-4294-b7e2-d0bd27d9f81c}">
+                <section id="{1f5cf135-072e-6e16-cb47-97cdeff09066}" name="sla_targets" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
                   <labels>
-                    <label description="General" languagecode="1033" />
+                    <label description="SLA Targets" languagecode="1033" />
                   </labels>
                   <rows>
                     <row>
-                      <cell id="{2f0ce324-ec2a-4ca6-b41a-8d1f34cfae72}">
+                      <cell id="{e6aaeec7-34df-3024-462b-f4dc8870d393}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
                         </labels>
-                        <control id="hx_name" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="hx_name" />
+                        <control id="hx_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_name" />
                       </cell>
                     </row>
                     <row>
-                      <cell id="{bee11f25-78da-48c7-a4e6-79703ccf75ff}">
+                      <cell id="{a922ddc0-8f24-aa4c-4e9d-efc0d3600cfd}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_responsehours" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_responsehours" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{ec0b593d-5fdc-b779-bcc6-aec47dbb0a62}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_resolutionhours" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_resolutionhours" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{b16199b2-8a0a-e50d-664d-5c30a5f5fd43}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_active" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_active" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section id="{7963d39b-e08f-87bf-7718-e79dbff2aa26}" name="policy_notes" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                  <labels>
+                    <label description="Policy Notes" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{42c85ecc-a51c-52b2-a102-63bb0a1ea182}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_description" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="hx_description" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e3284550-f706-b3f8-5592-4afe7326a907}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
                         </labels>
@@ -42,11 +81,43 @@
           </columns>
         </tab>
       </tabs>
+      <header id="{a3d828f6-a34a-7c4c-a5bf-5f87dd035294}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{a922ddc0-8f24-aa4c-4e9d-efc0d3600cfd}" showlabel="true">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+              <control id="hx_responsehours" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_responsehours" />
+            </cell>
+            <cell id="{ec0b593d-5fdc-b779-bcc6-aec47dbb0a62}" showlabel="true">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+              <control id="hx_resolutionhours" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_resolutionhours" />
+            </cell>
+            <cell id="{b16199b2-8a0a-e50d-664d-5c30a5f5fd43}" showlabel="true">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+              <control id="hx_active" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_active" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{be7ded89-9051-8aae-6d31-12fc6dfcd5e7}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row />
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
     </form>
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>
     <LocalizedNames>
-      <LocalizedName description="Information" languagecode="1033" />
+      <LocalizedName description="SLA Policy - Configuration" languagecode="1033" />
     </LocalizedNames>
     <Descriptions>
       <Description description="A form for this entity." languagecode="1033" />
