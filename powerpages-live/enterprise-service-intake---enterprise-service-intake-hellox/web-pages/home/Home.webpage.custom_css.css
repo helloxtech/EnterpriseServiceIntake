@@ -266,6 +266,8 @@ body {
   background: var(--esi-green);
   border-color: var(--esi-green);
   color: #ffffff;
+  font-size: 18px;
+  line-height: 1;
 }
 
 .esi-steps strong,

@@ -132,8 +132,14 @@
 
     stepButtons.forEach((button, index) => {
       const isActive = button.dataset.stepTarget === stepName;
+      const isComplete = index < activeIndex;
+      const stepIndexBadge = button.querySelector(".esi-step-index");
       button.classList.toggle("is-active", isActive);
-      button.classList.toggle("is-complete", index < activeIndex);
+      button.classList.toggle("is-complete", isComplete);
+      if (stepIndexBadge) {
+        stepIndexBadge.textContent = isComplete ? "✓" : String(index + 1);
+        stepIndexBadge.setAttribute("aria-hidden", "true");
+      }
       if (isActive) {
         button.setAttribute("aria-current", "step");
       } else {
