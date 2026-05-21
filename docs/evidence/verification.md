@@ -22,6 +22,8 @@
 | PCF build/push | Passed |
 | Power Pages upload | Passed |
 | Power Pages UX validation update | Passed |
+| Power Pages live refresh/download | Passed |
+| Power Pages SharePoint upload fix | Uploaded and re-downloaded key live files for verification |
 | Managed solution export | Passed |
 | Unmanaged solution export | Passed |
 | Managed solution unpack | Passed |
@@ -34,6 +36,10 @@
 | Portal dynamic preview | Funding Agreement + Critical + Urgent shows Finance, 4 hour target, approval required, documentation required. |
 | Portal submission | `Portal Demo - Critical funding request 2` created with confirmation `SR-20260521-001004`. |
 | Portal step navigation | Explicit Continue, Back, Review request, and Submit buttons added; required fields block progression before the next step. |
+| Portal SharePoint document path | Localized Home page now removes the pre-submit file input, creates the Service Request first, and opens `/request-documents/?id=<service-request-id>` from the success modal. |
+| Upload page diagnostics | Request Documents page now shows a visible ready/warning/error status for the SharePoint document grid instead of failing silently. |
+| SharePoint upload smoke test | `Portal smoke file upload 2026-05-21T07-24-18-212Z` created confirmation `SR-20260521-001025`; `esi-upload-smoke.txt` uploaded through the document grid and appeared on the page. |
+| SharePoint document location | Dataverse returned `sharepointdocumentlocationid` `4c2b05a7-e654-f111-89e7-0022488fbd9b` for request `df11b114-e654-f111-bec7-000d3a3aca8f`. |
 | Plugin routing | Critical funding request routed to Finance with 4 hour SLA. |
 | Closure guard | Smoke test blocked undocumented critical closure and allowed documented closure. |
 | Model-driven app | Coordinator queue and Service Request form open in the app. |
@@ -47,6 +53,7 @@ dotnet build src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.c
 RUN_VALIDATION_TESTS=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
 
 pac pages upload --path powerpages-live/enterprise-service-intake---enterprise-service-intake-hellox --modelVersion Enhanced --forceUploadAll
+pac pages download --path /tmp/esi-pages-verify.<id> --webSiteId 8c12ac01-467a-4fa8-8034-50b8028de647 --overwrite --modelVersion Enhanced
 node --check src/powerpages/web-files/service-intake.js
 pac pcf push --solution-unique-name EnterpriseServiceIntake --verbosity minimal
 

@@ -423,6 +423,20 @@ body {
   font-weight: 500 !important;
 }
 
+.esi-upload-info {
+  display: grid;
+  gap: 10px;
+}
+
+.esi-upload-info ul {
+  color: var(--esi-muted);
+  display: grid;
+  gap: 7px;
+  line-height: 1.45;
+  margin: 2px 0 0;
+  padding-left: 20px;
+}
+
 .esi-file-list {
   display: grid;
   gap: 8px;

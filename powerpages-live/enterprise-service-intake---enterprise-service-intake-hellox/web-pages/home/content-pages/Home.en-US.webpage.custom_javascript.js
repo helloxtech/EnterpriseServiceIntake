@@ -5,7 +5,6 @@
   const preview = root.querySelector("[data-routing-preview]");
   const review = root.querySelector("[data-review-summary]");
   const result = root.querySelector("[data-submit-result]");
-  const fileList = root.querySelector("[data-file-list]");
   const form = root.querySelector(".esi-form");
   const submitButton = root.querySelector('button[type="submit"]');
   const steps = Array.from(root.querySelectorAll("[data-step]")).map((item) => item.dataset.step);
@@ -362,34 +361,14 @@
 
   function updateReview() {
     if (!review) return;
-    const documents = Array.from(field("documents")?.files || []);
     review.innerHTML = [
       reviewRow("Title", summaryValue(field("title")?.value, "Not entered")),
       reviewRow("Category", summaryValue(selectedCategoryName(), "Not selected")),
       reviewRow("Severity", summaryValue(selectedText("severity"), "Not selected")),
       reviewRow("Priority", summaryValue(selectedText("priority"), "Not selected")),
       reviewRow("Business impact", summaryValue(field("impact")?.value, "Not provided")),
-      reviewRow("Supporting documents", documents.length ? `${documents.length} file${documents.length === 1 ? "" : "s"} selected` : "No files selected")
+      reviewRow("Supporting documents", "SharePoint upload available after submission")
     ].join("");
-  }
-
-  function formatBytes(bytes) {
-    if (!bytes) return "0 KB";
-    const kb = bytes / 1024;
-    if (kb < 1024) return `${Math.round(kb)} KB`;
-    return `${(kb / 1024).toFixed(1)} MB`;
-  }
-
-  function updateFileList() {
-    if (!fileList) return;
-    const files = Array.from(field("documents")?.files || []);
-    if (!files.length) {
-      fileList.innerHTML = "";
-      return;
-    }
-    fileList.innerHTML = files
-      .map((file) => `<div><strong>${html(file.name)}</strong><span>${html(formatBytes(file.size))}</span></div>`)
-      .join("");
   }
 
   function ensureResultModal() {
@@ -409,6 +388,11 @@
         setActiveStep("details");
         window.scrollTo({ top: root.offsetTop - 20, behavior: "smooth" });
         field("title")?.focus({ preventScroll: true });
+      }
+
+      if (action === "documents") {
+        const url = event.target.closest("[data-result-url]")?.dataset.resultUrl;
+        if (url) window.location.href = url;
       }
 
       if (action === "review") {
@@ -449,10 +433,11 @@
     return "";
   }
 
-  function resultActions(tone) {
+  function resultActions(tone, options = {}) {
     if (tone === "success") {
       return `
-        <button type="button" class="esi-primary" data-result-action="new">Submit another request</button>
+        ${options.documentsUrl ? `<button type="button" class="esi-primary" data-result-action="documents" data-result-url="${html(options.documentsUrl)}">Upload supporting files</button>` : ""}
+        <button type="button" class="esi-secondary" data-result-action="new">Submit another request</button>
         <button type="button" class="esi-secondary" data-result-action="close">Close</button>`;
     }
 
@@ -492,10 +477,11 @@
           ${tone === "success" ? `
             <ul class="esi-submit-next">
               <li>Your request is now linked to your portal account.</li>
+              <li>Supporting files are uploaded to the secure SharePoint document library after submission.</li>
               <li>Mitacs will confirm routing, review needs, and response timing after submission.</li>
             </ul>` : ""}
         </div>
-        ${resultActions(tone) ? `<div class="esi-submit-actions">${resultActions(tone)}</div>` : ""}
+        ${resultActions(tone, options) ? `<div class="esi-submit-actions">${resultActions(tone, options)}</div>` : ""}
       </section>`;
 
     modal.querySelector(".esi-submit-dialog")?.focus({ preventScroll: true });
@@ -532,7 +518,7 @@
     }
 
     submitButton.disabled = true;
-    showResult("info", "Submitting request...", "Sending your request and supporting file details.");
+    showResult("info", "Submitting request...", "Creating your request. Supporting files can be uploaded after the confirmation number is assigned.");
 
     const descriptionParts = [
       field("description").value,
@@ -560,7 +546,6 @@
         data: JSON.stringify(payload)
       });
       const requestId = extractCreatedId(createResponse.xhr);
-      await createDocumentRows(requestId);
 
       let confirmation = "";
       if (requestId) {
@@ -581,11 +566,13 @@
         confirmation
           ? "Your request has been received. Save this confirmation number if you need to follow up with Mitacs."
           : "Your request has been received. A confirmation number will be available after processing.",
-        { confirmation }
+        {
+          confirmation,
+          documentsUrl: requestId ? `/request-documents/?id=${encodeURIComponent(requestId)}` : ""
+        }
       );
 
       form.reset();
-      updateFileList();
       setActiveStep("details");
       updateReview();
       await populateCategories();
@@ -596,23 +583,6 @@
     } finally {
       submitButton.disabled = false;
     }
-  }
-
-  async function createDocumentRows(requestId) {
-    const files = Array.from(field("documents")?.files || []);
-    if (!requestId || files.length === 0) return;
-
-    await Promise.all(files.map((file) => safeAjax({
-      method: "POST",
-      url: "/_api/hx_servicedocuments",
-      data: JSON.stringify({
-        hx_name: file.name,
-        hx_filename: file.name,
-        hx_documenttype: 752630000,
-        hx_notes: "Uploaded through the customer service intake form.",
-        "hx_Servicerequest@odata.bind": `/hx_servicerequests(${requestId})`
-      })
-    })));
   }
 
   stepButtons.forEach((button) => {
@@ -644,14 +614,8 @@
     });
   });
 
-  field("documents")?.addEventListener("change", () => {
-    updateFileList();
-    updateReview();
-  });
-
   form?.addEventListener("submit", submitRequest);
 
   setActiveStep("details");
-  updateFileList();
   populateCategories().then(refreshPreview);
 })();

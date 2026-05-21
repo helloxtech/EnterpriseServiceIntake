@@ -6,6 +6,12 @@
 - adx_name: Authentication/Registration/InvitationEnabled
   adx_sitesettingid: 03ea1d75-e139-4093-9265-519876a0d013
   adx_value: true
+- adx_name: Webapi/error/innererror
+  adx_sitesettingid: 13aca2ce-56d0-4699-a496-4b63699bf54d
+  adx_value: true
+- adx_name: Webapi/hx_slapolicy/fields
+  adx_sitesettingid: 155b9b8c-9da6-4bee-8657-dc406673e9a6
+  adx_value: '*'
 - adx_name: Search/Enabled
   adx_sitesettingid: 1dc8ffc4-03f0-4ab8-b915-65cfdd7b4fe8
   adx_value: true
@@ -22,6 +28,9 @@
   adx_value: '{"status":"enable","selectedThemeId":"f21551a1-7244-432f-ad88-220609e070d3","version":"V2"}'
 - adx_name: Authentication/OpenAuth/Facebook/AppSecret
   adx_sitesettingid: 261c1916-7b0f-428d-b137-d767b5a428bb
+- adx_name: Webapi/hx_routingrule/enabled
+  adx_sitesettingid: 275a7cd3-7a02-4249-bfae-8dfa5d345999
+  adx_value: true
 - adx_description: 'The amount of time the IP address will have to wait if Authentication/LoginThrottling/MaxInvaildAttemptsFromIPAddress occur within Authentication/LoginThrottling/MaxAttemptsTimeLimitTimeSpan amount of time. Default: 00:15:00 (15 mins)'
   adx_name: Authentication/LoginThrottling/IpAddressTimeoutTimeSpan
   adx_sitesettingid: 28e213ab-1664-455a-b830-8f4ef0e27167
@@ -32,7 +41,8 @@
   adx_value: false
 - adx_name: Authentication/Registration/LocalLoginEnabled
   adx_sitesettingid: 307e41de-3cf2-48d4-81c5-14a6d297babb
-  adx_value: false
+  adx_source: 0
+  adx_value: true
 - adx_description: Sets whether or not the portal can redirect the user to the profile page after successful sign-in. By default, it is set to true.
   adx_name: Authentication/Registration/ProfileRedirectEnabled
   adx_sitesettingid: 3b95daaa-e758-4850-aeb2-5ddccd868a39
@@ -47,6 +57,9 @@
   adx_sitesettingid: 47d657ca-f741-4385-adfb-d43dbaecd758
 - adx_name: Authentication/Registration/Enabled
   adx_sitesettingid: 495d02fc-9ba4-4def-8f9c-07abbf17d595
+  adx_value: true
+- adx_name: Webapi/hx_servicerequest/enabled
+  adx_sitesettingid: 4e69f546-185a-42d8-a64f-adb52a6c8123
   adx_value: true
 - adx_description: 'The amount of time the Authentication/LoginThrottling/MaxInvaildAttemptsFromIPAddress are to be within before the IP address has to wait Authentication/LoginThrottling/IpAddressTimeoutTimeSpan. Default: 00:05:00 (5 mins)'
   adx_name: Authentication/LoginThrottling/MaxAttemptsTimeLimitTimeSpan
@@ -76,6 +89,9 @@
   adx_name: Authentication/Registration/TermsAgreementEnabled
   adx_sitesettingid: 72aeeb59-4768-40cf-bf3e-7b518ffba500
   adx_value: false
+- adx_name: Webapi/hx_servicecategory/enabled
+  adx_sitesettingid: 75aa6ce8-a7f8-4c08-9754-c814f35015d7
+  adx_value: true
 - adx_description: Set whether the header web template is output cached.
   adx_name: Header/OutputCache/Enabled
   adx_sitesettingid: 7cbd772d-344a-4c01-986c-8bda48d52d2d
@@ -90,9 +106,15 @@
     This value should be in the form of name/value pairs, with name and value separated by a colon, and pairs separated by a semicolon. For example: "Forums:adx_communityforum,adx_communityforumthread,adx_communityforumpost;Blogs:adx_blog,adx_blogpost,adx_blogpostcomment".
   adx_name: search/filters
   adx_sitesettingid: 81dfb861-037f-44da-87f5-89b57b5c0869
+- adx_name: Webapi/hx_department/fields
+  adx_sitesettingid: 87511c1d-936b-4ea4-a22b-6cfdc141a893
+  adx_value: '*'
 - adx_name: Authentication/Registration/ExternalLoginEnabled
   adx_sitesettingid: 88a3a1e2-e275-41d1-b6ac-05a9d0ba4f3d
   adx_value: true
+- adx_name: Webapi/hx_routingrule/fields
+  adx_sitesettingid: 8e69b012-927f-4eaf-bc5f-1d92ce0e8a27
+  adx_value: '*'
 - adx_description: Site setting that determines if the language code is included in the portal URL.
   adx_name: MultiLanguage/DisplayLanguageCodeInURL
   adx_sitesettingid: 8ee974a9-e541-47fd-8445-e4f024031dbc
@@ -109,6 +131,9 @@
   adx_name: Authentication/Registration/DenyMinors
   adx_sitesettingid: 985fe5ac-0332-4d74-96c8-d8fbfecc734b
   adx_value: false
+- adx_name: Webapi/hx_servicedocument/enabled
+  adx_sitesettingid: 99a3061a-ea4e-4529-87ee-7cb39be211e8
+  adx_value: true
 - adx_name: Authentication/OpenAuth/Facebook/AppId
   adx_sitesettingid: 9aabaac5-eefd-4ba3-9725-ebbc80ad747e
 - adx_description: Setting controls whether attachments will be displayed on Knowledge articles
@@ -138,6 +163,9 @@
 - adx_name: Authentication/Registration/OpenRegistrationEnabled
   adx_sitesettingid: b25ca61e-2a5e-415f-9d07-d437132e770c
   adx_value: true
+- adx_name: Webapi/hx_servicedocument/fields
+  adx_sitesettingid: b8e8f467-656c-43f6-be61-d86f560fcd37
+  adx_value: '*'
 - adx_description: A date/time value in GMT format to represent the effective date of the current published terms and conditions. If the terms agreement is enabled, portal users that have not accepted the terms after this date will be asked to accept them the next time they sign in. If the date is not provided, and the terms agreement is enabled, the terms will be presented every time portal users sign in.
   adx_name: Authentication/Registration/TermsPublicationDate
   adx_sitesettingid: bd2b3b95-e8c9-4b8e-b346-517b0d7def70
@@ -159,6 +187,9 @@
   adx_name: Search/FacetedView
   adx_sitesettingid: cd1d9ff5-d7bd-49a3-8442-08e57c8e8c61
   adx_value: True
+- adx_name: Webapi/hx_servicecategory/fields
+  adx_sitesettingid: cf5b8776-f84d-4b79-a18c-772ed6692ee0
+  adx_value: '*'
 - adx_name: Authentication/OpenAuth/Twitter/ConsumerSecret
   adx_sitesettingid: d08366cf-0652-40a2-ad70-0b82acb535ab
 - adx_name: HTTP/X-Frame-Options
@@ -167,42 +198,12 @@
 - adx_name: Search/IndexQueryName
   adx_sitesettingid: e3366d58-db13-4b08-98a2-6782a548e80d
   adx_value: Portal Search
-- adx_name: Webapi/error/innererror
-  adx_sitesettingid: 13aca2ce-56d0-4699-a496-4b63699bf54d
-  adx_value: true
-- adx_name: Webapi/hx_servicecategory/enabled
-  adx_sitesettingid: 75aa6ce8-a7f8-4c08-9754-c814f35015d7
-  adx_value: true
-- adx_name: Webapi/hx_servicecategory/fields
-  adx_sitesettingid: cf5b8776-f84d-4b79-a18c-772ed6692ee0
-  adx_value: '*'
-- adx_name: Webapi/hx_routingrule/enabled
-  adx_sitesettingid: 275a7cd3-7a02-4249-bfae-8dfa5d345999
-  adx_value: true
-- adx_name: Webapi/hx_routingrule/fields
-  adx_sitesettingid: 8e69b012-927f-4eaf-bc5f-1d92ce0e8a27
+- adx_name: Webapi/hx_servicerequest/fields
+  adx_sitesettingid: e3dda9db-06cf-41e7-9eaf-f57d1600ae22
   adx_value: '*'
 - adx_name: Webapi/hx_department/enabled
   adx_sitesettingid: f545a0ed-3812-464e-9a1e-646eba8bfec8
   adx_value: true
-- adx_name: Webapi/hx_department/fields
-  adx_sitesettingid: 87511c1d-936b-4ea4-a22b-6cfdc141a893
-  adx_value: '*'
 - adx_name: Webapi/hx_slapolicy/enabled
   adx_sitesettingid: fa7103c8-b774-4025-9955-fe917cd16be2
   adx_value: true
-- adx_name: Webapi/hx_slapolicy/fields
-  adx_sitesettingid: 155b9b8c-9da6-4bee-8657-dc406673e9a6
-  adx_value: '*'
-- adx_name: Webapi/hx_servicerequest/enabled
-  adx_sitesettingid: 4e69f546-185a-42d8-a64f-adb52a6c8123
-  adx_value: true
-- adx_name: Webapi/hx_servicerequest/fields
-  adx_sitesettingid: e3dda9db-06cf-41e7-9eaf-f57d1600ae22
-  adx_value: '*'
-- adx_name: Webapi/hx_servicedocument/enabled
-  adx_sitesettingid: 99a3061a-ea4e-4529-87ee-7cb39be211e8
-  adx_value: true
-- adx_name: Webapi/hx_servicedocument/fields
-  adx_sitesettingid: b8e8f467-656c-43f6-be61-d86f560fcd37
-  adx_value: '*'

@@ -1,1 +1,25 @@
-{}
+annotation:
+- RecordId: dafd3f97-b354-f111-bec7-000d3a3aca8f
+  DisplayName: Cat-PC.png
+  CheckSum: 
+  IsDeleted: true
+- RecordId: dbfd3f97-b354-f111-bec7-000d3a3aca8f
+  DisplayName: Logo-sm-64.png
+  CheckSum: 
+  IsDeleted: true
+- RecordId: dcfd3f97-b354-f111-bec7-000d3a3aca8f
+  DisplayName: portalbasictheme.css
+  CheckSum: 
+  IsDeleted: true
+- RecordId: ddfd3f97-b354-f111-bec7-000d3a3aca8f
+  DisplayName: theme.css
+  CheckSum: 
+  IsDeleted: true
+- RecordId: dffd3f97-b354-f111-bec7-000d3a3aca8f
+  DisplayName: robots.txt
+  CheckSum: 
+  IsDeleted: true
+- RecordId: e5fd3f97-b354-f111-bec7-000d3a3aca8f
+  DisplayName: bootstrap.min.css
+  CheckSum: 
+  IsDeleted: true

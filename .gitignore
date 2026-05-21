@@ -12,6 +12,7 @@ solution/export/*.cab
 bin/
 obj/
 *.user
+.tools/
 
 # Node / PCF
 node_modules/

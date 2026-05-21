@@ -169,6 +169,36 @@ body {
   color: var(--esi-muted);
 }
 
+.esi-document-status {
+  background: var(--esi-blue-soft);
+  border: 1px solid rgba(0, 111, 182, 0.18);
+  border-radius: var(--esi-radius);
+  color: var(--esi-blue-dark);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+}
+
+.esi-document-status.is-ready {
+  background: var(--esi-green-soft);
+  border-color: rgba(15, 123, 69, 0.22);
+  color: var(--esi-green);
+}
+
+.esi-document-status.is-warning {
+  background: var(--esi-amber-soft);
+  border-color: rgba(154, 91, 0, 0.25);
+  color: var(--esi-amber);
+}
+
+.esi-document-status.is-error {
+  background: var(--esi-red-soft);
+  border-color: rgba(180, 35, 24, 0.22);
+  color: var(--esi-red);
+}
+
 .esi-status-pill,
 .esi-preview-state,
 .esi-badge {

@@ -38,7 +38,7 @@
     </button>
     <button type="button" data-step-target="documents">
       <span class="esi-step-index">3</span>
-      <span><strong>Supporting Files</strong><small>Add files</small></span>
+      <span><strong>Supporting Files</strong><small>Prepare upload</small></span>
     </button>
     <button type="button" data-step-target="review">
       <span class="esi-step-index">4</span>
@@ -126,15 +126,18 @@
         <div class="esi-section-heading">
           <span class="esi-section-kicker">Step 3 of 4</span>
           <h2>Supporting files</h2>
-          <p>Attach screenshots, forms, or other files that may help us understand your request.</p>
+          <p>Supporting files are uploaded to the secure SharePoint document library after your request record is created.</p>
         </div>
 
-        <label class="esi-upload">
-          <span class="esi-upload-title">Upload supporting files</span>
-          <span class="esi-upload-help">Choose one or more files that help explain your request.</span>
-          <input name="documents" type="file" multiple />
-        </label>
-        <div class="esi-file-list" data-file-list></div>
+        <div class="esi-upload esi-upload-info">
+          <span class="esi-upload-title">Upload after submission</span>
+          <span class="esi-upload-help">After you submit, use the Upload supporting files action on the confirmation screen. Files are saved through Power Pages document management to SharePoint for this service request.</span>
+          <ul>
+            <li>Use screenshots, forms, approvals, or other evidence that explains the request.</li>
+            <li>The upload area is tied to the confirmation number shown after submission.</li>
+            <li>You can skip this step now if no files are needed.</li>
+          </ul>
+        </div>
 
         <div class="esi-step-error" data-step-error role="alert"></div>
         <div class="esi-action-bar">

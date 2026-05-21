@@ -1,0 +1,56 @@
+{% assign homeurl = website.adx_partialurl %}
+<section class="esi-hero">
+  <div class="esi-hero-inner">
+    <div class="esi-hero-copy">
+      <h1>Upload supporting files</h1>
+      <p>Add screenshots, forms, or other evidence to the SharePoint document library for your submitted service request.</p>
+    </div>
+    {% if user %}
+    <div class="esi-user-card" aria-label="Signed in customer">
+      <span class="esi-user-label">Signed in</span>
+      <strong>{{ user.fullname | default: user.emailaddress1 | escape }}</strong>
+      <span>Customer account</span>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% if user and request.params.id %}
+<main class="esi-shell esi-document-shell" id="mainContent" data-esi-document-page data-request-id="{{ request.params.id | escape }}">
+  <div class="esi-workspace-banner">
+    <div>
+      <strong>Secure SharePoint upload</strong>
+      <span>Files added here are stored through Dataverse document management for this service request.</span>
+    </div>
+    <a class="esi-secondary esi-link-button" href="/">Return to intake</a>
+  </div>
+  <div class="esi-document-status" data-document-status role="status" aria-live="polite">
+    Loading the SharePoint upload area for this request...
+  </div>
+  <section class="esi-form esi-document-upload">
+    {% entityform name: 'ESI - Service Request SharePoint Documents' %}
+  </section>
+</main>
+{% elsif user %}
+<main class="esi-shell esi-auth-shell" id="mainContent">
+  <section class="esi-auth-gate">
+    <div>
+      <span class="esi-preview-label">Missing request</span>
+      <h2>Open this page from a submitted request</h2>
+      <p>The upload page needs a service request ID so files can be saved to the correct SharePoint folder.</p>
+      <a class="esi-primary esi-link-button" href="/">Return to intake</a>
+    </div>
+  </section>
+</main>
+{% else %}
+<main class="esi-shell esi-auth-shell" id="mainContent">
+  <section class="esi-auth-gate">
+    <div>
+      <span class="esi-preview-label">Secure upload</span>
+      <h2>Sign in to upload files</h2>
+      <p>Please sign in so we can confirm you have access to this service request and its documents.</p>
+      <a class="esi-primary esi-link-button" href="{% if homeurl %}/{{ homeurl }}{% endif %}{{ website.sign_in_url_substitution }}">Sign in to continue</a>
+    </div>
+  </section>
+</main>
+{% endif %}
