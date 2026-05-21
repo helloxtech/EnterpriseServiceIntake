@@ -10,6 +10,7 @@
   const submitButton = root.querySelector('button[type="submit"]');
   const steps = Array.from(root.querySelectorAll("[data-step]")).map((item) => item.dataset.step);
   const stepButtons = Array.from(root.querySelectorAll("[data-step-target]"));
+  let resultModal = null;
   let cachedRules = null;
   let cachedCategories = null;
   let currentStep = "details";
@@ -385,18 +386,127 @@
       .join("");
   }
 
-  function showResult(tone, title, body) {
+  function ensureResultModal() {
+    if (resultModal) return resultModal;
+
+    resultModal = document.createElement("div");
+    resultModal.className = "esi-submit-modal";
+    resultModal.setAttribute("aria-hidden", "true");
+    document.body.appendChild(resultModal);
+
+    resultModal.addEventListener("click", (event) => {
+      const action = event.target.closest("[data-result-action]")?.dataset.resultAction;
+      if (!action || resultModal.dataset.locked === "true") return;
+
+      if (action === "new") {
+        closeResult();
+        setActiveStep("details");
+        window.scrollTo({ top: root.offsetTop - 20, behavior: "smooth" });
+        field("title")?.focus({ preventScroll: true });
+      }
+
+      if (action === "review") {
+        closeResult();
+        setActiveStep("review");
+        submitButton?.focus({ preventScroll: false });
+      }
+
+      if (action === "close") {
+        const wasSuccess = resultModal.classList.contains("is-success");
+        closeResult();
+        if (wasSuccess) {
+          field("title")?.focus({ preventScroll: false });
+        } else {
+          submitButton?.focus({ preventScroll: false });
+        }
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && resultModal?.classList.contains("is-visible") && resultModal.dataset.locked !== "true") {
+        const wasSuccess = resultModal.classList.contains("is-success");
+        closeResult();
+        if (wasSuccess) {
+          field("title")?.focus({ preventScroll: false });
+        } else {
+          submitButton?.focus({ preventScroll: false });
+        }
+      }
+    });
+
+    return resultModal;
+  }
+
+  function resultIcon(tone) {
+    if (tone === "success") return "OK";
+    if (tone === "error") return "!";
+    return "";
+  }
+
+  function resultActions(tone) {
+    if (tone === "success") {
+      return `
+        <button type="button" class="esi-primary" data-result-action="new">Submit another request</button>
+        <button type="button" class="esi-secondary" data-result-action="close">Close</button>`;
+    }
+
+    if (tone === "error") {
+      return `
+        <button type="button" class="esi-primary" data-result-action="review">Review and try again</button>
+        <button type="button" class="esi-secondary" data-result-action="close">Close</button>`;
+    }
+
+    return "";
+  }
+
+  function showResult(tone, title, body, options = {}) {
+    const modal = ensureResultModal();
+    const toneClass = tone === "success" ? "is-success" : tone === "error" ? "is-error" : "is-info";
+    const confirmation = options.confirmation || "";
+
     result.className = `esi-result is-visible ${tone === "success" ? "is-success" : tone === "error" ? "is-error" : ""}`;
-    result.innerHTML = `
-      <div class="esi-result-card">
-        <strong>${html(title)}</strong>
-        <span>${html(body)}</span>
-      </div>`;
+    result.textContent = `${title}. ${body}`;
+
+    modal.dataset.locked = tone === "info" ? "true" : "false";
+    modal.className = `esi-submit-modal is-visible ${toneClass}`;
+    modal.setAttribute("aria-hidden", "false");
+    modal.innerHTML = `
+      <div class="esi-submit-modal-backdrop" data-result-action="${tone === "info" ? "" : "close"}"></div>
+      <section class="esi-submit-dialog" role="dialog" aria-modal="true" aria-labelledby="esi-submit-title" aria-describedby="esi-submit-message" tabindex="-1">
+        <div class="esi-submit-icon" aria-hidden="true">${html(resultIcon(tone))}</div>
+        <div class="esi-submit-content">
+          <span class="esi-submit-kicker">${tone === "success" ? "Submitted" : tone === "error" ? "Action needed" : "Sending request"}</span>
+          <h2 id="esi-submit-title">${html(title)}</h2>
+          <p id="esi-submit-message">${html(body)}</p>
+          ${confirmation ? `
+            <div class="esi-confirmation-number">
+              <span>Confirmation number</span>
+              <strong>${html(confirmation)}</strong>
+            </div>` : ""}
+          ${tone === "success" ? `
+            <ul class="esi-submit-next">
+              <li>Your request is now linked to your portal account.</li>
+              <li>Mitacs will confirm routing, review needs, and response timing after submission.</li>
+            </ul>` : ""}
+        </div>
+        ${resultActions(tone) ? `<div class="esi-submit-actions">${resultActions(tone)}</div>` : ""}
+      </section>`;
+
+    modal.querySelector(".esi-submit-dialog")?.focus({ preventScroll: true });
+  }
+
+  function closeResult() {
+    if (!resultModal) return;
+    resultModal.className = "esi-submit-modal";
+    resultModal.setAttribute("aria-hidden", "true");
+    resultModal.dataset.locked = "false";
+    resultModal.innerHTML = "";
   }
 
   function clearResult() {
     result.className = "esi-result";
     result.innerHTML = "";
+    closeResult();
   }
 
   function extractCreatedId(xhr) {
@@ -463,8 +573,9 @@
         "success",
         "Request submitted",
         confirmation
-          ? `Confirmation number ${confirmation} has been created. Use this number if you need to follow up with Mitacs.`
-          : "Your request was submitted. A confirmation number will be available after processing."
+          ? "Your request has been received. Save this confirmation number if you need to follow up with Mitacs."
+          : "Your request has been received. A confirmation number will be available after processing.",
+        { confirmation }
       );
 
       form.reset();
@@ -475,7 +586,7 @@
       await refreshPreview();
     } catch (error) {
       console.error(error);
-      showResult("error", "Submission failed", "We could not submit the request. Please review the form and try again.");
+      showResult("error", "Submission failed", "We could not submit your request. Your information is still on the form. Please review the details and try again.");
     } finally {
       submitButton.disabled = false;
     }

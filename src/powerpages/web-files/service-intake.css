@@ -573,45 +573,176 @@ body {
 }
 
 .esi-result {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.esi-submit-modal {
   display: none;
-  margin: 0;
-  padding: 0 28px 28px;
 }
 
-.esi-result.is-visible {
-  display: block;
+.esi-submit-modal.is-visible {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 2000;
 }
 
-.esi-result-card {
+.esi-submit-modal-backdrop {
+  background: rgba(23, 32, 43, 0.45);
+  inset: 0;
+  position: absolute;
+}
+
+.esi-submit-dialog {
+  background: var(--esi-surface);
+  border: 1px solid var(--esi-line);
+  border-top: 5px solid var(--esi-blue);
   border-radius: var(--esi-radius);
+  box-shadow: 0 28px 80px rgba(23, 32, 43, 0.28);
   display: grid;
-  gap: 6px;
-  padding: 16px;
+  gap: 18px;
+  max-width: 600px;
+  outline: none;
+  padding: 30px;
+  position: relative;
+  width: min(100%, 600px);
 }
 
-.esi-result-card strong {
-  color: var(--esi-ink);
-  font-size: 17px;
+.esi-submit-modal.is-success .esi-submit-dialog {
+  border-top-color: var(--esi-green);
 }
 
-.esi-result-card span {
-  color: var(--esi-muted);
-  line-height: 1.5;
+.esi-submit-modal.is-error .esi-submit-dialog {
+  border-top-color: var(--esi-red);
 }
 
-.esi-result.is-success .esi-result-card {
+.esi-submit-icon {
+  align-items: center;
+  background: var(--esi-blue-soft);
+  border-radius: 999px;
+  color: var(--esi-blue);
+  display: inline-flex;
+  font-size: 15px;
+  font-weight: 900;
+  height: 48px;
+  justify-content: center;
+  width: 48px;
+}
+
+.esi-submit-modal.is-success .esi-submit-icon {
   background: var(--esi-green-soft);
-  border: 1px solid rgba(15, 123, 69, 0.22);
+  color: var(--esi-green);
 }
 
-.esi-result.is-error .esi-result-card {
+.esi-submit-modal.is-error .esi-submit-icon {
   background: var(--esi-red-soft);
-  border: 1px solid rgba(180, 35, 24, 0.22);
+  color: var(--esi-red);
 }
 
-.esi-result.is-visible:not(.is-success):not(.is-error) .esi-result-card {
+.esi-submit-modal.is-info .esi-submit-icon::before {
+  animation: esi-spin 0.9s linear infinite;
+  border: 3px solid rgba(0, 111, 182, 0.18);
+  border-top-color: var(--esi-blue);
+  border-radius: 999px;
+  content: "";
+  height: 24px;
+  width: 24px;
+}
+
+.esi-submit-content {
+  display: grid;
+  gap: 10px;
+}
+
+.esi-submit-kicker {
+  color: var(--esi-blue);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.esi-submit-modal.is-success .esi-submit-kicker {
+  color: var(--esi-green);
+}
+
+.esi-submit-modal.is-error .esi-submit-kicker {
+  color: var(--esi-red);
+}
+
+.esi-submit-content h2 {
+  color: var(--esi-ink);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.esi-submit-content p {
+  color: var(--esi-muted);
+  font-size: 16px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.esi-confirmation-number {
   background: var(--esi-blue-soft);
   border: 1px solid rgba(0, 111, 182, 0.18);
+  border-radius: var(--esi-radius);
+  display: grid;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 14px 16px;
+}
+
+.esi-confirmation-number span {
+  color: var(--esi-blue);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.esi-confirmation-number strong {
+  color: var(--esi-blue-dark);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.esi-submit-next {
+  color: var(--esi-muted);
+  display: grid;
+  gap: 7px;
+  line-height: 1.45;
+  margin: 4px 0 0;
+  padding-left: 20px;
+}
+
+.esi-submit-actions {
+  border-top: 1px solid var(--esi-line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 18px;
+}
+
+@keyframes esi-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .esi-preview {
@@ -798,6 +929,24 @@ body {
   .esi-primary,
   .esi-secondary {
     width: 100%;
+  }
+
+  .esi-submit-modal.is-visible {
+    align-items: flex-end;
+    padding: 16px;
+  }
+
+  .esi-submit-dialog {
+    padding: 24px;
+  }
+
+  .esi-submit-content h2 {
+    font-size: 24px;
+  }
+
+  .esi-submit-actions {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .esi-preview-header,
