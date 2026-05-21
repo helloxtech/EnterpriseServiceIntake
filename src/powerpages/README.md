@@ -13,3 +13,10 @@ The source files in this folder document the intended portal customizations:
 - `web-files/service-intake.css`: Portal styling.
 
 The portal feedback is intentionally advisory. Final routing, SLA, approval requirement, and closure guardrails are enforced by Dataverse plugins. Create permissions are scoped to authenticated portal users so submitted requests can be tied back to the Contact record.
+
+Portal table permissions must include relationship privileges for the document upload step:
+
+- `hx_servicerequest`: `Create`, `Append`, and `Append To`; contact-scoped `Read`/`Write` for owned rows.
+- `hx_servicedocument`: `Create`, `Append`, and `Append To`.
+
+The `Append`/`Append To` pair is required because the Web API creates `hx_servicedocument` rows with an `hx_servicerequest` lookup. Without both sides, Power Pages blocks the relationship operation with an associate/disassociate permission error.

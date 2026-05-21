@@ -119,7 +119,7 @@ erDiagram
 ## Security Strategy
 
 - External users authenticate to Power Pages and are associated to Contact rows.
-- Power Pages table permissions allow create for intake tables and contact-scoped access for request ownership.
+- Power Pages table permissions allow create for intake tables, contact-scoped access for request ownership, and `Append`/`Append To` relationship privileges for request-document linking.
 - Public read access is limited to reference/routing data required for SLA preview.
 - Internal-only fields such as `hx_internalresolutionnotes` are not exposed on portal pages and the column is configured as secured metadata.
 - Internal users work from the model-driven app with Dataverse security roles and views; sensitive audit/error tables are intended for managers/admins.
