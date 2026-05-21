@@ -9,7 +9,7 @@
   --esi-page: #f6f8fb;
   --esi-surface: #ffffff;
   --esi-surface-soft: #f8fafc;
-  --esi-hint: #a6b0bd;
+  --esi-hint: #b8c2cc;
   --esi-green: #0f7b45;
   --esi-green-soft: #e7f6ee;
   --esi-amber: #9a5b00;
@@ -381,8 +381,10 @@ body {
 
 .esi-form input::placeholder,
 .esi-form textarea::placeholder {
-  color: var(--esi-hint);
+  color: var(--esi-hint) !important;
   font-style: italic;
+  font-weight: 400;
+  opacity: 1;
 }
 
 .esi-form input:focus,
