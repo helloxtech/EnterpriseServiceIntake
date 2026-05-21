@@ -821,6 +821,8 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
             Field("hx_resolved", "Resolved", FormControlClass.Boolean)
         });
 
+    DeleteObsoleteMainViewDuplicates(service);
+
     EnsureSystemView(
         service,
         "hx_servicerequest",
@@ -937,6 +939,49 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         "createdon",
         descending: true);
 
+    foreach (var viewName in new[]
+    {
+        "Active Service Request Documents",
+        "Service Request Document Associated View"
+    })
+    {
+        EnsureSystemView(
+            service,
+            "hx_servicedocument",
+            viewName,
+            new[]
+            {
+                "hx_name",
+                "hx_servicerequest",
+                "hx_documenttype",
+                "hx_filename",
+                "hx_verified",
+                "createdon",
+                "ownerid"
+            },
+            "<condition attribute='statecode' operator='eq' value='0' />",
+            "createdon",
+            descending: true,
+            queryType: 2);
+    }
+
+    EnsureSystemView(
+        service,
+        "hx_servicedocument",
+        "Service Request Document Lookup View",
+        new[]
+        {
+            "hx_name",
+            "hx_servicerequest",
+            "hx_documenttype",
+            "hx_filename",
+            "createdon"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "hx_name",
+        descending: false,
+        queryType: 64);
+
     EnsureSystemView(
         service,
         "hx_routingrule",
@@ -957,6 +1002,54 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         "<condition attribute='hx_active' operator='eq' value='1' />",
         "hx_sortorder",
         descending: false);
+
+    foreach (var viewName in new[]
+    {
+        "Active Routing / SLA Rules",
+        "Routing / SLA Rule Associated View"
+    })
+    {
+        EnsureSystemView(
+            service,
+            "hx_routingrule",
+            viewName,
+            new[]
+            {
+                "hx_sortorder",
+                "hx_name",
+                "hx_servicecategory",
+                "hx_matchseverity",
+                "hx_matchpriority",
+                "hx_department",
+                "hx_slapolicy",
+                "hx_requiresapproval",
+                "hx_resolutiondocumentationrequired",
+                "hx_active"
+            },
+            "<condition attribute='hx_active' operator='eq' value='1' />",
+            "hx_sortorder",
+            descending: false,
+            queryType: 2);
+    }
+
+    EnsureSystemView(
+        service,
+        "hx_routingrule",
+        "Routing / SLA Rule Lookup View",
+        new[]
+        {
+            "hx_name",
+            "hx_servicecategory",
+            "hx_matchseverity",
+            "hx_matchpriority",
+            "hx_department",
+            "hx_slapolicy",
+            "hx_active"
+        },
+        "<condition attribute='hx_active' operator='eq' value='1' />",
+        "hx_name",
+        descending: false,
+        queryType: 64);
 
     EnsureSystemView(
         service,
@@ -1042,6 +1135,50 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         "createdon",
         descending: true);
 
+    foreach (var viewName in new[]
+    {
+        "Active System Error Logs",
+        "System Error Log Associated View"
+    })
+    {
+        EnsureSystemView(
+            service,
+            "hx_errorlog",
+            viewName,
+            new[]
+            {
+                "hx_name",
+                "hx_sourcecomponent",
+                "hx_stage",
+                "hx_servicerequest",
+                "hx_correlationid",
+                "hx_resolved",
+                "createdon"
+            },
+            "<condition attribute='statecode' operator='eq' value='0' />",
+            "createdon",
+            descending: true,
+            queryType: 2);
+    }
+
+    EnsureSystemView(
+        service,
+        "hx_errorlog",
+        "System Error Log Lookup View",
+        new[]
+        {
+            "hx_name",
+            "hx_sourcecomponent",
+            "hx_stage",
+            "hx_servicerequest",
+            "hx_resolved",
+            "createdon"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "hx_name",
+        descending: false,
+        queryType: 64);
+
     EnsureSystemView(
         service,
         "hx_externalsynclog",
@@ -1059,6 +1196,49 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         null,
         "hx_attemptedon",
         descending: true);
+
+    foreach (var viewName in new[]
+    {
+        "Active External Sync Logs",
+        "External Sync Log Associated View"
+    })
+    {
+        EnsureSystemView(
+            service,
+            "hx_externalsynclog",
+            viewName,
+            new[]
+            {
+                "hx_name",
+                "hx_servicerequest",
+                "hx_syncstatus",
+                "hx_endpointname",
+                "hx_externalid",
+                "hx_attemptedon",
+                "createdon"
+            },
+            "<condition attribute='statecode' operator='eq' value='0' />",
+            "hx_attemptedon",
+            descending: true,
+            queryType: 2);
+    }
+
+    EnsureSystemView(
+        service,
+        "hx_externalsynclog",
+        "External Sync Log Lookup View",
+        new[]
+        {
+            "hx_name",
+            "hx_servicerequest",
+            "hx_syncstatus",
+            "hx_externalid",
+            "createdon"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "hx_name",
+        descending: false,
+        queryType: 64);
 
     Console.WriteLine("Configured model-driven forms and views.");
 }
@@ -1197,10 +1377,11 @@ static void EnsureSystemView(
     IReadOnlyList<string> columns,
     string? filterConditionXml,
     string orderBy,
-    bool descending)
+    bool descending,
+    int queryType = 0)
 {
     var objectTypeCode = GetObjectTypeCode(service, entityLogicalName);
-    var existing = FindSystemView(service, objectTypeCode, viewName);
+    var existing = FindSystemView(service, objectTypeCode, viewName, queryType);
     var savedQuery = existing ?? new Entity("savedquery");
     savedQuery["name"] = viewName;
     savedQuery["fetchxml"] = BuildViewFetchXml(entityLogicalName, columns, filterConditionXml, orderBy, descending);
@@ -1209,7 +1390,7 @@ static void EnsureSystemView(
     if (existing == null)
     {
         savedQuery["returnedtypecode"] = objectTypeCode;
-        savedQuery["querytype"] = 0;
+        savedQuery["querytype"] = queryType;
         var id = service.Create(savedQuery);
         AddToSolution(service, id, 26);
     }
@@ -1220,7 +1401,40 @@ static void EnsureSystemView(
     }
 }
 
-static Entity? FindSystemView(IOrganizationService service, int objectTypeCode, string viewName)
+static void DeleteObsoleteMainViewDuplicates(IOrganizationService service)
+{
+    var duplicateNames = new (string EntityLogicalName, string ViewName)[]
+    {
+        ("hx_servicedocument", "Service Request Document Associated View"),
+        ("hx_servicedocument", "Service Request Document Lookup View"),
+        ("hx_routingrule", "Routing / SLA Rule Associated View"),
+        ("hx_routingrule", "Routing / SLA Rule Lookup View"),
+        ("hx_externalsynclog", "External Sync Log Associated View"),
+        ("hx_externalsynclog", "External Sync Log Lookup View"),
+        ("hx_errorlog", "System Error Log Associated View"),
+        ("hx_errorlog", "System Error Log Lookup View")
+    };
+
+    foreach (var duplicate in duplicateNames)
+    {
+        var objectTypeCode = GetObjectTypeCode(service, duplicate.EntityLogicalName);
+        var query = new QueryExpression("savedquery")
+        {
+            ColumnSet = new ColumnSet("savedqueryid")
+        };
+        query.Criteria.AddCondition("returnedtypecode", ConditionOperator.Equal, objectTypeCode);
+        query.Criteria.AddCondition("querytype", ConditionOperator.Equal, 0);
+        query.Criteria.AddCondition("name", ConditionOperator.Equal, duplicate.ViewName);
+
+        foreach (var view in service.RetrieveMultiple(query).Entities)
+        {
+            service.Delete("savedquery", view.Id);
+            Console.WriteLine($"Deleted duplicate main view: {duplicate.ViewName}");
+        }
+    }
+}
+
+static Entity? FindSystemView(IOrganizationService service, int objectTypeCode, string viewName, int queryType)
 {
     var query = new QueryExpression("savedquery")
     {
@@ -1228,7 +1442,7 @@ static Entity? FindSystemView(IOrganizationService service, int objectTypeCode, 
         TopCount = 1
     };
     query.Criteria.AddCondition("returnedtypecode", ConditionOperator.Equal, objectTypeCode);
-    query.Criteria.AddCondition("querytype", ConditionOperator.Equal, 0);
+    query.Criteria.AddCondition("querytype", ConditionOperator.Equal, queryType);
     query.Criteria.AddCondition("name", ConditionOperator.Equal, viewName);
     return service.RetrieveMultiple(query).Entities.FirstOrDefault();
 }

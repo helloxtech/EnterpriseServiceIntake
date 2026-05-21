@@ -157,15 +157,16 @@ a.homelink:focus {
   align-items: center;
   color: #17212b;
   display: inline-flex;
-  gap: 12px;
+  gap: 0;
   text-decoration: none;
 }
 
 .esi-site-logo {
   display: block;
-  height: 42px;
+  height: auto;
+  max-height: 50px;
   object-fit: contain;
-  width: 42px;
+  width: min(240px, 50vw);
 }
 
 .esi-site-title {
@@ -186,6 +187,13 @@ a.homelink:focus {
 .navbar-dark .navbar-nav > li > a:focus,
 .navbar-dark .navbar-nav > li.dropdown > a:focus {
   color: #0067b1 !important;
+}
+
+@media (max-width: 640px) {
+  .esi-site-logo {
+    max-height: 38px;
+    width: min(190px, 58vw);
+  }
 }
 
 .navbar-dark .navbar-toggler {

@@ -111,6 +111,7 @@ erDiagram
 | Dynamic routing/SLA | Dataverse routing rules evaluated by `ServiceRequestRoutingPlugin` on create/update. | Routing must be transactional and consistent for portal, app, and automation creates. |
 | Confirmation number | Dataverse autonumber `SR-{yyyyMMdd}-{SEQNUM}` on Service Request. | Server-generated and tamper-resistant. |
 | Critical close guardrail | PreOperation C# plugin blocks resolved/closed critical requests without resolution notes and documentation flag. | A plugin is the right layer because agents cannot bypass it from forms, imports, flows, or API calls. |
+| Supporting documents | Portal uploads create Dataverse `Service Request Document` rows linked to the request with filename, type, notes, and review status. | The take-home stays solution-contained in Dataverse; SharePoint is not used. If binary file retention is required, the next extension should use Dataverse Notes or a Dataverse File column rather than a separate SharePoint dependency. |
 | Approval + ERP sync | Cloud flow `ESI - Approval and ERP Sync` with Try scope, approval, HTTP POST, Dataverse writeback, sync log, reject branch, and Catch error-log scope. | Flow is appropriate for human approvals, connector-based integration, retries, and run history evidence. |
 | Mock ERP endpoint | `https://api.restful-api.dev/objects` returns an external `id` from POST. | `reqres.in` currently requires an API key for POST, so this endpoint keeps the demo self-contained. |
 | Internal UX | Model-driven coordinator app plus PCF SLA/status indicator. | Keeps operational work in Dataverse while using PCF for richer visual status. |
@@ -121,9 +122,9 @@ erDiagram
 The `Enterprise Service Intake` app uses solution-aware system forms and views for each included table:
 
 - Request operations: `Coordinator Queue`, `Pending Manager Approval`, `Critical Documentation Guardrails`, and `ERP Sync Monitor`.
-- Supporting documentation: `Request Documents - Review`.
-- Configuration: `Active Routing Rules`, `Active Departments`, `Active SLA Policies`, and `Active Service Categories`.
-- Monitoring: `ERP Sync Attempts`, `Open Integration and Automation Errors`, and `All System Error Logs`.
+- Supporting documentation: `Request Documents - Review`, plus redesigned default Active, Associated, and Lookup views for attached document grids.
+- Configuration: `Active Routing Rules`, `Active Departments`, `Active SLA Policies`, and `Active Service Categories`; routing rule default Active, Associated, and Lookup views use the same operational columns.
+- Monitoring: `ERP Sync Attempts`, `Open Integration and Automation Errors`, and `All System Error Logs`; default Active, Associated, and Lookup views for sync/error logs show request, status, source, correlation, and timing fields.
 
 The forms are role-focused instead of generic Dataverse layouts: service requests separate intake, triage, routing/SLA, approval/ERP sync, and resolution guardrails; configuration tables surface active rule inputs; log tables prioritize triage fields and payload details.
 

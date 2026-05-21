@@ -2,7 +2,7 @@
   <content>{
   "display_name": "Mobile Header",
   "type": 756150001,
-  "value": "&lt;a href=\"~/\" class=\"esi-site-brand\" aria-label=\"Mitacs Service Intake home\"&gt;\n  &lt;img class=\"esi-site-logo\" src=\"/Logo-sm-64.png\" alt=\"\" aria-hidden=\"true\" /&gt;\n  &lt;span class=\"esi-site-title\"&gt;Mitacs Service Intake&lt;/span&gt;\n&lt;/a&gt;\n"
+  "value": "&lt;a href=\"~/\" class=\"esi-site-brand\" aria-label=\"Mitacs Service Intake home\"&gt;\n  &lt;img class=\"esi-site-logo\" src=\"/Logo_Mitacs-scaled.webp\" alt=\"\" aria-hidden=\"true\" /&gt;\n&lt;/a&gt;\n"
 }</content>
   <iscustomizable>1</iscustomizable>
   <name>Mobile Header</name>

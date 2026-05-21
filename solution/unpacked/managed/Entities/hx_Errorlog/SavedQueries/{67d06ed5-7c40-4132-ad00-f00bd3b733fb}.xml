@@ -10,19 +10,29 @@
     <layoutxml>
       <grid name="resultset" jump="hx_name" select="1" icon="1" preview="1">
         <row name="result" id="hx_errorlogid">
-          <cell name="hx_name" width="300" />
-          <cell name="createdon" width="125" />
+          <cell name="hx_name" width="240" />
+          <cell name="hx_sourcecomponent" width="140" />
+          <cell name="hx_stage" width="140" />
+          <cell name="hx_servicerequest" width="190" />
+          <cell name="hx_correlationid" width="140" />
+          <cell name="hx_resolved" width="140" />
+          <cell name="createdon" width="150" />
         </row>
       </grid>
     </layoutxml>
     <querytype>0</querytype>
     <fetchxml>
-      <fetch version="1.0" mapping="logical">
+      <fetch version="1.0" mapping="logical" output-format="xml-platform">
         <entity name="hx_errorlog">
           <attribute name="hx_errorlogid" />
           <attribute name="hx_name" />
+          <attribute name="hx_sourcecomponent" />
+          <attribute name="hx_stage" />
+          <attribute name="hx_servicerequest" />
+          <attribute name="hx_correlationid" />
+          <attribute name="hx_resolved" />
           <attribute name="createdon" />
-          <order attribute="hx_name" descending="false" />
+          <order attribute="createdon" descending="true" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>

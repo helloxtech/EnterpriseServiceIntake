@@ -8,20 +8,27 @@
     <isdefault>1</isdefault>
     <savedqueryid>{96e59040-b9d8-4f30-82dd-31bcd01bb315}</savedqueryid>
     <layoutxml>
-      <grid name="hx_externalsynclogs" jump="hx_name" select="1" icon="1" preview="0">
-        <row name="hx_externalsynclog" id="hx_externalsynclogid">
-          <cell name="hx_name" width="300" />
-          <cell name="createdon" width="125" />
+      <grid name="resultset" jump="hx_name" select="1" icon="1" preview="1">
+        <row name="result" id="hx_externalsynclogid">
+          <cell name="hx_name" width="240" />
+          <cell name="hx_servicerequest" width="190" />
+          <cell name="hx_syncstatus" width="140" />
+          <cell name="hx_externalid" width="140" />
+          <cell name="createdon" width="150" />
         </row>
       </grid>
     </layoutxml>
     <querytype>64</querytype>
     <fetchxml>
-      <fetch version="1.0" mapping="logical">
+      <fetch version="1.0" mapping="logical" output-format="xml-platform">
         <entity name="hx_externalsynclog">
           <attribute name="hx_externalsynclogid" />
           <attribute name="hx_name" />
+          <attribute name="hx_servicerequest" />
+          <attribute name="hx_syncstatus" />
+          <attribute name="hx_externalid" />
           <attribute name="createdon" />
+          <order attribute="hx_name" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>

@@ -8,20 +8,29 @@
     <isdefault>1</isdefault>
     <savedqueryid>{b5fbf6ec-f4a3-4005-a04e-7ad6f8437be6}</savedqueryid>
     <layoutxml>
-      <grid name="hx_errorlogs" jump="hx_name" select="1" icon="1" preview="0">
-        <row name="hx_errorlog" id="hx_errorlogid">
-          <cell name="hx_name" width="300" />
-          <cell name="createdon" width="125" />
+      <grid name="resultset" jump="hx_name" select="1" icon="1" preview="1">
+        <row name="result" id="hx_errorlogid">
+          <cell name="hx_name" width="240" />
+          <cell name="hx_sourcecomponent" width="140" />
+          <cell name="hx_stage" width="140" />
+          <cell name="hx_servicerequest" width="190" />
+          <cell name="hx_resolved" width="140" />
+          <cell name="createdon" width="150" />
         </row>
       </grid>
     </layoutxml>
     <querytype>64</querytype>
     <fetchxml>
-      <fetch version="1.0" mapping="logical">
+      <fetch version="1.0" mapping="logical" output-format="xml-platform">
         <entity name="hx_errorlog">
           <attribute name="hx_errorlogid" />
           <attribute name="hx_name" />
+          <attribute name="hx_sourcecomponent" />
+          <attribute name="hx_stage" />
+          <attribute name="hx_servicerequest" />
+          <attribute name="hx_resolved" />
           <attribute name="createdon" />
+          <order attribute="hx_name" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>

@@ -8,20 +8,27 @@
     <isdefault>1</isdefault>
     <savedqueryid>{e869782f-788c-4048-b91f-1642512a2e01}</savedqueryid>
     <layoutxml>
-      <grid name="hx_servicedocuments" jump="hx_name" select="1" icon="1" preview="0">
-        <row name="hx_servicedocument" id="hx_servicedocumentid">
-          <cell name="hx_name" width="300" />
-          <cell name="createdon" width="125" />
+      <grid name="resultset" jump="hx_name" select="1" icon="1" preview="1">
+        <row name="result" id="hx_servicedocumentid">
+          <cell name="hx_name" width="240" />
+          <cell name="hx_servicerequest" width="190" />
+          <cell name="hx_documenttype" width="140" />
+          <cell name="hx_filename" width="140" />
+          <cell name="createdon" width="150" />
         </row>
       </grid>
     </layoutxml>
     <querytype>64</querytype>
     <fetchxml>
-      <fetch version="1.0" mapping="logical">
+      <fetch version="1.0" mapping="logical" output-format="xml-platform">
         <entity name="hx_servicedocument">
           <attribute name="hx_servicedocumentid" />
           <attribute name="hx_name" />
+          <attribute name="hx_servicerequest" />
+          <attribute name="hx_documenttype" />
+          <attribute name="hx_filename" />
           <attribute name="createdon" />
+          <order attribute="hx_name" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>

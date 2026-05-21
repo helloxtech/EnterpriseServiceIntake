@@ -8,21 +8,31 @@
     <isdefault>1</isdefault>
     <savedqueryid>{3c116912-d299-4ef4-b8cd-bb5d1c5371c5}</savedqueryid>
     <layoutxml>
-      <grid name="hx_externalsynclogs" jump="hx_name" select="1" icon="1" preview="1">
-        <row name="hx_externalsynclog" id="hx_externalsynclogid">
-          <cell name="hx_name" width="300" />
-          <cell name="createdon" width="125" />
+      <grid name="resultset" jump="hx_name" select="1" icon="1" preview="1">
+        <row name="result" id="hx_externalsynclogid">
+          <cell name="hx_name" width="240" />
+          <cell name="hx_servicerequest" width="190" />
+          <cell name="hx_syncstatus" width="140" />
+          <cell name="hx_endpointname" width="140" />
+          <cell name="hx_externalid" width="140" />
+          <cell name="hx_attemptedon" width="150" />
+          <cell name="createdon" width="150" />
         </row>
       </grid>
     </layoutxml>
     <querytype>2</querytype>
     <fetchxml>
-      <fetch version="1.0" mapping="logical">
+      <fetch version="1.0" mapping="logical" output-format="xml-platform">
         <entity name="hx_externalsynclog">
           <attribute name="hx_externalsynclogid" />
           <attribute name="hx_name" />
+          <attribute name="hx_servicerequest" />
+          <attribute name="hx_syncstatus" />
+          <attribute name="hx_endpointname" />
+          <attribute name="hx_externalid" />
+          <attribute name="hx_attemptedon" />
           <attribute name="createdon" />
-          <order attribute="hx_name" descending="false" />
+          <order attribute="hx_attemptedon" descending="true" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>

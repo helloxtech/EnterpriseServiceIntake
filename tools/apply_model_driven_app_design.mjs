@@ -8,6 +8,9 @@ const password = required("POWERPLATFORM_ADMIN_PASSWORD");
 const solutionUniqueName = process.env.POWERPLATFORM_SOLUTION_UNIQUE_NAME || "EnterpriseServiceIntake";
 const clientId = process.env.POWERPLATFORM_PUBLIC_CLIENT_ID || "51f81489-12ee-4a9e-aaae-a2591f45987d";
 const shouldExport = process.argv.includes("--export");
+const MAIN_VIEW = 0;
+const ASSOCIATED_VIEW = 2;
+const LOOKUP_VIEW = 64;
 
 const controls = {
   text: "{4273EDBD-AC1D-40D3-9FB2-095C621B552D}",
@@ -238,6 +241,49 @@ const forms = [
   }
 ];
 
+const requestDocumentViewColumns = [
+  "hx_name",
+  "hx_servicerequest",
+  "hx_documenttype",
+  "hx_filename",
+  "hx_verified",
+  "createdon",
+  "ownerid"
+];
+
+const routingRuleViewColumns = [
+  "hx_sortorder",
+  "hx_name",
+  "hx_servicecategory",
+  "hx_matchseverity",
+  "hx_matchpriority",
+  "hx_department",
+  "hx_slapolicy",
+  "hx_requiresapproval",
+  "hx_resolutiondocumentationrequired",
+  "hx_active"
+];
+
+const externalSyncLogViewColumns = [
+  "hx_name",
+  "hx_servicerequest",
+  "hx_syncstatus",
+  "hx_endpointname",
+  "hx_externalid",
+  "hx_attemptedon",
+  "createdon"
+];
+
+const errorLogViewColumns = [
+  "hx_name",
+  "hx_sourcecomponent",
+  "hx_stage",
+  "hx_servicerequest",
+  "hx_correlationid",
+  "hx_resolved",
+  "createdon"
+];
+
 const views = [
   view("hx_servicerequest", "Coordinator Queue", [
     "hx_confirmationnumber",
@@ -299,27 +345,28 @@ const views = [
     "  <condition attribute='hx_integrationsyncstatus' operator='eq' value='752630003' />",
     "</filter>"
   ].join("\n      "), "modifiedon", true),
-  view("hx_servicedocument", "Request Documents - Review", [
+  view("hx_servicedocument", "Request Documents - Review", requestDocumentViewColumns, "<condition attribute='statecode' operator='eq' value='0' />", "createdon", true),
+  view("hx_servicedocument", "Active Service Request Documents", requestDocumentViewColumns, "<condition attribute='statecode' operator='eq' value='0' />", "createdon", true),
+  view("hx_servicedocument", "Service Request Document Associated View", requestDocumentViewColumns, "<condition attribute='statecode' operator='eq' value='0' />", "createdon", true, ASSOCIATED_VIEW),
+  view("hx_servicedocument", "Service Request Document Lookup View", [
     "hx_name",
     "hx_servicerequest",
     "hx_documenttype",
     "hx_filename",
-    "hx_verified",
-    "createdon",
-    "ownerid"
-  ], "<condition attribute='statecode' operator='eq' value='0' />", "createdon", true),
-  view("hx_routingrule", "Active Routing Rules", [
-    "hx_sortorder",
+    "createdon"
+  ], "<condition attribute='statecode' operator='eq' value='0' />", "hx_name", false, LOOKUP_VIEW),
+  view("hx_routingrule", "Active Routing Rules", routingRuleViewColumns, "<condition attribute='hx_active' operator='eq' value='1' />", "hx_sortorder", false),
+  view("hx_routingrule", "Active Routing / SLA Rules", routingRuleViewColumns, "<condition attribute='hx_active' operator='eq' value='1' />", "hx_sortorder", false),
+  view("hx_routingrule", "Routing / SLA Rule Associated View", routingRuleViewColumns, "<condition attribute='hx_active' operator='eq' value='1' />", "hx_sortorder", false, ASSOCIATED_VIEW),
+  view("hx_routingrule", "Routing / SLA Rule Lookup View", [
     "hx_name",
     "hx_servicecategory",
     "hx_matchseverity",
     "hx_matchpriority",
     "hx_department",
     "hx_slapolicy",
-    "hx_requiresapproval",
-    "hx_resolutiondocumentationrequired",
     "hx_active"
-  ], "<condition attribute='hx_active' operator='eq' value='1' />", "hx_sortorder", false),
+  ], "<condition attribute='hx_active' operator='eq' value='1' />", "hx_name", false, LOOKUP_VIEW),
   view("hx_department", "Active Departments", [
     "hx_name",
     "hx_code",
@@ -341,33 +388,28 @@ const views = [
     "hx_active",
     "modifiedon"
   ], "<condition attribute='hx_active' operator='eq' value='1' />", "hx_name", false),
-  view("hx_externalsynclog", "ERP Sync Attempts", [
+  view("hx_externalsynclog", "ERP Sync Attempts", externalSyncLogViewColumns, null, "hx_attemptedon", true),
+  view("hx_externalsynclog", "Active External Sync Logs", externalSyncLogViewColumns, "<condition attribute='statecode' operator='eq' value='0' />", "hx_attemptedon", true),
+  view("hx_externalsynclog", "External Sync Log Associated View", externalSyncLogViewColumns, "<condition attribute='statecode' operator='eq' value='0' />", "hx_attemptedon", true, ASSOCIATED_VIEW),
+  view("hx_externalsynclog", "External Sync Log Lookup View", [
     "hx_name",
     "hx_servicerequest",
     "hx_syncstatus",
-    "hx_endpointname",
     "hx_externalid",
-    "hx_attemptedon",
     "createdon"
-  ], null, "hx_attemptedon", true),
-  view("hx_errorlog", "Open Integration and Automation Errors", [
+  ], "<condition attribute='statecode' operator='eq' value='0' />", "hx_name", false, LOOKUP_VIEW),
+  view("hx_errorlog", "Open Integration and Automation Errors", errorLogViewColumns, "<condition attribute='hx_resolved' operator='eq' value='0' />", "createdon", true),
+  view("hx_errorlog", "All System Error Logs", errorLogViewColumns, null, "createdon", true),
+  view("hx_errorlog", "Active System Error Logs", errorLogViewColumns, "<condition attribute='statecode' operator='eq' value='0' />", "createdon", true),
+  view("hx_errorlog", "System Error Log Associated View", errorLogViewColumns, "<condition attribute='statecode' operator='eq' value='0' />", "createdon", true, ASSOCIATED_VIEW),
+  view("hx_errorlog", "System Error Log Lookup View", [
     "hx_name",
     "hx_sourcecomponent",
     "hx_stage",
     "hx_servicerequest",
-    "hx_correlationid",
     "hx_resolved",
     "createdon"
-  ], "<condition attribute='hx_resolved' operator='eq' value='0' />", "createdon", true),
-  view("hx_errorlog", "All System Error Logs", [
-    "hx_name",
-    "hx_sourcecomponent",
-    "hx_stage",
-    "hx_servicerequest",
-    "hx_correlationid",
-    "hx_resolved",
-    "createdon"
-  ], null, "createdon", true)
+  ], "<condition attribute='statecode' operator='eq' value='0' />", "hx_name", false, LOOKUP_VIEW)
 ];
 
 const token = await getToken();
@@ -375,6 +417,8 @@ const token = await getToken();
 for (const form of forms) {
   await applyForm(form);
 }
+
+await deleteObsoleteMainViewDuplicates();
 
 for (const systemView of views) {
   await applyView(systemView);
@@ -405,8 +449,8 @@ function section(name, fields) {
   return { name, fields };
 }
 
-function view(entity, name, columns, filterXml, orderBy, descending) {
-  return { entity, name, columns, filterXml, orderBy, descending };
+function view(entity, name, columns, filterXml, orderBy, descending, queryType = MAIN_VIEW) {
+  return { entity, name, columns, filterXml, orderBy, descending, queryType };
 }
 
 async function getToken() {
@@ -458,13 +502,13 @@ async function applyView(systemView) {
   const escapedName = systemView.name.replace(/'/g, "''");
   const result = await dataverse(
     "GET",
-    `savedqueries?$select=savedqueryid,name&$filter=querytype eq 0 and returnedtypecode eq '${systemView.entity}' and name eq '${escapedName}'`
+    `savedqueries?$select=savedqueryid,name&$filter=querytype eq ${systemView.queryType} and returnedtypecode eq '${systemView.entity}' and name eq '${escapedName}'`
   );
   const existing = result.value?.[0];
   const payload = {
     name: systemView.name,
     returnedtypecode: systemView.entity,
-    querytype: 0,
+    querytype: systemView.queryType,
     fetchxml: buildFetchXml(systemView),
     layoutxml: buildLayoutXml(systemView)
   };
@@ -481,6 +525,31 @@ async function applyView(systemView) {
   }
 
   await addSolutionComponent(id, 26);
+}
+
+async function deleteObsoleteMainViewDuplicates() {
+  const duplicateNames = [
+    ["hx_servicedocument", "Service Request Document Associated View"],
+    ["hx_servicedocument", "Service Request Document Lookup View"],
+    ["hx_routingrule", "Routing / SLA Rule Associated View"],
+    ["hx_routingrule", "Routing / SLA Rule Lookup View"],
+    ["hx_externalsynclog", "External Sync Log Associated View"],
+    ["hx_externalsynclog", "External Sync Log Lookup View"],
+    ["hx_errorlog", "System Error Log Associated View"],
+    ["hx_errorlog", "System Error Log Lookup View"]
+  ];
+
+  for (const [entity, name] of duplicateNames) {
+    const escapedName = name.replace(/'/g, "''");
+    const result = await dataverse(
+      "GET",
+      `savedqueries?$select=savedqueryid,name&$filter=querytype eq ${MAIN_VIEW} and returnedtypecode eq '${entity}' and name eq '${escapedName}'`
+    );
+    for (const item of result.value || []) {
+      await dataverse("DELETE", `savedqueries(${item.savedqueryid})`);
+      console.log(`Deleted duplicate main view: ${name}`);
+    }
+  }
 }
 
 function buildFormXml(form) {

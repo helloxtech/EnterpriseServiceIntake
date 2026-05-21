@@ -1,7 +1,7 @@
 <powerpagecomponent powerpagecomponentid="dfd59887-b948-4fe6-b3a7-6a017dfa6f1c">
   <content>{
   "append": true,
-  "appendto": false,
+  "appendto": true,
   "create": true,
   "delete": false,
   "entitylogicalname": "hx_servicedocument",
