@@ -5,17 +5,17 @@
   <div class="esi-hero-inner">
     <div class="esi-hero-copy">
       <div class="esi-brand">
-        <span class="esi-brand-mark" aria-hidden="true"></span>
+        <img class="esi-brand-logo" src="/Logo-sm-64.png" alt="" aria-hidden="true" />
         <span>Mitacs Service Intake</span>
       </div>
       <h1>Submit a service request</h1>
-      <p>Use the secure intake wizard to describe the request, add business impact, upload supporting files, and preview the expected routing path before submission.</p>
+      <p>Use this secure form to describe what you need, explain the impact, attach supporting files, and see an estimated response path before you submit.</p>
     </div>
     {% if user %}
     <div class="esi-user-card" aria-label="Signed in customer">
       <span class="esi-user-label">Signed in</span>
       <strong>{{ user.fullname | default: user.emailaddress1 | escape }}</strong>
-      <span>Customer portal session</span>
+      <span>Customer account</span>
     </div>
     {% endif %}
   </div>
@@ -25,10 +25,10 @@
 <main class="esi-shell" id="mainContent" data-esi-intake>
   <div class="esi-workspace-banner">
     <div>
-      <strong>Secure customer intake</strong>
-      <span>Your request is linked to your portal account. Internal-only notes and routing fields remain hidden from external users.</span>
+      <strong>Secure customer request</strong>
+      <span>Your request is linked to your account so you can return later and track updates.</span>
     </div>
-    <span class="esi-status-pill">Authenticated</span>
+    <span class="esi-status-pill">Signed in</span>
   </div>
 
   <nav class="esi-steps" aria-label="Request steps">
@@ -42,7 +42,7 @@
     </button>
     <button type="button" data-step-target="documents">
       <span class="esi-step-index">3</span>
-      <span><strong>Documentation</strong><small>Add evidence</small></span>
+      <span><strong>Supporting Files</strong><small>Add files</small></span>
     </button>
     <button type="button" data-step-target="review">
       <span class="esi-step-index">4</span>
@@ -56,7 +56,7 @@
         <div class="esi-section-heading">
           <span class="esi-section-kicker">Step 1 of 4</span>
           <h2>Request details</h2>
-          <p>Start with a short title, category, and clear description so the request can be routed correctly.</p>
+          <p>Start with a short title, category, and clear description so we understand what you need.</p>
         </div>
 
         <label>
@@ -87,7 +87,7 @@
         <div class="esi-section-heading">
           <span class="esi-section-kicker">Step 2 of 4</span>
           <h2>Impact and urgency</h2>
-          <p>Severity and priority drive the live routing preview and manager approval path.</p>
+          <p>Your answers help us estimate the right team and target response time.</p>
         </div>
 
         <div class="esi-two-column">
@@ -115,7 +115,7 @@
         </div>
 
         <label>
-          <span>Business impact <em data-critical-required>Required for high priority or critical requests</em></span>
+          <span>Business impact <em data-critical-required>Required for urgent or critical requests</em></span>
           <textarea name="impact" rows="5" placeholder="Explain deadline risk, customer impact, affected team, or operational blocker."></textarea>
         </label>
 
@@ -129,13 +129,13 @@
       <section class="esi-step" data-step="documents">
         <div class="esi-section-heading">
           <span class="esi-section-kicker">Step 3 of 4</span>
-          <h2>Supporting documentation</h2>
-          <p>Attach screenshots, forms, or supporting context. File metadata is captured in Dataverse for demo traceability.</p>
+          <h2>Supporting files</h2>
+          <p>Attach screenshots, forms, or other files that may help us understand your request.</p>
         </div>
 
         <label class="esi-upload">
           <span class="esi-upload-title">Upload supporting files</span>
-          <span class="esi-upload-help">Choose one or more files that help internal teams understand the request.</span>
+          <span class="esi-upload-help">Choose one or more files that help explain your request.</span>
           <input name="documents" type="file" multiple />
         </label>
         <div class="esi-file-list" data-file-list></div>
@@ -151,7 +151,7 @@
         <div class="esi-section-heading">
           <span class="esi-section-kicker">Step 4 of 4</span>
           <h2>Review and submit</h2>
-          <p>Submit appears only on this final step. Dataverse will generate the confirmation number and apply server-side routing.</p>
+          <p>Review your details before submitting. A confirmation number will be shown when your request is received.</p>
         </div>
 
         <div class="esi-review" data-review-summary></div>
@@ -179,11 +179,11 @@
       <h2>Complete category, severity, and priority to preview routing.</h2>
       <div class="esi-preview-grid">
         <div><span>Department</span><strong>Pending</strong></div>
-        <div><span>Response target / SLA</span><strong>Pending</strong></div>
-        <div><span>Approval</span><strong>Pending</strong></div>
-        <div><span>Documentation</span><strong>Standard</strong></div>
+        <div><span>Target response</span><strong>Pending</strong></div>
+        <div><span>Review</span><strong>Pending</strong></div>
+        <div><span>Supporting files</span><strong>Standard</strong></div>
       </div>
-      <p>The final department and SLA are assigned server-side after submission.</p>
+      <p>The final team and target response time are confirmed after you submit.</p>
     </aside>
   </div>
 </main>
@@ -200,15 +200,15 @@
     <div>
       <span class="esi-preview-label">Secure intake</span>
       <h2>Sign in to submit a service request</h2>
-      <p>Authenticated access is required so customers only see their own requests, uploaded documents, and confirmation history.</p>
+      <p>Please sign in so we can link the request to your account and show only your own requests, uploaded files, and confirmation history.</p>
       <a class="esi-primary esi-link-button" href="{% if homeurl %}/{{ homeurl }}{% endif %}{{ website.sign_in_url_substitution }}">Sign in to continue</a>
     </div>
     <div class="esi-auth-panel" aria-label="Security controls">
       <strong>Why sign in?</strong>
       <ul>
-        <li>Protects customer-specific request data</li>
-        <li>Links submissions to your contact record</li>
-        <li>Enables status tracking after submission</li>
+        <li>Protects your request history</li>
+        <li>Saves your contact details with the request</li>
+        <li>Lets you track updates after submission</li>
       </ul>
     </div>
   </section>

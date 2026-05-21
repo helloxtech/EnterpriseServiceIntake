@@ -55,13 +55,12 @@ body {
 }
 
 .esi-site-logo,
-.esi-brand-mark {
-  background: var(--esi-blue);
-  border-radius: 15px 28px 15px 28px;
-  display: inline-block;
+.esi-brand-logo {
+  display: block;
   flex: 0 0 auto;
-  height: 34px;
-  width: 48px;
+  height: 42px;
+  object-fit: contain;
+  width: 42px;
 }
 
 .esi-site-title {
@@ -102,9 +101,9 @@ body {
   margin-bottom: 24px;
 }
 
-.esi-brand-mark {
-  height: 28px;
-  width: 42px;
+.esi-brand-logo {
+  height: 36px;
+  width: 36px;
 }
 
 .esi-hero h1 {

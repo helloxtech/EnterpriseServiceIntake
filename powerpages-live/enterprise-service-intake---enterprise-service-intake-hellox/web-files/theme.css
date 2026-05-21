@@ -162,11 +162,10 @@ a.homelink:focus {
 }
 
 .esi-site-logo {
-  background: #0067b1;
-  border-radius: 12px 28px 12px 28px;
-  display: inline-block;
-  height: 32px;
-  width: 44px;
+  display: block;
+  height: 42px;
+  object-fit: contain;
+  width: 42px;
 }
 
 .esi-site-title {

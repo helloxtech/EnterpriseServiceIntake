@@ -75,13 +75,13 @@
 
     impact.required = required;
     impact.setCustomValidity(required && !impact.value.trim()
-      ? "Business impact is required for high priority or critical requests."
+      ? "Business impact is required for urgent or critical requests."
       : "");
 
     if (note) {
       note.textContent = required
         ? "Required for this request"
-        : "Required for high priority or critical requests";
+        : "Required for urgent or critical requests";
     }
   }
 
@@ -152,7 +152,7 @@
   function safeAjax(options) {
     const tokenProvider = window.shell && window.shell.getTokenDeferred;
     if (!window.jQuery || !tokenProvider) {
-      return Promise.reject(new Error("Power Pages request token is unavailable."));
+      return Promise.reject(new Error("We could not prepare the secure request. Refresh the page and try again."));
     }
 
     return new Promise((resolve, reject) => {
@@ -169,7 +169,7 @@
             const detail = xhr.responseJSON?.error?.message || xhr.responseText || xhr.statusText;
             reject(new Error(detail || `Request failed with status ${xhr.status}`));
           });
-      }).fail(() => reject(new Error("Could not get Power Pages request token.")));
+      }).fail(() => reject(new Error("We could not prepare the secure request. Refresh the page and try again.")));
     });
   }
 
@@ -201,8 +201,8 @@
       ].join("");
       setPreview({
         status: "warning",
-        heading: "Live category lookup is unavailable.",
-        note: "The page can still preview common scenarios. Submission requires live Dataverse category access."
+        heading: "Categories are temporarily unavailable.",
+        note: "You can still review the form, but submitting requires an active service category."
       });
     }
   }
@@ -233,11 +233,11 @@
   }
 
   function previewStateLabel(status) {
-    if (status === "ready") return "Live estimate";
+    if (status === "ready") return "Estimate ready";
     if (status === "warning") return "Needs review";
     if (status === "error") return "Unavailable";
-    if (status === "loading") return "Checking rules";
-    return "Waiting for inputs";
+    if (status === "loading") return "Checking options";
+    return "Waiting for details";
   }
 
   function toneFor(value, kind) {
@@ -271,11 +271,11 @@
       <h2>${html(state.heading)}</h2>
       <div class="esi-preview-grid">
         ${previewRow("Department", department)}
-        ${previewRow("Response target / SLA", sla)}
-        ${previewRow("Approval", approval, toneFor(approval, "approval"))}
-        ${previewRow("Documentation", documentation, toneFor(documentation, "documentation"))}
+      ${previewRow("Target response", sla)}
+      ${previewRow("Review", approval, toneFor(approval, "approval"))}
+      ${previewRow("Supporting files", documentation, toneFor(documentation, "documentation"))}
       </div>
-      <p class="esi-preview-note">${html(state.note || "The final department and SLA are assigned server-side after submission.")}</p>`;
+      <p class="esi-preview-note">${html(state.note || "The final team and target response time are confirmed after you submit.")}</p>`;
   }
 
   async function refreshPreview() {
@@ -288,7 +288,7 @@
       setPreview({
         status: "waiting",
         heading: "Complete category, severity, and priority to preview routing.",
-        note: "The final department and SLA are assigned server-side after submission."
+        note: "The final team and target response time are confirmed after you submit."
       });
       return;
     }
@@ -296,7 +296,7 @@
     setPreview({
       status: "loading",
       heading: "Refreshing live routing preview...",
-      note: "Checking active Dataverse routing rules through the Power Pages Web API."
+      note: "Checking the current service options for your request."
     });
 
     try {
@@ -312,9 +312,9 @@
           heading: "General Intake review expected",
           department: "General Intake",
           sla: "Reviewed after submission",
-          approval: isHighImpactRequest() ? "Manager approval likely" : "To be confirmed",
-          documentation: isHighImpactRequest() ? "Impact notes required" : "As needed",
-          note: "No exact rule matched this combination. The request can still be submitted and will be routed server-side."
+          approval: isHighImpactRequest() ? "Additional review may be required" : "To be confirmed",
+          documentation: isHighImpactRequest() ? "Impact details required" : "As needed",
+          note: "We will review this request after submission and assign it to the right team."
         });
         return;
       }
@@ -324,19 +324,19 @@
         heading: match.name,
         department: match.department,
         sla: `${match.responseHours} hour response target`,
-        approval: match.requiresApproval ? "Manager approval required" : "No manager approval",
-        documentation: match.requiresDocumentation ? "Resolution evidence required" : "Standard supporting files",
-        note: "This is a live preview. Dataverse applies the authoritative routing rule when the request is saved."
+        approval: match.requiresApproval ? "Additional review required" : "No additional review expected",
+        documentation: match.requiresDocumentation ? "Follow-up details may be required" : "Standard supporting files",
+        note: "This is an estimate. The final team and target response time are confirmed after you submit."
       });
     } catch (error) {
       setPreview({
         status: "error",
         heading: "Preview temporarily unavailable",
-        department: "Server-side routing",
-        sla: "Applied after save",
-        approval: isHighImpactRequest() ? "Manager approval likely" : "To be confirmed",
-        documentation: isHighImpactRequest() ? "Impact notes required" : "Standard",
-        note: error.message || "The server-side plugin still applies routing on save."
+        department: "Assigned after submission",
+        sla: "Confirmed after submission",
+        approval: isHighImpactRequest() ? "Additional review may be required" : "To be confirmed",
+        documentation: isHighImpactRequest() ? "Impact details required" : "Standard",
+        note: "We could not show an estimate right now. You can still submit the request."
       });
     }
   }
@@ -411,12 +411,12 @@
 
     const categoryId = field("category").value;
     if (/^static-/.test(categoryId)) {
-      showResult("error", "Live category lookup required", "The category list could not be loaded from Dataverse, so the request was not submitted.");
+      showResult("error", "Service category unavailable", "We could not load the current service categories. Refresh the page and try again before submitting.");
       return;
     }
 
     submitButton.disabled = true;
-    showResult("info", "Submitting request...", "Creating the Dataverse service request and capturing document metadata.");
+    showResult("info", "Submitting request...", "Sending your request and supporting file details.");
 
     const descriptionParts = [
       field("description").value,
@@ -463,8 +463,8 @@
         "success",
         "Request submitted",
         confirmation
-          ? `Confirmation number ${confirmation} has been created. Approval and ERP sync continue through Power Automate when required.`
-          : "The request was submitted. The confirmation number will be available in the internal app."
+          ? `Confirmation number ${confirmation} has been created. Use this number if you need to follow up with Mitacs.`
+          : "Your request was submitted. A confirmation number will be available after processing."
       );
 
       form.reset();
@@ -474,7 +474,8 @@
       await populateCategories();
       await refreshPreview();
     } catch (error) {
-      showResult("error", "Submission failed", error.message || "The request could not be submitted.");
+      console.error(error);
+      showResult("error", "Submission failed", "We could not submit the request. Please review the form and try again.");
     } finally {
       submitButton.disabled = false;
     }
@@ -491,7 +492,7 @@
         hx_name: file.name,
         hx_filename: file.name,
         hx_documenttype: 752630000,
-        hx_notes: "Uploaded through the Power Pages intake form. File metadata captured for demo traceability.",
+        hx_notes: "Uploaded through the customer service intake form.",
         "hx_Servicerequest@odata.bind": `/hx_servicerequests(${requestId})`
       })
     })));
