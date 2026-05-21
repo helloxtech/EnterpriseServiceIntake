@@ -939,31 +939,42 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         "createdon",
         descending: true);
 
-    foreach (var viewName in new[]
-    {
+    EnsureSystemView(
+        service,
+        "hx_servicedocument",
         "Active Service Request Documents",
-        "Service Request Document Associated View"
-    })
-    {
-        EnsureSystemView(
-            service,
-            "hx_servicedocument",
-            viewName,
-            new[]
-            {
-                "hx_name",
-                "hx_servicerequest",
-                "hx_documenttype",
-                "hx_filename",
-                "hx_verified",
-                "createdon",
-                "ownerid"
-            },
-            "<condition attribute='statecode' operator='eq' value='0' />",
+        new[]
+        {
+            "hx_name",
+            "hx_servicerequest",
+            "hx_documenttype",
+            "hx_filename",
+            "hx_verified",
             "createdon",
-            descending: true,
-            queryType: 2);
-    }
+            "ownerid"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "createdon",
+        descending: true);
+
+    EnsureSystemView(
+        service,
+        "hx_servicedocument",
+        "Service Request Document Associated View",
+        new[]
+        {
+            "hx_name",
+            "hx_servicerequest",
+            "hx_documenttype",
+            "hx_filename",
+            "hx_verified",
+            "createdon",
+            "ownerid"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "createdon",
+        descending: true,
+        queryType: 2);
 
     EnsureSystemView(
         service,
@@ -1003,34 +1014,48 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         "hx_sortorder",
         descending: false);
 
-    foreach (var viewName in new[]
-    {
+    EnsureSystemView(
+        service,
+        "hx_routingrule",
         "Active Routing / SLA Rules",
-        "Routing / SLA Rule Associated View"
-    })
-    {
-        EnsureSystemView(
-            service,
-            "hx_routingrule",
-            viewName,
-            new[]
-            {
-                "hx_sortorder",
-                "hx_name",
-                "hx_servicecategory",
-                "hx_matchseverity",
-                "hx_matchpriority",
-                "hx_department",
-                "hx_slapolicy",
-                "hx_requiresapproval",
-                "hx_resolutiondocumentationrequired",
-                "hx_active"
-            },
-            "<condition attribute='hx_active' operator='eq' value='1' />",
+        new[]
+        {
             "hx_sortorder",
-            descending: false,
-            queryType: 2);
-    }
+            "hx_name",
+            "hx_servicecategory",
+            "hx_matchseverity",
+            "hx_matchpriority",
+            "hx_department",
+            "hx_slapolicy",
+            "hx_requiresapproval",
+            "hx_resolutiondocumentationrequired",
+            "hx_active"
+        },
+        "<condition attribute='hx_active' operator='eq' value='1' />",
+        "hx_sortorder",
+        descending: false);
+
+    EnsureSystemView(
+        service,
+        "hx_routingrule",
+        "Routing / SLA Rule Associated View",
+        new[]
+        {
+            "hx_sortorder",
+            "hx_name",
+            "hx_servicecategory",
+            "hx_matchseverity",
+            "hx_matchpriority",
+            "hx_department",
+            "hx_slapolicy",
+            "hx_requiresapproval",
+            "hx_resolutiondocumentationrequired",
+            "hx_active"
+        },
+        "<condition attribute='hx_active' operator='eq' value='1' />",
+        "hx_sortorder",
+        descending: false,
+        queryType: 2);
 
     EnsureSystemView(
         service,
@@ -1135,31 +1160,42 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         "createdon",
         descending: true);
 
-    foreach (var viewName in new[]
-    {
+    EnsureSystemView(
+        service,
+        "hx_errorlog",
         "Active System Error Logs",
-        "System Error Log Associated View"
-    })
-    {
-        EnsureSystemView(
-            service,
-            "hx_errorlog",
-            viewName,
-            new[]
-            {
-                "hx_name",
-                "hx_sourcecomponent",
-                "hx_stage",
-                "hx_servicerequest",
-                "hx_correlationid",
-                "hx_resolved",
-                "createdon"
-            },
-            "<condition attribute='statecode' operator='eq' value='0' />",
-            "createdon",
-            descending: true,
-            queryType: 2);
-    }
+        new[]
+        {
+            "hx_name",
+            "hx_sourcecomponent",
+            "hx_stage",
+            "hx_servicerequest",
+            "hx_correlationid",
+            "hx_resolved",
+            "createdon"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "createdon",
+        descending: true);
+
+    EnsureSystemView(
+        service,
+        "hx_errorlog",
+        "System Error Log Associated View",
+        new[]
+        {
+            "hx_name",
+            "hx_sourcecomponent",
+            "hx_stage",
+            "hx_servicerequest",
+            "hx_correlationid",
+            "hx_resolved",
+            "createdon"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "createdon",
+        descending: true,
+        queryType: 2);
 
     EnsureSystemView(
         service,
@@ -1197,31 +1233,42 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         "hx_attemptedon",
         descending: true);
 
-    foreach (var viewName in new[]
-    {
+    EnsureSystemView(
+        service,
+        "hx_externalsynclog",
         "Active External Sync Logs",
-        "External Sync Log Associated View"
-    })
-    {
-        EnsureSystemView(
-            service,
-            "hx_externalsynclog",
-            viewName,
-            new[]
-            {
-                "hx_name",
-                "hx_servicerequest",
-                "hx_syncstatus",
-                "hx_endpointname",
-                "hx_externalid",
-                "hx_attemptedon",
-                "createdon"
-            },
-            "<condition attribute='statecode' operator='eq' value='0' />",
+        new[]
+        {
+            "hx_name",
+            "hx_servicerequest",
+            "hx_syncstatus",
+            "hx_endpointname",
+            "hx_externalid",
             "hx_attemptedon",
-            descending: true,
-            queryType: 2);
-    }
+            "createdon"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "hx_attemptedon",
+        descending: true);
+
+    EnsureSystemView(
+        service,
+        "hx_externalsynclog",
+        "External Sync Log Associated View",
+        new[]
+        {
+            "hx_name",
+            "hx_servicerequest",
+            "hx_syncstatus",
+            "hx_endpointname",
+            "hx_externalid",
+            "hx_attemptedon",
+            "createdon"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "hx_attemptedon",
+        descending: true,
+        queryType: 2);
 
     EnsureSystemView(
         service,
