@@ -260,6 +260,46 @@
             </column>
           </columns>
         </tab>
+        <tab verticallayout="true" id="{ecda5151-a8f2-92ba-1f15-ff8ea4f196a2}" name="tab_documents" IsUserDefined="1" showlabel="true">
+          <labels>
+            <label description="Documents" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section id="{f549d735-c22e-1a4c-fc2b-ad4ddb048c5e}" name="sharepoint_documents" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                  <labels>
+                    <label description="SharePoint Documents" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{fec7d1dc-93b4-b180-a60a-4e986b3b3186}" showlabel="false" rowspan="8" colspan="1" auto="false">
+                        <labels>
+                          <label description="SharePoint Documents" languagecode="1033" />
+                        </labels>
+                        <control id="SharePointDocuments" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                          <parameters>
+                            <TargetEntityType>sharepointdocumentlocation</TargetEntityType>
+                            <ChartGridMode>Grid</ChartGridMode>
+                            <EnableQuickFind>false</EnableQuickFind>
+                            <EnableViewPicker>false</EnableViewPicker>
+                            <EnableJumpBar>false</EnableJumpBar>
+                            <RecordsPerPage>10</RecordsPerPage>
+                            <ViewId>{820684b1-8d57-df11-a5a2-00155d2a9005}</ViewId>
+                            <IsUserView>false</IsUserView>
+                            <ViewIds>{820684b1-8d57-df11-a5a2-00155d2a9005}</ViewIds>
+                            <AutoExpand>Fixed</AutoExpand>
+                            <RelationshipName>hx_servicerequest_SharePointDocumentLocations</RelationshipName>
+                          </parameters>
+                        </control>
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
       </tabs>
       <header id="{a9d08c45-7f0d-146a-bab5-85f4b4eb1724}" celllabelposition="Top" columns="1111" labelwidth="115" celllabelalignment="Left">
         <rows>

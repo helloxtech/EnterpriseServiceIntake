@@ -51,6 +51,7 @@
 | Upload page diagnostics | Request Documents page now shows a visible ready/warning/error status for the SharePoint document grid instead of failing silently. |
 | SharePoint upload smoke test | `Portal smoke file upload 2026-05-21T07-24-18-212Z` created confirmation `SR-20260521-001025`; `esi-upload-smoke.txt` uploaded through the document grid and appeared on the page. |
 | SharePoint document location | Dataverse returned `sharepointdocumentlocationid` `4c2b05a7-e654-f111-89e7-0022488fbd9b` for request `df11b114-e654-f111-bec7-000d3a3aca8f`. |
+| Model-driven document tab | Live `Service Request - Coordinator` form XML now includes `SharePointDocuments` bound to `hx_servicerequest_SharePointDocumentLocations`, so SharePoint uploads appear on the Service Request Documents tab instead of the custom metadata table. |
 | Plugin routing | Critical funding request routed to Finance with 4 hour SLA. |
 | Closure guard | Smoke test blocked undocumented critical closure and allowed documented closure. |
 | Model-driven app | Coordinator queue and Service Request form open in the app. |
