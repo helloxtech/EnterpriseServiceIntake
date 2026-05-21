@@ -44,7 +44,7 @@ The final project README should let a reviewer understand the solution before op
 
 8. **Power Automate Design**
    - Approval trigger, approval condition, REST call, external ID writeback, Try/Catch/Finally scopes, retry policy, and error-log writes.
-   - Include what to show if tenant email delivery is restricted: Approval records and flow run history.
+   - Include what to show if tenant email delivery is restricted: Office 365 Outlook action output, Approval records, and flow run history.
 
 9. **Pro-Code Components**
    - C# plugin/custom API purpose, registration stage, execution mode, target table, exception behavior, and trace logging.
@@ -216,7 +216,7 @@ erDiagram
 | Service Request | Main intake record and lifecycle state. | Contact, Account, Category, Department, SLA Policy, documents, approvals, sync logs, error logs. | External users get self-owned/requester-scoped read/write on allowed fields only. |
 | Routing Rule | Configurable rules for department and SLA assignment. | Category, Department, SLA Policy. | Internal admin/configurator only. |
 | SLA Policy | Defines response and resolution targets. | Referenced by routing rules and applied to service requests. | Readable to internal staff; portal can expose limited preview data. |
-| Service Document | Supporting documentation metadata or file attachment reference. | Many documents per service request. | Portal user can upload/read only documents for their own request. |
+| Service Document | Supporting documentation review metadata; binary files are stored through Power Pages SharePoint document management after the Service Request exists. | Many document records or SharePoint locations per service request. | Portal user can upload/read only documents for their own request through contact-scoped permissions. |
 | Approval Request | Tracks high-priority approval state and evidence. | One service request can have one or more approvals. | Internal manager/coordinator only. |
 | External Sync Log | Records outbound REST sync attempts and returned IDs. | Many attempts per service request. | Internal support only. |
 | Error Log | Centralized operational error capture. | Optional related service request. | Internal support/admin only; no secrets or raw credentials in messages. |

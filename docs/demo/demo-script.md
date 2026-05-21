@@ -6,7 +6,7 @@ Open `README.md` and show:
 
 - ERD and core tables.
 - Why routing and close validation are plugins.
-- Why approvals and ERP sync are in Power Automate.
+- Why confirmation email, approvals, and ERP sync are in Power Automate.
 - Where PCF, Power Pages, and solution source live in the repo.
 
 ## 2. External Portal Submission
@@ -27,12 +27,14 @@ Steps:
    - Resolution documentation required.
 7. Complete the review step and submit.
 8. Show confirmation message.
+9. Select `Upload supporting files` to open the secure SharePoint document upload page for the saved request.
 
 Expected result:
 
 - A new Service Request row is created in Dataverse.
 - Confirmation number follows `SR-yyyyMMdd-######`.
 - Routing preview says Finance with a 4 hour response target.
+- Supporting files are uploaded after submission through Power Pages document management into SharePoint for that request.
 
 ## 3. Internal Coordinator App
 
@@ -50,12 +52,34 @@ Steps:
    - Integration Sync Status.
    - Internal Resolution Notes.
    - PCF SLA/status control package in the solution source.
+4. Open `Dashboards` and show:
+   - `ESI - Coordinator Operations Dashboard` for queue, severity, lifecycle, and documentation-risk views.
+   - `ESI - Manager Approval Dashboard` for manager approval and documentation guardrails.
+   - `ESI - Integration Monitoring Dashboard` for sync status, sync attempts, and open automation errors.
 
 Talking point:
 
 - Portal users never see internal notes, integration payloads, error logs, or coordinator-only fields.
 
-## 4. Approval And ERP Sync Flow
+## 4. Confirmation Email Flow
+
+Open Power Automate flow `ESI - Send Confirmation Email`.
+
+Show:
+
+- Dataverse create trigger on Service Requests.
+- `Try - send confirmation email` scope.
+- Contact/email validation.
+- Office 365 Outlook `Send an email (V2)` action with formatted confirmation number.
+- Dataverse update confirming the notification was sent.
+- Catch/skip paths writing to System Error Logs.
+
+Smoke-test evidence:
+
+- Request `SR-20260521-001018` updated customer-visible notes to confirm the email was sent through Office 365 Outlook.
+- The flow run history shows `Send_confirmation_email` succeeded with subject `Mitacs service request received - SR-20260521-001018`.
+
+## 5. Approval And ERP Sync Flow
 
 Open Power Automate flow `ESI - Approval and ERP Sync`.
 
@@ -64,7 +88,7 @@ Show:
 - Dataverse trigger filtered to approval-required, pending, unsynced requests.
 - `Try - approval and ERP sync` scope.
 - Approval assigned to `manager@hellosmart.ca`.
-- HTTP POST to `https://api.restful-api.dev/objects`.
+- HTTP POST to `https://hellox.ca/api/esi-service-requests`.
 - Dataverse update that stores external ERP ID.
 - External Sync Log creation.
 - Reject branch.
@@ -72,10 +96,10 @@ Show:
 
 If email is restricted:
 
-- Use Flow run history and Approval records as evidence.
+- Use Office 365 Outlook action output, Flow run history, and Approval records as evidence.
 - The assignment explicitly allows run history evidence when tenant email delivery is limited.
 
-## 5. Failure Handling Demo
+## 6. Failure Handling Demo
 
 Preferred safe demo:
 
@@ -85,13 +109,13 @@ Preferred safe demo:
 
 Optional live failure demo:
 
-1. Temporarily change the HTTP URI to an invalid endpoint.
+1. Temporarily append `?fail=true` to the HTTP URI or use the hidden HelloX `/esi/` console failure mode.
 2. Trigger a pending critical request.
 3. Show failed run.
 4. Show System Error Log row and request marked failed.
 5. Restore the HTTP URI.
 
-## 6. Plugin Guardrail Demo
+## 7. Plugin Guardrail Demo
 
 Use the seeded critical request or run the provisioning smoke test.
 
@@ -106,7 +130,7 @@ Command evidence:
 RUN_VALIDATION_TESTS=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
 ```
 
-## 7. ALM Evidence
+## 8. ALM Evidence
 
 Show:
 
@@ -124,6 +148,9 @@ Show:
 | Why a plugin for routing instead of Flow? | Routing affects transactional Service Request creation and must apply equally from portal, model app, import, API, or automation. A PreOperation plugin keeps it centralized and non-bypassable. |
 | Why a plugin for closure guardrail? | The requirement explicitly says agents cannot bypass documentation requirements. A server-side PreOperation plugin is the strongest Dataverse enforcement point. |
 | Why Flow for approvals and ERP sync? | It has native approval records, connector run history, retries, connection references, and a clear Try/Catch pattern for integration work. |
-| Why not use `reqres.in`? | Its POST endpoint currently requires an API key. I used `api.restful-api.dev` so the demo can run without storing a third-party key. |
+| Why Flow for confirmation email? | Email delivery is asynchronous and should not block Service Request creation; Flow gives run history, Outlook delivery evidence, and centralized error logging. |
+| Why upload after submit instead of before submit? | SharePoint document management needs a saved Dataverse record to associate files with the correct folder, so the portal creates the request first and then opens the document upload page with the request ID. |
+| Why not use `reqres.in`? | Its POST endpoint currently requires an API key. I used a HelloX-hosted mock endpoint so the demo can run without storing a third-party key and can intentionally trigger the Catch path. |
+| What is the hidden HelloX `/esi/` page for? | It is a noindex demo console at `https://hellox.ca/esi/` for showing the mock ERP endpoint, deterministic external IDs, and the failure mode outside Power Automate. It is not linked from the public site navigation. |
 | How do external users only see their data? | Contact-scoped Power Pages table permissions restrict request access; internal-only columns and tables are not exposed on the portal. |
 | How is the solution deployable? | Components are solution-aware, exported as managed/unmanaged zips, and unpacked with PAC for source control. |

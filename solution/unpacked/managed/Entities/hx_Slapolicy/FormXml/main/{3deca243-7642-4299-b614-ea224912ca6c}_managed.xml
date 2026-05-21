@@ -7,14 +7,14 @@
     <FormActivationState>1</FormActivationState>
     <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{c68dd91d-42ac-3a38-3226-fbff1a32b2c2}" name="tab_summary" IsUserDefined="1" showlabel="true">
+        <tab verticallayout="true" id="{8efe4f20-c09b-6903-4cd2-249e028fb935}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
             <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section id="{1f5cf135-072e-6e16-cb47-97cdeff09066}" name="sla_targets" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{1f5cf135-072e-6e16-cb47-97cdeff09066}" name="sla_targets" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="SLA Targets" languagecode="1033" />
                   </labels>
@@ -53,7 +53,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{7963d39b-e08f-87bf-7718-e79dbff2aa26}" name="policy_notes" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{7963d39b-e08f-87bf-7718-e79dbff2aa26}" name="policy_notes" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Policy Notes" languagecode="1033" />
                   </labels>

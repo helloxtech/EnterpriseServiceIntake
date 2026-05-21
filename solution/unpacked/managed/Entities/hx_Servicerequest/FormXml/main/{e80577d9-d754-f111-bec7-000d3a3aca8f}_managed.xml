@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{e80577d9-d754-f111-bec7-000d3a3aca8f}</formid>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <FormPresentation>0</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{5159b0ed-2f4d-6430-13c4-2c3d51fb36a1}" name="tab_documents" IsUserDefined="1" showlabel="true">
+          <labels>
+            <label description="Supporting Files" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section id="{7cd147b0-f759-b5ed-6ff6-af20d42cecb1}" name="request_summary" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                  <labels>
+                    <label description="Request Summary" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{5791e765-c72c-36c2-f386-58775436584f}" showlabel="true">
+                        <labels>
+                          <label description="Confirmation Number" languagecode="1033" />
+                        </labels>
+                        <control id="hx_confirmationnumber" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_confirmationnumber" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{5c10a0a0-7d9b-83fe-d7b4-d1be90555ab4}" showlabel="true">
+                        <labels>
+                          <label description="Request Title" languagecode="1033" />
+                        </labels>
+                        <control id="hx_title" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_title" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{9be183cb-caa4-b94c-e8a8-c0b627eb748b}" showlabel="true">
+                        <labels>
+                          <label description="Lifecycle Status" languagecode="1033" />
+                        </labels>
+                        <control id="hx_lifecyclestatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_lifecyclestatus" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{aa742e1f-cf20-dd58-62b6-7a740c8fb70c}" showlabel="true">
+                        <labels>
+                          <label description="Customer Visible Updates" languagecode="1033" />
+                        </labels>
+                        <control id="hx_customervisibleupdates" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="hx_customervisibleupdates" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section id="{e3b44e55-9adf-990c-a3ae-d2947f88b67e}" name="sharepoint_documents" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                  <labels>
+                    <label description="SharePoint Documents" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{b894b5c4-a3f4-5118-7316-e5ce25f4767d}" showlabel="true" rowspan="8" colspan="1" auto="false">
+                        <labels>
+                          <label description="Supporting Documents" languagecode="1033" />
+                        </labels>
+                        <control id="SharePointDocuments" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                          <parameters>
+                            <TargetEntityType>sharepointdocumentlocation</TargetEntityType>
+                            <ChartGridMode>Grid</ChartGridMode>
+                            <EnableQuickFind>false</EnableQuickFind>
+                            <EnableViewPicker>false</EnableViewPicker>
+                            <EnableJumpBar>false</EnableJumpBar>
+                            <RecordsPerPage>10</RecordsPerPage>
+                            <ViewId>{820684b1-8d57-df11-a5a2-00155d2a9005}</ViewId>
+                            <IsUserView>false</IsUserView>
+                            <ViewIds>{820684b1-8d57-df11-a5a2-00155d2a9005}</ViewIds>
+                            <AutoExpand>Fixed</AutoExpand>
+                            <RelationshipName>hx_servicerequest_SharePointDocumentLocations</RelationshipName>
+                          </parameters>
+                        </control>
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <header id="{2a5b3589-7ed0-d50b-4c90-e93f0a8b3f0a}" celllabelposition="Top" columns="11" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{a02294ef-4294-7202-ca9e-d0367c5e2e1b}" showlabel="true">
+              <labels>
+                <label description="Confirmation" languagecode="1033" />
+              </labels>
+              <control id="hx_confirmationnumber" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_confirmationnumber" disabled="true" />
+            </cell>
+            <cell id="{4620c792-fdf6-f5a3-8961-92ca1e1bf857}" showlabel="true">
+              <labels>
+                <label description="Status" languagecode="1033" />
+              </labels>
+              <control id="hx_lifecyclestatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_lifecyclestatus" disabled="true" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{ce9cfb6e-ab8b-a48e-405a-abd35b228951}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row />
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Service Request - SharePoint Documents" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="Power Pages edit form used to expose SharePoint document management for submitted service requests." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <LocalizedNames>
+    <LocalizedName description="ESI - Manager Approval Dashboard" languagecode="1033" />
+  </LocalizedNames>
+  <Descriptions>
+    <Description description="Manager view of pending approvals, approval outcomes, and critical documentation risk." languagecode="1033" />
+  </Descriptions>
+  <FormId>{3341bfc2-e554-f111-bec7-000d3a3aca8f}</FormId>
+  <IsCustomizable>1</IsCustomizable>
+  <IsDefault>0</IsDefault>
+  <FormXml>
+    <forms type="dashboard">
+      <form>
+        <tabs>
+          <tab showlabel="true" verticallayout="true" id="{f26eefb0-6300-d296-e2d7-85187287087e}" name="esi_manager_approval_dashboard" locklevel="0" expanded="true">
+            <labels>
+              <label description="ESI - Manager Approval Dashboard" languagecode="1033" />
+            </labels>
+            <columns>
+              <column width="100%">
+                <sections>
+                  <section showlabel="true" showbar="false" columns="111" id="{ea03f21d-b7fd-902f-04bb-2fd8c257dbed}" name="visual_filters">
+                    <labels>
+                      <label description="Visual filters" languagecode="1033" />
+                    </labels>
+                    <rows>
+                      <row>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{3ba258d8-1aab-d5bb-3504-f8925cf462b8}" auto="false">
+                          <labels>
+                            <label description="Approval outcomes" languagecode="1033" />
+                          </labels>
+                          <control id="ApprovalOutcomes" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_servicerequest</TargetEntityType>
+                              <ChartGridMode>Chart</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{6a4ef04c-ce54-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <VisualizationId>{1141bfc2-e554-f111-bec7-000d3a3aca8f}</VisualizationId>
+                              <IsUserChart>false</IsUserChart>
+                              <EnableChartPicker>false</EnableChartPicker>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{50ede1d0-85eb-1432-02f0-805247bb58a6}" auto="false">
+                          <labels>
+                            <label description="Pending approval severity" languagecode="1033" />
+                          </labels>
+                          <control id="PendingSeverity" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_servicerequest</TargetEntityType>
+                              <ChartGridMode>Chart</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{6a4ef04c-ce54-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <VisualizationId>{0b41bfc2-e554-f111-bec7-000d3a3aca8f}</VisualizationId>
+                              <IsUserChart>false</IsUserChart>
+                              <EnableChartPicker>false</EnableChartPicker>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{62c218c8-1756-1064-3802-d6fbf0a363a9}" auto="false">
+                          <labels>
+                            <label description="Documentation guardrails" languagecode="1033" />
+                          </labels>
+                          <control id="DocumentationGuardrails" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_servicerequest</TargetEntityType>
+                              <ChartGridMode>Chart</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{6c4ef04c-ce54-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <VisualizationId>{1441bfc2-e554-f111-bec7-000d3a3aca8f}</VisualizationId>
+                              <IsUserChart>false</IsUserChart>
+                              <EnableChartPicker>false</EnableChartPicker>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                      </row>
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                    </rows>
+                  </section>
+                  <section showlabel="true" showbar="false" columns="11" id="{d9be2ccd-8c91-a8dc-0b58-b9003274bafe}" name="action_queues">
+                    <labels>
+                      <label description="Action queues" languagecode="1033" />
+                    </labels>
+                    <rows>
+                      <row>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{5913c84a-2253-dc06-bdeb-8487df1c57fb}" auto="false">
+                          <labels>
+                            <label description="Pending manager approval" languagecode="1033" />
+                          </labels>
+                          <control id="PendingApprovals" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_servicerequest</TargetEntityType>
+                              <ChartGridMode>Grid</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{6a4ef04c-ce54-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{381fc05f-f8f9-7cea-e72a-1b67e12e0e5c}" auto="false">
+                          <labels>
+                            <label description="Critical documentation gaps" languagecode="1033" />
+                          </labels>
+                          <control id="CriticalDocsManager" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_servicerequest</TargetEntityType>
+                              <ChartGridMode>Grid</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{6c4ef04c-ce54-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                      </row>
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                    </rows>
+                  </section>
+                </sections>
+              </column>
+            </columns>
+          </tab>
+        </tabs>
+      </form>
+    </forms>
+  </FormXml>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsTabletEnabled>1</IsTabletEnabled>
+</Dashboard>

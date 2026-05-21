@@ -7,6 +7,9 @@ namespace ServiceIntake.Plugins
         internal const string SlaPolicy = "hx_slapolicy";
         internal const string ServiceDocument = "hx_servicedocument";
 
+        internal const int SeverityLow = 752630000;
+        internal const int SeverityMedium = 752630001;
+        internal const int SeverityHigh = 752630002;
         internal const int SeverityCritical = 752630003;
         internal const int LifecycleSubmitted = 752630001;
         internal const int LifecycleResolved = 752630007;

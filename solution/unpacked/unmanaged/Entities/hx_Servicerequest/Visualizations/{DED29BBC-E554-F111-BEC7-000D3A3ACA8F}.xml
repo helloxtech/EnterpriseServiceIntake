@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<visualization xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedqueryvisualizationid>{DED29BBC-E554-F111-BEC7-000D3A3ACA8F}</savedqueryvisualizationid>
+  <datadescription>
+    <datadefinition>
+      <fetchcollection>
+        <fetch mapping="logical" aggregate="true">
+          <entity name="hx_servicerequest">
+            <attribute name="hx_servicerequestid" aggregate="count" alias="aggregate_column" />
+            <attribute name="hx_assigneddepartment" groupby="true" alias="groupby_column" />
+          </entity>
+        </fetch>
+      </fetchcollection>
+      <categorycollection>
+        <category>
+          <measurecollection>
+            <measure alias="aggregate_column" />
+          </measurecollection>
+        </category>
+      </categorycollection>
+    </datadefinition>
+  </datadescription>
+  <presentationdescription>
+    <Chart Palette="None" PaletteCustomColors="31,78,121; 14,118,110; 181,71,8; 180,35,24; 37,99,235; 92,110,128; 22,163,74">
+      <Series>
+        <Series ChartType="Bar" IsValueShownAsLabel="True" Font="{0}, 9.5px" LabelForeColor="59,59,59" CustomProperties="PointWidth=0.75, MaxPixelPointWidth=40">
+          <SmartLabelStyle Enabled="True" />
+        </Series>
+      </Series>
+      <ChartAreas>
+        <ChartArea BorderColor="White" BorderDashStyle="Solid">
+          <AxisY LineColor="165,172,181">
+            <MajorGrid LineColor="239,242,246" />
+            <LabelStyle Font="{0}, 10.5px" ForeColor="59,59,59" />
+          </AxisY>
+          <AxisX LineColor="165,172,181">
+            <MajorGrid Enabled="False" />
+            <LabelStyle Font="{0}, 10.5px" ForeColor="59,59,59" />
+          </AxisX>
+          <Area3DStyle Enable3D="False" />
+        </ChartArea>
+      </ChartAreas>
+      <Titles>
+        <Title Alignment="TopLeft" DockingOffset="-3" Font="{0}, 13px" ForeColor="59,59,59" />
+      </Titles>
+    </Chart>
+  </presentationdescription>
+  <isdefault>0</isdefault>
+  <LocalizedNames>
+    <LocalizedName description="ESI - Requests by Department" languagecode="1033" />
+  </LocalizedNames>
+  <Descriptions>
+    <Description description="Enterprise Service Intake demo dashboard chart." languagecode="1033" />
+  </Descriptions>
+  <IsCustomizable>1</IsCustomizable>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <CanBeDeleted>1</CanBeDeleted>
+</visualization>

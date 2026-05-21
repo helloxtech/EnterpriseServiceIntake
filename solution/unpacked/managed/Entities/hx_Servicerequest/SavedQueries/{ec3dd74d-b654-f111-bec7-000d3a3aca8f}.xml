@@ -10,29 +10,26 @@
     <layoutxml>
       <grid name="resultset" jump="hx_confirmationnumber" select="1" icon="1" preview="1">
         <row name="result" id="hx_servicerequestid">
-          <cell name="hx_confirmationnumber" width="170" />
-          <cell name="hx_title" width="240" />
-          <cell name="hx_customercontact" width="190" />
-          <cell name="hx_servicecategory" width="140" />
-          <cell name="hx_severity" width="140" />
-          <cell name="hx_priority" width="140" />
-          <cell name="hx_assigneddepartment" width="190" />
-          <cell name="hx_lifecyclestatus" width="140" />
-          <cell name="hx_approvalstatus" width="140" />
-          <cell name="hx_integrationsyncstatus" width="140" />
-          <cell name="hx_duedate" width="150" />
-          <cell name="createdon" width="150" />
+          <cell name="hx_confirmationnumber" width="160" />
+          <cell name="hx_title" width="160" />
+          <cell name="hx_servicecategory" width="160" />
+          <cell name="hx_severity" width="160" />
+          <cell name="hx_priority" width="160" />
+          <cell name="hx_assigneddepartment" width="160" />
+          <cell name="hx_lifecyclestatus" width="160" />
+          <cell name="hx_approvalstatus" width="160" />
+          <cell name="hx_integrationsyncstatus" width="160" />
+          <cell name="hx_duedate" width="160" />
+          <cell name="createdon" width="160" />
         </row>
       </grid>
     </layoutxml>
     <querytype>0</querytype>
     <fetchxml>
-      <fetch version="1.0" mapping="logical" output-format="xml-platform">
+      <fetch version="1.0" mapping="logical">
         <entity name="hx_servicerequest">
-          <attribute name="hx_servicerequestid" />
           <attribute name="hx_confirmationnumber" />
           <attribute name="hx_title" />
-          <attribute name="hx_customercontact" />
           <attribute name="hx_servicecategory" />
           <attribute name="hx_severity" />
           <attribute name="hx_priority" />

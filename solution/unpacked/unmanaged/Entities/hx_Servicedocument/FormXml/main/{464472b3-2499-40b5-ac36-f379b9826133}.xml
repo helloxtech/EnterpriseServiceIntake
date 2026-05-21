@@ -7,14 +7,14 @@
     <FormActivationState>1</FormActivationState>
     <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{e1466543-ece8-6194-ee78-607f90722eb9}" name="tab_summary" IsUserDefined="1" showlabel="true">
+        <tab verticallayout="true" id="{3596d45e-9c7e-ec2b-046a-e5476b9f3ec5}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
             <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section id="{3dc73ac0-2403-25ed-567e-d3e9b268313a}" name="document" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{3dc73ac0-2403-25ed-567e-d3e9b268313a}" name="document" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Document" languagecode="1033" />
                   </labels>
@@ -38,7 +38,7 @@
                     <row>
                       <cell id="{12b31eca-d629-471e-c6eb-baf1be873d77}" showlabel="true">
                         <labels>
-                          <label description="Type" languagecode="1033" />
+                          <label description="Document Type" languagecode="1033" />
                         </labels>
                         <control id="hx_documenttype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_documenttype" />
                       </cell>
@@ -53,7 +53,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{72eabad8-349a-e2c5-d971-26081c28ec94}" name="review" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{72eabad8-349a-e2c5-d971-26081c28ec94}" name="review" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Review" languagecode="1033" />
                   </labels>
@@ -94,7 +94,7 @@
           <row>
             <cell id="{12b31eca-d629-471e-c6eb-baf1be873d77}" showlabel="true">
               <labels>
-                <label description="Type" languagecode="1033" />
+                <label description="Document Type" languagecode="1033" />
               </labels>
               <control id="hx_documenttype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_documenttype" />
             </cell>

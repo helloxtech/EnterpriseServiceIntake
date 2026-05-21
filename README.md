@@ -16,6 +16,8 @@ End to end: an external user submits a multi-step service request in Power Pages
 | Maker solution | https://make.powerapps.com/environments/99dd50ed-a753-e37f-912c-78a022b12b09/solutions |
 | Model-driven app | https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f |
 | Power Pages site | https://enterprise-service-intake-hellox.powerappsportals.com |
+| HelloX mock ERP API | https://hellox.ca/api/esi-service-requests |
+| Hidden HelloX ERP console | https://hellox.ca/esi/ |
 | Power Automate flow | `ESI - Approval and ERP Sync` |
 
 The Power Pages site is intentionally private for the interview tenant. Reviewer credentials should be shared separately by the administrator, not committed in this repository.
@@ -32,7 +34,7 @@ The Power Pages site is intentionally private for the interview tenant. Reviewer
 | PCF control | `src/pcf/SlaStatusIndicator/` |
 | Power Pages source | `src/powerpages/` and `powerpages-live/` |
 | Provisioning/ALM utilities | `src/scripts/ServiceIntake.Provisioning/` and `tools/apply_model_driven_app_design.mjs` |
-| Architecture design brief | `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang.docx` and `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang.pdf` |
+| Architecture design brief | `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v2.docx` and `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v2.pdf` |
 | Submission email draft | `docs/submission/email-draft.md` |
 | Demo script | `docs/demo/demo-script.md` |
 
@@ -47,7 +49,7 @@ flowchart LR
     Dataverse --> App["Model-driven app\ncoordinator queue"]
     Dataverse --> Flow["Power Automate\napproval + ERP sync"]
     Flow --> Manager["Manager approval"]
-    Flow --> Api["Mock REST API\napi.restful-api.dev"]
+    Flow --> Api["HelloX mock ERP API\nhellox.ca/api/esi-service-requests"]
     Api --> Flow
     Flow --> Logs["External Sync Log\nSystem Error Log"]
     App --> PCF["PCF SLA Status Indicator"]
@@ -111,11 +113,12 @@ erDiagram
 | Dynamic routing/SLA | Dataverse routing rules evaluated by `ServiceRequestRoutingPlugin` on create/update. | Routing must be transactional and consistent for portal, app, and automation creates. |
 | Confirmation number | Dataverse autonumber `SR-{yyyyMMdd}-{SEQNUM}` on Service Request. | Server-generated and tamper-resistant. |
 | Critical close guardrail | PreOperation C# plugin blocks resolved/closed critical requests without resolution notes and documentation flag. | A plugin is the right layer because agents cannot bypass it from forms, imports, flows, or API calls. |
-| Supporting documents | Portal uploads create Dataverse `Service Request Document` rows linked to the request with filename, type, notes, and review status. | The take-home stays solution-contained in Dataverse; SharePoint is not used. If binary file retention is required, the next extension should use Dataverse Notes or a Dataverse File column rather than a separate SharePoint dependency. |
+| Supporting documents | After request creation, the portal sends the applicant to a secure SharePoint document upload page backed by Power Pages Basic Form/document management for that Service Request. | The applicant must have a saved request ID before SharePoint can associate files to the correct Dataverse record; this keeps the custom intake fast while using the supported document-management path for files. |
 | Approval + ERP sync | Cloud flow `ESI - Approval and ERP Sync` with Try scope, approval, HTTP POST, Dataverse writeback, sync log, reject branch, and Catch error-log scope. | Flow is appropriate for human approvals, connector-based integration, retries, and run history evidence. |
-| Mock ERP endpoint | `https://api.restful-api.dev/objects` returns an external `id` from POST. | `reqres.in` currently requires an API key for POST, so this endpoint keeps the demo self-contained. |
+| Applicant confirmation email | Cloud flow `ESI - Send Confirmation Email` triggers on Service Request create, sends the generated confirmation number to the applicant, and logs email failures to System Error Logs. | Email delivery belongs in automation so failures are visible in flow history/error logs and do not block transactional request creation. |
+| Mock ERP endpoint | `https://hellox.ca/api/esi-service-requests` returns a deterministic external `id`/`externalId` from POST. | Keeps the demo self-contained on a controlled HelloX endpoint, avoids third-party API keys, and provides a deliberate failure mode for the Catch path. |
 | Internal UX | Model-driven coordinator app plus PCF SLA/status indicator. | Keeps operational work in Dataverse while using PCF for richer visual status. |
-| External UX | Power Pages private site with multi-step intake, upload step, and dynamic SLA/routing preview. | External users get a clean customer-facing experience without internal fields. |
+| External UX | Power Pages private site with multi-step intake, dynamic SLA/routing preview, and post-submit SharePoint upload step. | External users get a clean customer-facing experience without internal fields. |
 
 ## Model-Driven App Design
 
@@ -125,6 +128,12 @@ The `Enterprise Service Intake` app uses solution-aware system forms and views f
 - Supporting documentation: `Request Documents - Review`, plus redesigned default Active, Associated, and Lookup views for attached document grids.
 - Configuration: `Active Routing Rules`, `Active Departments`, `Active SLA Policies`, and `Active Service Categories`; routing rule default Active, Associated, and Lookup views use the same operational columns.
 - Monitoring: `ERP Sync Attempts`, `Open Integration and Automation Errors`, and `All System Error Logs`; default Active, Associated, and Lookup views for sync/error logs show request, status, source, correlation, and timing fields.
+
+Dashboards are also provisioned for the live review:
+
+- `ESI - Coordinator Operations Dashboard` shows department load, severity mix, lifecycle mix, coordinator queue, and critical documentation queue.
+- `ESI - Manager Approval Dashboard` shows pending approvals, approval outcomes, pending severity, and documentation risk.
+- `ESI - Integration Monitoring Dashboard` shows ERP sync status, sync attempts by day, open errors, and recent sync attempts.
 
 The forms are role-focused instead of generic Dataverse layouts: service requests separate intake, triage, routing/SLA, approval/ERP sync, and resolution guardrails; configuration tables surface active rule inputs; log tables prioritize triage fields and payload details.
 
@@ -163,6 +172,27 @@ Catch path:
 - Creates a System Error Log with run correlation ID and failed scope result.
 - Marks the request integration/approval state as failed.
 
+Cloud flow: `ESI - Send Confirmation Email`
+
+Trigger:
+
+- Dataverse `When a row is added, modified or deleted`
+- Table: `Service Requests`
+- Change type: `Added`
+
+Main path:
+
+1. `Try - send confirmation email` scope.
+2. Validate that the request has an applicant Contact and that the Contact has an email address.
+3. Send a concise HTML confirmation message through Office 365 Outlook `Send an email (V2)`.
+4. Include the generated confirmation number, request title, and submission timestamp in the email body.
+5. Update the request customer-visible notes to confirm the applicant email was sent.
+
+Catch/skip path:
+
+- Missing applicant or email address writes a System Error Log instead of failing silently.
+- Send failures write a System Error Log with the failed scope result for demo evidence and support triage.
+
 ## Pro-Code Components
 
 | Component | Location | Purpose |
@@ -178,6 +208,11 @@ Seed records include:
 
 - `Demo - Critical funding agreement support` -> Finance, 4 hour SLA, manager approval required.
 - `Demo - Standard technical support` -> IT Support, 24 hour SLA, approval not required.
+- `Demo - Approved research partnership synced` -> approved, synced to HelloX mock ERP, and populated with external ERP ID.
+- `Demo - Rejected research exception` -> rejected approval path.
+- `Demo - Approved funding ERP sync failure` -> failed sync path with System Error Log.
+- `Demo - Event support in progress` -> no-approval coordinator work item.
+- Service Request Documents, External Sync Logs, and System Error Logs are seeded so all model-driven tables and dashboards have demo rows.
 - Portal demo submissions with formatted confirmation numbers such as `SR-20260521-001004`.
 
 Routing rules include critical funding, high research support, standard technical support, standard event support, and a general fallback.
@@ -194,11 +229,10 @@ Validated locally and against the live environment:
 - Power Pages create path submits to Dataverse and routes to Finance for critical funding requests.
 - Model-driven app opens the coordinator queue and request form.
 - Managed/unmanaged solution export and unpack succeed.
-- Cloud flow is active, solution-aware, and includes approval, HTTP sync, reject branch, External Sync Log, and Catch error-log scope.
-
-Known warning:
-
-- `Microsoft.PowerPlatform.Dataverse.Client` currently brings transitive `System.Security.Cryptography.Xml` 8.0.2 vulnerability warnings during build. This is from the upstream SDK dependency in the provisioning utility, not custom runtime plugin code.
+- Cloud flow is active, solution-aware, and includes approval, HTTP sync to HelloX mock ERP, reject branch, External Sync Log, and Catch error-log scope.
+- Confirmation email flow is active and solution-aware; email delivery issues are captured in System Error Logs.
+- Provisioning utility pins `System.Security.Cryptography.Xml` directly to avoid the vulnerable transitive SDK version reported by NuGet audit.
+- PCF control is included in the solution and bound on the Service Request coordinator form.
 
 ## Build And Export Commands
 

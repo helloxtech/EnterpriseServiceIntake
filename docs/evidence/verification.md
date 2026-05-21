@@ -11,19 +11,28 @@
 | Model-driven app ID | `3de4f813-b454-f111-bec7-000d3a3aca8f` |
 | Power Pages site ID | `8c12ac01-467a-4fa8-8034-50b8028de647` |
 | Power Pages URL | https://enterprise-service-intake-hellox.powerappsportals.com |
-| Cloud flow ID | `ab021e8c-bb54-f111-bec7-000d3a3acaff` |
+| Approval/ERP flow ID | `ab021e8c-bb54-f111-bec7-000d3a3acaff` |
+| Confirmation email flow ID | `c97dbafe-d854-f111-bec7-000d3a3aca8f` |
 
 ## Verified Build Steps
 
 | Check | Result |
 | --- | --- |
 | C# plugin build | Passed |
-| Provisioning utility build | Passed with upstream SDK NU1903 warnings |
+| Provisioning utility build | Passed |
+| Provisioning utility NuGet audit | Passed; no vulnerable packages reported by `dotnet list package --vulnerable --include-transitive` |
+| HelloX mock ERP function syntax | Passed |
+| HelloX mock ERP function behavior | Passed; POST returned `201` with `HX-ERP-*`, failure mode returned `503`, GET returned service status |
+| Hidden HelloX `/esi/` page smoke test | Passed; local browser check rendered the page title, endpoint, and submit action |
+| Public HelloX deployment | Passed; `https://hellox.ca/api/esi-service-requests` returns GET/POST responses and `https://hellox.ca/esi/` returns HTTP 200 |
 | PCF build/push | Passed |
 | Power Pages upload | Passed |
+| Power Pages live download-first update | Passed |
 | Power Pages UX validation update | Passed |
 | Power Pages live refresh/download | Passed |
 | Power Pages SharePoint upload fix | Uploaded and re-downloaded key live files for verification |
+| Confirmation email flow creation | Passed |
+| Confirmation email smoke test | Passed |
 | Managed solution export | Passed |
 | Unmanaged solution export | Passed |
 | Managed solution unpack | Passed |
@@ -35,6 +44,8 @@
 | --- | --- |
 | Portal dynamic preview | Funding Agreement + Critical + Urgent shows Finance, 4 hour target, approval required, documentation required. |
 | Portal submission | `Portal Demo - Critical funding request 2` created with confirmation `SR-20260521-001004`. |
+| SharePoint document upload path | Portal now directs users to `/request-documents/?id=<request-id>` after submission; page uses Power Pages Basic Form/document management for SharePoint files. |
+| Confirmation email | Smoke test request `SR-20260521-001018` sent through Office 365 Outlook, updated customer-visible notes, and created no System Error Log row. Flow run `08584222604936303691105786332CU11` succeeded. |
 | Portal step navigation | Explicit Continue, Back, Review request, and Submit buttons added; required fields block progression before the next step. |
 | Portal SharePoint document path | Localized Home page now removes the pre-submit file input, creates the Service Request first, and opens `/request-documents/?id=<service-request-id>` from the success modal. |
 | Upload page diagnostics | Request Documents page now shows a visible ready/warning/error status for the SharePoint document grid instead of failing silently. |
@@ -43,19 +54,28 @@
 | Plugin routing | Critical funding request routed to Finance with 4 hour SLA. |
 | Closure guard | Smoke test blocked undocumented critical closure and allowed documented closure. |
 | Model-driven app | Coordinator queue and Service Request form open in the app. |
-| Cloud flow | Active, solution-aware, includes approval, HTTP sync, sync log, reject branch, and catch error-log scope. |
+| Approval/ERP flow | Active, solution-aware, includes approval, HTTP sync to HelloX mock ERP, sync log, reject branch, and catch error-log scope. |
+| Confirmation email flow | Active, solution-aware, sends generated confirmation number to applicant and logs missing/failed email cases to System Error Logs. |
+| Model-driven dashboards | Exported solution contains `ESI - Coordinator Operations Dashboard`, `ESI - Manager Approval Dashboard`, and `ESI - Integration Monitoring Dashboard`; app module includes all three dashboard components. |
+| Hidden HelloX ERP console | Source created under `static-site/esi/`; endpoint function created under `functions/api/esi-service-requests.js`. |
 
 ## Commands Used
 
 ```bash
 dotnet build src/plugins/ServiceIntake.Plugins/ServiceIntake.Plugins.csproj
 dotnet build src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+dotnet list src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj package --vulnerable --include-transitive
 RUN_VALIDATION_TESTS=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+node --check /Volumes/Forrest/Users/Forrest/Github/HelloXTech-Official-Website/functions/api/esi-service-requests.js
+node scripts/check-site.mjs
 
+pac pages download --webSiteId 8c12ac01-467a-4fa8-8034-50b8028de647 --path /tmp/esi-powerpages-live-20260520223111 --modelVersion Enhanced --overwrite
+pac pages upload --path /tmp/esi-powerpages-live-20260520223111/enterprise-service-intake---enterprise-service-intake-hellox --modelVersion Enhanced
 pac pages upload --path powerpages-live/enterprise-service-intake---enterprise-service-intake-hellox --modelVersion Enhanced --forceUploadAll
 pac pages download --path /tmp/esi-pages-verify.<id> --webSiteId 8c12ac01-467a-4fa8-8034-50b8028de647 --overwrite --modelVersion Enhanced
 node --check src/powerpages/web-files/service-intake.js
 pac pcf push --solution-unique-name EnterpriseServiceIntake --verbosity minimal
+ENSURE_CONFIRMATION_EMAIL_FLOW=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
 
 pac solution publish
 pac solution export --name EnterpriseServiceIntake --path solution/export/Enterprise_ServiceIntake_ForrestZhang_unmanaged.zip --overwrite
@@ -66,6 +86,7 @@ pac solution unpack --zipfile solution/export/Enterprise_ServiceIntake_ForrestZh
 
 ## Known Limitations
 
-- Email delivery can be restricted in trial tenants. Use Approval records and Flow run history if approval emails do not arrive.
-- `reqres.in` POST currently requires an API key, so the mock ERP uses `api.restful-api.dev`.
-- The PCF control is included in the solution and source. If the imported environment does not automatically bind it on the form, add it to the coordinator field in the model-driven form designer.
+- Email delivery can be restricted in trial tenants. Use the Office 365 Outlook action output, Approval records, and Flow run history if emails do not arrive externally.
+- DOCX visual rendering could not be completed in this local shell because LibreOffice/`soffice` is not installed. The generated PDF is 9 pages and the first-page Quick Look thumbnail was inspected.
+- The mock ERP endpoint is hosted at `https://hellox.ca/api/esi-service-requests`; the hidden demo console is `https://hellox.ca/esi/` after the HelloX site is deployed.
+- The PCF control is included in the solution and bound on the Service Request coordinator form through exported form XML.

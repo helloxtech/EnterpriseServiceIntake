@@ -10,19 +10,18 @@
     <layoutxml>
       <grid name="resultset" jump="hx_name" select="1" icon="1" preview="1">
         <row name="result" id="hx_departmentid">
-          <cell name="hx_name" width="240" />
-          <cell name="hx_code" width="140" />
-          <cell name="hx_manageremail" width="140" />
-          <cell name="hx_active" width="140" />
-          <cell name="modifiedon" width="150" />
+          <cell name="hx_name" width="160" />
+          <cell name="hx_code" width="160" />
+          <cell name="hx_manageremail" width="160" />
+          <cell name="hx_active" width="160" />
+          <cell name="modifiedon" width="160" />
         </row>
       </grid>
     </layoutxml>
     <querytype>0</querytype>
     <fetchxml>
-      <fetch version="1.0" mapping="logical" output-format="xml-platform">
+      <fetch version="1.0" mapping="logical">
         <entity name="hx_department">
-          <attribute name="hx_departmentid" />
           <attribute name="hx_name" />
           <attribute name="hx_code" />
           <attribute name="hx_manageremail" />

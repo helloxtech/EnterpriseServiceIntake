@@ -59,6 +59,7 @@ namespace ServiceIntake.Plugins
             var requiresApproval = rule.GetAttributeValue<bool?>("hx_requiresapproval") ?? false;
             var requiresDocs = rule.GetAttributeValue<bool?>("hx_resolutiondocumentationrequired") ?? false;
             var responseHours = ResolveResponseHours(service, sla);
+            var severityLabel = ResolveSeverityLabel(severity.Value);
 
             if (department != null)
             {
@@ -73,6 +74,10 @@ namespace ServiceIntake.Plugins
             target["hx_requiresapproval"] = requiresApproval;
             target["hx_resolutiondocumentationrequired"] = requiresDocs;
             target["hx_duedate"] = DateTime.UtcNow.AddHours(responseHours);
+            target["hx_visualseverity"] = severityLabel;
+            target["hx_slaindicatorstatus"] = requiresApproval
+                ? "Pending manager approval"
+                : "Ready for coordinator triage";
             target["hx_approvalstatus"] = new OptionSetValue(requiresApproval
                 ? Constants.ApprovalPending
                 : Constants.ApprovalNotRequired);
@@ -141,6 +146,23 @@ namespace ServiceIntake.Plugins
 
             var policy = service.Retrieve(Constants.SlaPolicy, sla.Id, new ColumnSet("hx_responsehours"));
             return policy.GetAttributeValue<int?>("hx_responsehours") ?? 24;
+        }
+
+        private static string ResolveSeverityLabel(int severity)
+        {
+            switch (severity)
+            {
+                case Constants.SeverityCritical:
+                    return "Critical";
+                case Constants.SeverityHigh:
+                    return "High";
+                case Constants.SeverityMedium:
+                    return "Medium";
+                case Constants.SeverityLow:
+                    return "Low";
+                default:
+                    return "Unspecified";
+            }
         }
     }
 }

@@ -1,0 +1,51 @@
+<powerpagecomponent powerpagecomponentid="ff0577d9-d754-f111-bec7-000d3a3aca8f">
+  <content>{
+  "appendquerystring": false,
+  "associatecurrentportaluser": false,
+  "attachfile": false,
+  "attachfileallowmultiple": false,
+  "attachfilerequired": false,
+  "attachfilerestrictaccept": false,
+  "autogeneratesteps": false,
+  "captcharequired": false,
+  "entityname": "hx_servicerequest",
+  "entitypermissionsenabled": true,
+  "entitysourcetype": 756150001,
+  "forceallfieldsrequired": false,
+  "formname": "Service Request - SharePoint Documents",
+  "geolocation_displaymap": false,
+  "geolocation_enabled": false,
+  "geolocation_maptype": 756150000,
+  "hideformonsuccess": true,
+  "mode": 100000001,
+  "onsuccess": 756150000,
+  "populatereferenceentitylookupfield": false,
+  "portaluserlookupattributeisactivityparty": false,
+  "recommendedfieldsrequired": false,
+  "recordidquerystringparametername": "id",
+  "recordnotfoundmessage": "We could not find a service request for this link, or you do not have permission to view it.",
+  "recordsourceallowcreateonnull": false,
+  "redirecturlappendentityidquerystring": false,
+  "referenceentityshowreadonlyform": false,
+  "referencequerystringisprimarykey": true,
+  "renderwebresourcesinline": true,
+  "setentityreference": false,
+  "showcaptchaforauthenticatedusers": false,
+  "showownerfields": false,
+  "showunsupportedfields": false,
+  "submitbuttonbusytext": "Saving...",
+  "submitbuttontext": "Save request details",
+  "successmessage": "Your request details were saved.",
+  "tooltipenabled": true,
+  "validationsummaryheadertext": "Please fix the highlighted fields before saving.",
+  "validationsummarylinksenabled": true
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>ESI - Service Request SharePoint Documents</name>
+  <powerpagecomponenttype>15</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

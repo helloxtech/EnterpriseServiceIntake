@@ -187,10 +187,9 @@ Visual direction:
 1. Customer signs in and sees only their own requests.
 2. Customer starts a new service request.
 3. Customer changes category, severity, or impact and sees the preview update without a page reload.
-4. Customer uploads supporting documentation.
-5. Customer reviews the request and submits.
-6. Customer receives a formatted confirmation number.
+4. Customer reviews the request and submits.
+5. Customer receives a formatted confirmation number.
+6. Customer opens the secure upload step and adds supporting files to SharePoint for the saved request.
 7. Internal coordinator opens the model-driven app record.
 8. Coordinator sees severity, SLA, routing, approval state, and documentation status.
-9. Manager approval and ERP sync are discussed from internal views without exposing internal fields to the portal user.
-
+9. Manager approval, applicant confirmation email, and ERP sync are discussed from internal views without exposing internal fields to the portal user.

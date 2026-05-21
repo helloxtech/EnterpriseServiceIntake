@@ -10,21 +10,20 @@
     <layoutxml>
       <grid name="resultset" jump="hx_name" select="1" icon="1" preview="1">
         <row name="result" id="hx_externalsynclogid">
-          <cell name="hx_name" width="240" />
-          <cell name="hx_servicerequest" width="190" />
-          <cell name="hx_syncstatus" width="140" />
-          <cell name="hx_endpointname" width="140" />
-          <cell name="hx_externalid" width="140" />
-          <cell name="hx_attemptedon" width="150" />
-          <cell name="createdon" width="150" />
+          <cell name="hx_name" width="160" />
+          <cell name="hx_servicerequest" width="160" />
+          <cell name="hx_syncstatus" width="160" />
+          <cell name="hx_endpointname" width="160" />
+          <cell name="hx_externalid" width="160" />
+          <cell name="hx_attemptedon" width="160" />
+          <cell name="createdon" width="160" />
         </row>
       </grid>
     </layoutxml>
     <querytype>2</querytype>
     <fetchxml>
-      <fetch version="1.0" mapping="logical" output-format="xml-platform">
+      <fetch version="1.0" mapping="logical">
         <entity name="hx_externalsynclog">
-          <attribute name="hx_externalsynclogid" />
           <attribute name="hx_name" />
           <attribute name="hx_servicerequest" />
           <attribute name="hx_syncstatus" />

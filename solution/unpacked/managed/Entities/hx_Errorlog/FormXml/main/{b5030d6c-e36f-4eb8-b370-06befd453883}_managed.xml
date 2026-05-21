@@ -7,14 +7,14 @@
     <FormActivationState>1</FormActivationState>
     <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{37bd8480-45de-57a5-3c11-d3c9eb14843e}" name="tab_summary" IsUserDefined="1" showlabel="true">
+        <tab verticallayout="true" id="{abe1c6d8-c908-6263-5034-bb3e8ac14475}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
             <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section id="{2482965a-ff10-f4d2-d0ee-8b2be34791de}" name="triage" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{2482965a-ff10-f4d2-d0ee-8b2be34791de}" name="triage" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Triage" languagecode="1033" />
                   </labels>
@@ -30,7 +30,7 @@
                     <row>
                       <cell id="{c56b4979-ab69-02c1-a0c6-79ebf6fa8609}" showlabel="true">
                         <labels>
-                          <label description="Source" languagecode="1033" />
+                          <label description="Source Component" languagecode="1033" />
                         </labels>
                         <control id="hx_sourcecomponent" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_sourcecomponent" />
                       </cell>
@@ -69,7 +69,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{939419d2-be36-c3ea-f094-eac4e3ceb70f}" name="error_detail" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{939419d2-be36-c3ea-f094-eac4e3ceb70f}" name="error_detail" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Error Detail" languagecode="1033" />
                   </labels>
@@ -110,7 +110,7 @@
           <row>
             <cell id="{c56b4979-ab69-02c1-a0c6-79ebf6fa8609}" showlabel="true">
               <labels>
-                <label description="Source" languagecode="1033" />
+                <label description="Source Component" languagecode="1033" />
               </labels>
               <control id="hx_sourcecomponent" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_sourcecomponent" />
             </cell>

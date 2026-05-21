@@ -7,14 +7,14 @@
     <FormActivationState>1</FormActivationState>
     <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{9a88c0fb-994c-6d60-cb26-d7cffe8167f2}" name="tab_summary" IsUserDefined="1" showlabel="true">
+        <tab verticallayout="true" id="{b72ab6eb-671a-73ab-83cb-641f1aab0a92}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
             <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section id="{af089958-d193-02d2-46f4-b5e01a14a475}" name="rule_identity" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{af089958-d193-02d2-46f4-b5e01a14a475}" name="rule_identity" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Rule Identity" languagecode="1033" />
                   </labels>
@@ -30,7 +30,7 @@
                     <row>
                       <cell id="{d6759e7d-f71c-d40c-89ca-72a9ceae925d}" showlabel="true">
                         <labels>
-                          <label description="Sort" languagecode="1033" />
+                          <label description="Sort Order" languagecode="1033" />
                         </labels>
                         <control id="hx_sortorder" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_sortorder" />
                       </cell>
@@ -45,7 +45,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{e162a1dd-c05e-7ad2-b5ce-064ae788538c}" name="match_criteria" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{e162a1dd-c05e-7ad2-b5ce-064ae788538c}" name="match_criteria" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Match Criteria" languagecode="1033" />
                   </labels>
@@ -76,7 +76,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{90f5c1d0-01af-66ef-1311-5b5276109234}" name="routing_outcome" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{90f5c1d0-01af-66ef-1311-5b5276109234}" name="routing_outcome" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Routing Outcome" languagecode="1033" />
                   </labels>
@@ -100,7 +100,7 @@
                     <row>
                       <cell id="{a4ee7c0c-aba9-cd54-e76d-b8f861e8ee4b}" showlabel="true">
                         <labels>
-                          <label description="Approval" languagecode="1033" />
+                          <label description="Requires Manager Approval" languagecode="1033" />
                         </labels>
                         <control id="hx_requiresapproval" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_requiresapproval" />
                       </cell>
@@ -125,7 +125,7 @@
           <row>
             <cell id="{d6759e7d-f71c-d40c-89ca-72a9ceae925d}" showlabel="true">
               <labels>
-                <label description="Sort" languagecode="1033" />
+                <label description="Sort Order" languagecode="1033" />
               </labels>
               <control id="hx_sortorder" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_sortorder" />
             </cell>
@@ -137,7 +137,7 @@
             </cell>
             <cell id="{a4ee7c0c-aba9-cd54-e76d-b8f861e8ee4b}" showlabel="true">
               <labels>
-                <label description="Approval" languagecode="1033" />
+                <label description="Requires Manager Approval" languagecode="1033" />
               </labels>
               <control id="hx_requiresapproval" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_requiresapproval" />
             </cell>

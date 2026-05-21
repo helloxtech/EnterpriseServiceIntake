@@ -7,14 +7,37 @@
     <FormActivationState>1</FormActivationState>
     <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{38a07220-76c5-eb35-9b90-5d53f049c2e8}" name="tab_summary" IsUserDefined="1" showlabel="true">
+        <tab verticallayout="true" id="{a6b259ad-8726-2a5b-d230-b6053cd01d7a}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
             <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section id="{be797c0d-ca8c-4825-24ba-b1d7af52281c}" name="customer_and_request" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{4459c799-20bc-c302-9763-d66ad57352d5}" name="coordinator_status" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                  <labels>
+                    <label description="Coordinator Status" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{3109532c-7386-ff95-a1c1-d2849a627b1d}" showlabel="true">
+                        <labels>
+                          <label description="SLA Status" languagecode="1033" />
+                        </labels>
+                        <control id="hx_slaindicatorstatus" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_slaindicatorstatus" disabled="true" uniqueid="{38136736-deaf-2884-ceb6-3416d8b4ca65}" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{cea584e5-32a0-9cf6-4f38-a5bd408a20a5}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_visualseverity" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_visualseverity" disabled="true" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section id="{be797c0d-ca8c-4825-24ba-b1d7af52281c}" name="customer_and_request" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Customer and Request" languagecode="1033" />
                   </labels>
@@ -30,7 +53,7 @@
                     <row>
                       <cell id="{5a47e934-b41a-8061-a7b1-60d0a0ee916a}" showlabel="true">
                         <labels>
-                          <label description="Confirmation" languagecode="1033" />
+                          <label description="Confirmation Number" languagecode="1033" />
                         </labels>
                         <control id="hx_confirmationnumber" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_confirmationnumber" disabled="true" />
                       </cell>
@@ -69,7 +92,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{3773ac87-14f9-2f35-6d10-321b466ba3cf}" name="triage_inputs" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{3773ac87-14f9-2f35-6d10-321b466ba3cf}" name="triage_inputs" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Triage Inputs" languagecode="1033" />
                   </labels>
@@ -108,7 +131,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{3ad172a7-4367-0a04-0faa-14e3cfe25d2c}" name="routing_and_sla" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{3ad172a7-4367-0a04-0faa-14e3cfe25d2c}" name="routing_and_sla" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Routing and SLA" languagecode="1033" />
                   </labels>
@@ -116,7 +139,7 @@
                     <row>
                       <cell id="{53da007d-3aff-3ff7-6521-72662a06c040}" showlabel="true">
                         <labels>
-                          <label description="Department" languagecode="1033" />
+                          <label description="Assigned Department" languagecode="1033" />
                         </labels>
                         <control id="hx_assigneddepartment" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_assigneddepartment" disabled="true" />
                       </cell>
@@ -132,7 +155,7 @@
                     <row>
                       <cell id="{5ea83b13-5919-ac16-b290-1e677751bd13}" showlabel="true">
                         <labels>
-                          <label description="SLA Due" languagecode="1033" />
+                          <label description="SLA Due Date" languagecode="1033" />
                         </labels>
                         <control id="hx_duedate" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_duedate" disabled="true" />
                       </cell>
@@ -147,7 +170,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{f1ad6b10-e943-060e-14c9-c89874effdcf}" name="approval_and_erp_sync" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{f1ad6b10-e943-060e-14c9-c89874effdcf}" name="approval_and_erp_sync" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Approval and ERP Sync" languagecode="1033" />
                   </labels>
@@ -186,7 +209,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{dd198253-b04f-4949-af54-82723c82b9ee}" name="resolution_guardrail" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{dd198253-b04f-4949-af54-82723c82b9ee}" name="resolution_guardrail" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Resolution Guardrail" languagecode="1033" />
                   </labels>
@@ -194,7 +217,7 @@
                     <row>
                       <cell id="{0b39e1a2-0a91-9b5a-692c-02f91937b685}" showlabel="true">
                         <labels>
-                          <label description="Lifecycle" languagecode="1033" />
+                          <label description="Lifecycle Status" languagecode="1033" />
                         </labels>
                         <control id="hx_lifecyclestatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_lifecyclestatus" />
                       </cell>
@@ -243,25 +266,25 @@
           <row>
             <cell id="{5a47e934-b41a-8061-a7b1-60d0a0ee916a}" showlabel="true">
               <labels>
-                <label description="Confirmation" languagecode="1033" />
+                <label description="Confirmation Number" languagecode="1033" />
               </labels>
               <control id="hx_confirmationnumber" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_confirmationnumber" disabled="true" />
             </cell>
             <cell id="{0b39e1a2-0a91-9b5a-692c-02f91937b685}" showlabel="true">
               <labels>
-                <label description="Lifecycle" languagecode="1033" />
+                <label description="Lifecycle Status" languagecode="1033" />
               </labels>
               <control id="hx_lifecyclestatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_lifecyclestatus" />
             </cell>
             <cell id="{53da007d-3aff-3ff7-6521-72662a06c040}" showlabel="true">
               <labels>
-                <label description="Department" languagecode="1033" />
+                <label description="Assigned Department" languagecode="1033" />
               </labels>
               <control id="hx_assigneddepartment" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_assigneddepartment" disabled="true" />
             </cell>
             <cell id="{5ea83b13-5919-ac16-b290-1e677751bd13}" showlabel="true">
               <labels>
-                <label description="SLA Due" languagecode="1033" />
+                <label description="SLA Due Date" languagecode="1033" />
               </labels>
               <control id="hx_duedate" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_duedate" disabled="true" />
             </cell>
@@ -273,6 +296,34 @@
           <row />
         </rows>
       </footer>
+      <controlDescriptions>
+        <controlDescription forControl="{38136736-deaf-2884-ceb6-3416d8b4ca65}">
+          <customControl formFactor="0" name="hx_HelloX.ServiceIntake.SlaStatusIndicator">
+            <parameters>
+              <statusText>hx_slaindicatorstatus</statusText>
+              <severity>hx_visualseverity</severity>
+              <slaDueOn>hx_duedate</slaDueOn>
+              <requiresApproval>hx_requiresapproval</requiresApproval>
+            </parameters>
+          </customControl>
+          <customControl formFactor="1" name="hx_HelloX.ServiceIntake.SlaStatusIndicator">
+            <parameters>
+              <statusText>hx_slaindicatorstatus</statusText>
+              <severity>hx_visualseverity</severity>
+              <slaDueOn>hx_duedate</slaDueOn>
+              <requiresApproval>hx_requiresapproval</requiresApproval>
+            </parameters>
+          </customControl>
+          <customControl formFactor="2" name="hx_HelloX.ServiceIntake.SlaStatusIndicator">
+            <parameters>
+              <statusText>hx_slaindicatorstatus</statusText>
+              <severity>hx_visualseverity</severity>
+              <slaDueOn>hx_duedate</slaDueOn>
+              <requiresApproval>hx_requiresapproval</requiresApproval>
+            </parameters>
+          </customControl>
+        </controlDescription>
+      </controlDescriptions>
       <DisplayConditions Order="0" FallbackForm="true">
         <Everyone />
       </DisplayConditions>

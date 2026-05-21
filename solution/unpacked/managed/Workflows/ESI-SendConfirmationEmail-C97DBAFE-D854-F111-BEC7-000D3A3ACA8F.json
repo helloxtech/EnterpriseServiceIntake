@@ -1,0 +1,246 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedcommondataserviceforapps_30187"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_commondataserviceforapps-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedcommondataserviceforapps_80dda"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedoffice365_confirmation"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "When_a_service_request_is_created": {
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "parameters": {
+              "subscriptionRequest/message": 1,
+              "subscriptionRequest/entityname": "hx_servicerequest",
+              "subscriptionRequest/scope": 4
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "connectionName": "shared_commondataserviceforapps"
+            }
+          }
+        }
+      },
+      "actions": {
+        "Try_-_send_confirmation_email": {
+          "runAfter": {},
+          "type": "Scope",
+          "actions": {
+            "Condition_-_applicant_contact_exists": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@empty(triggerOutputs()?['body/_hx_customercontact_value'])",
+                      false
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Get_applicant_contact": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "entityName": "contacts",
+                      "recordId": "@triggerOutputs()?['body/_hx_customercontact_value']"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                      "operationId": "GetItem",
+                      "connectionName": "shared_commondataserviceforapps-1"
+                    }
+                  }
+                },
+                "Condition_-_applicant_email_exists": {
+                  "runAfter": {
+                    "Get_applicant_contact": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@empty(outputs('Get_applicant_contact')?['body/emailaddress1'])",
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "Send_confirmation_email": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "emailMessage/To": "@outputs('Get_applicant_contact')?['body/emailaddress1']",
+                          "emailMessage/Subject": "Mitacs service request received - @{triggerOutputs()?['body/hx_confirmationnumber']}",
+                          "emailMessage/Body": "<div style=\"font-family:Segoe UI,Arial,sans-serif;background:#f6f8fb;padding:24px;color:#1f2933;\">\n  <div style=\"max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #d9e2ec;border-radius:8px;overflow:hidden;\">\n    <div style=\"background:#0067b1;padding:20px 24px;color:#ffffff;\">\n      <h1 style=\"font-size:22px;line-height:1.3;margin:0;\">Service request received</h1>\n    </div>\n    <div style=\"padding:24px;\">\n      <p style=\"margin:0 0 16px 0;\">Hello @{outputs('Get_applicant_contact')?['body/fullname']},</p>\n      <p style=\"margin:0 0 18px 0;\">Thank you for submitting your request. We have received it and assigned the confirmation number below.</p>\n      <div style=\"border:1px solid #c8d3df;border-radius:6px;padding:16px;margin:18px 0;background:#f9fbfd;\">\n        <div style=\"font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#52616f;\">Confirmation number</div>\n        <div style=\"font-size:24px;font-weight:700;color:#111827;margin-top:4px;\">@{triggerOutputs()?['body/hx_confirmationnumber']}</div>\n      </div>\n      <table role=\"presentation\" style=\"border-collapse:collapse;width:100%;margin:18px 0;\">\n        <tr>\n          <td style=\"padding:8px 0;color:#52616f;width:150px;\">Request title</td>\n          <td style=\"padding:8px 0;color:#111827;font-weight:600;\">@{triggerOutputs()?['body/hx_title']}</td>\n        </tr>\n        <tr>\n          <td style=\"padding:8px 0;color:#52616f;\">Submitted</td>\n          <td style=\"padding:8px 0;color:#111827;\">@{utcNow()}</td>\n        </tr>\n      </table>\n      <p style=\"margin:18px 0 0 0;\">If you need to add screenshots, forms, or other evidence, use the portal after submission to upload supporting files to the secure SharePoint folder for this request.</p>\n      <p style=\"margin:20px 0 0 0;\">Regards,<br/>Mitacs Service Intake</p>\n    </div>\n  </div>\n</div>",
+                          "emailMessage/Importance": "Normal"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                          "operationId": "SendEmailV2",
+                          "connectionName": "shared_office365"
+                        }
+                      }
+                    },
+                    "Mark_request_confirmation_sent": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "entityName": "hx_servicerequests",
+                          "recordId": "@triggerOutputs()?['body/hx_servicerequestid']",
+                          "item/hx_customervisibleupdates": "Confirmation email sent to the applicant through Office 365 Outlook. Supporting files can be uploaded through the secure SharePoint upload page."
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                          "operationId": "UpdateOnlyRecord",
+                          "connectionName": "shared_commondataserviceforapps-1"
+                        }
+                      },
+                      "runAfter": {
+                        "Send_confirmation_email": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {
+                      "Log_missing_applicant_email": {
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "parameters": {
+                            "entityName": "hx_errorlogs",
+                            "item/hx_name": "Confirmation email skipped - @{triggerOutputs()?['body/hx_confirmationnumber']}",
+                            "item/hx_sourcecomponent": 752630001,
+                            "item/hx_stage": "Confirmation email",
+                            "item/hx_correlationid": "@workflow()?['run']?['name']",
+                            "item/hx_message": "Applicant contact does not have an email address.",
+                            "item/hx_technicaldetail": "@string(outputs('Get_applicant_contact')?['body'])",
+                            "item/hx_payload": "@string(triggerOutputs()?['body'])",
+                            "item/hx_resolved": false,
+                            "item/hx_Servicerequest@odata.bind": "@triggerOutputs()?['body/hx_servicerequestid']"
+                          },
+                          "host": {
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                            "operationId": "CreateRecord",
+                            "connectionName": "shared_commondataserviceforapps-1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "else": {
+                "actions": {
+                  "Log_missing_applicant_contact": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "entityName": "hx_errorlogs",
+                        "item/hx_name": "Confirmation email skipped - @{triggerOutputs()?['body/hx_confirmationnumber']}",
+                        "item/hx_sourcecomponent": 752630001,
+                        "item/hx_stage": "Confirmation email",
+                        "item/hx_correlationid": "@workflow()?['run']?['name']",
+                        "item/hx_message": "Service request has no applicant contact.",
+                        "item/hx_technicaldetail": "@string(triggerOutputs()?['body'])",
+                        "item/hx_payload": "@string(triggerOutputs()?['body'])",
+                        "item/hx_resolved": false,
+                        "item/hx_Servicerequest@odata.bind": "@triggerOutputs()?['body/hx_servicerequestid']"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                        "operationId": "CreateRecord",
+                        "connectionName": "shared_commondataserviceforapps-1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Catch_-_log_confirmation_email_error": {
+          "runAfter": {
+            "Try_-_send_confirmation_email": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "type": "Scope",
+          "actions": {
+            "Create_confirmation_email_error_log": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "hx_errorlogs",
+                  "item/hx_name": "Confirmation email failure - @{triggerOutputs()?['body/hx_confirmationnumber']}",
+                  "item/hx_sourcecomponent": 752630001,
+                  "item/hx_stage": "Confirmation email",
+                  "item/hx_correlationid": "@workflow()?['run']?['name']",
+                  "item/hx_message": "Power Automate could not send the confirmation email. See technical detail for the failed scope result.",
+                  "item/hx_technicaldetail": "@string(result('Try_-_send_confirmation_email'))",
+                  "item/hx_payload": "@string(triggerOutputs()?['body'])",
+                  "item/hx_resolved": false,
+                  "item/hx_Servicerequest@odata.bind": "@triggerOutputs()?['body/hx_servicerequestid']"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "connectionName": "shared_commondataserviceforapps-1"
+                }
+              }
+            }
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

@@ -89,7 +89,7 @@
                 "HTTP": {
                   "type": "Http",
                   "inputs": {
-                    "uri": "https://api.restful-api.dev/objects",
+                    "uri": "https://hellox.ca/api/esi-service-requests",
                     "method": "POST",
                     "headers": {
                       "Content-Type": "application/json"
@@ -146,7 +146,7 @@
                       "entityName": "hx_externalsynclogs",
                       "item/hx_name": "ERP sync - @{triggerOutputs()?['body/hx_confirmationnumber']}",
                       "item/hx_attemptedon": "@utcNow()",
-                      "item/hx_endpointname": "RESTful API mock ERP",
+                      "item/hx_endpointname": "HelloX mock ERP",
                       "item/hx_externalid": "@body('HTTP')?['id']",
                       "item/hx_requestpayload": "Service request @{triggerOutputs()?['body/hx_confirmationnumber']} posted to mock ERP endpoint.",
                       "item/hx_responsesummary": "@string(body('HTTP'))",

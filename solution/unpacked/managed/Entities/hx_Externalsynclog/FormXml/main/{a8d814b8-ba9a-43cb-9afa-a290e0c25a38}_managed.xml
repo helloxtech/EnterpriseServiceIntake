@@ -7,14 +7,14 @@
     <FormActivationState>1</FormActivationState>
     <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{247568b2-b95e-091e-6949-39b0e7d62d82}" name="tab_summary" IsUserDefined="1" showlabel="true">
+        <tab verticallayout="true" id="{a0a7c893-8a03-da44-3e1b-3c93a17756eb}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
             <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section id="{c376dcc0-adff-d79a-693c-018910fa18d5}" name="sync_attempt" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{c376dcc0-adff-d79a-693c-018910fa18d5}" name="sync_attempt" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Sync Attempt" languagecode="1033" />
                   </labels>
@@ -38,7 +38,7 @@
                     <row>
                       <cell id="{8bb46063-33f8-cf6c-c75b-fb4fa1191a76}" showlabel="true">
                         <labels>
-                          <label description="Status" languagecode="1033" />
+                          <label description="Sync Status" languagecode="1033" />
                         </labels>
                         <control id="hx_syncstatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_syncstatus" />
                       </cell>
@@ -62,14 +62,14 @@
                     <row>
                       <cell id="{12e98d31-e23c-fe8f-2b5f-60f3aa538eeb}" showlabel="true">
                         <labels>
-                          <label description="Attempted" languagecode="1033" />
+                          <label description="Attempted On" languagecode="1033" />
                         </labels>
                         <control id="hx_attemptedon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_attemptedon" />
                       </cell>
                     </row>
                   </rows>
                 </section>
-                <section id="{fa714f22-d728-488c-a449-49ea72969d3a}" name="payload_and_response" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{fa714f22-d728-488c-a449-49ea72969d3a}" name="payload_and_response" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Payload and Response" languagecode="1033" />
                   </labels>
@@ -102,13 +102,13 @@
           <row>
             <cell id="{8bb46063-33f8-cf6c-c75b-fb4fa1191a76}" showlabel="true">
               <labels>
-                <label description="Status" languagecode="1033" />
+                <label description="Sync Status" languagecode="1033" />
               </labels>
               <control id="hx_syncstatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_syncstatus" />
             </cell>
             <cell id="{12e98d31-e23c-fe8f-2b5f-60f3aa538eeb}" showlabel="true">
               <labels>
-                <label description="Attempted" languagecode="1033" />
+                <label description="Attempted On" languagecode="1033" />
               </labels>
               <control id="hx_attemptedon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_attemptedon" />
             </cell>

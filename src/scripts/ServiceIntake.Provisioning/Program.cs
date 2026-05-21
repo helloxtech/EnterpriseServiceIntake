@@ -12,6 +12,9 @@ using System.Text.Json.Nodes;
 const string Prefix = "hx";
 const string SolutionUniqueName = "EnterpriseServiceIntake";
 const string PublisherUniqueName = "HelloXTech";
+const string Office365ConnectionReferenceLogicalName = "new_sharedoffice365_confirmation";
+const string Office365ConnectorId = "/providers/Microsoft.PowerApps/apis/shared_office365";
+const string HelloXMockErpEndpoint = "https://hellox.ca/api/esi-service-requests";
 
 var url = Required("POWERPLATFORM_ENVIRONMENT_URL");
 var username = Required("POWERPLATFORM_ADMIN_USERNAME");
@@ -40,6 +43,12 @@ if (string.Equals(Environment.GetEnvironmentVariable("DUMP_PORTAL_METADATA"), "t
 if (string.Equals(Environment.GetEnvironmentVariable("PATCH_FLOW_DEFINITION"), "true", StringComparison.OrdinalIgnoreCase))
 {
     PatchApprovalFlowDefinition(service);
+    return;
+}
+
+if (string.Equals(Environment.GetEnvironmentVariable("ENSURE_CONFIRMATION_EMAIL_FLOW"), "true", StringComparison.OrdinalIgnoreCase))
+{
+    EnsureConfirmationEmailFlow(service);
     return;
 }
 
@@ -200,6 +209,8 @@ static void EnsureMetadata(IOrganizationService service)
     EnsureBoolean(service, "hx_servicerequest", "hx_resolutiondocumentationrequired", "Resolution Documentation Required", false);
     EnsureBoolean(service, "hx_servicerequest", "hx_resolutiondocumentationprovided", "Resolution Documentation Provided", false);
     EnsureString(service, "hx_servicerequest", "hx_routingpreviewsummary", "Routing Preview Summary", 500);
+    EnsureString(service, "hx_servicerequest", "hx_slaindicatorstatus", "SLA Indicator Status", 200);
+    EnsureString(service, "hx_servicerequest", "hx_visualseverity", "Visual Severity", 40);
     EnsureLookup(service, "hx_servicerequest", "contact", "hx_customercontact", "Customer Contact");
     EnsureLookup(service, "hx_servicerequest", "account", "hx_customeraccount", "Customer Account");
     EnsureLookup(service, "hx_servicerequest", "hx_servicecategory", "hx_servicecategory", "Service Category");
@@ -576,6 +587,11 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         "Service Request - Coordinator",
         new[]
         {
+            new FormSection("Coordinator Status", new[]
+            {
+                SlaPcfField("hx_slaindicatorstatus", "SLA Status", FormControlClass.Text),
+                Field("hx_visualseverity", "Visual Severity", FormControlClass.Text, disabled: true)
+            }),
             new FormSection("Customer and Request", new[]
             {
                 Field("hx_title", "Title", FormControlClass.Text),
@@ -1287,6 +1303,8 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         descending: false,
         queryType: 64);
 
+    EnsureServiceIntakeDashboards(service);
+
     Console.WriteLine("Configured model-driven forms and views.");
 }
 
@@ -1294,7 +1312,13 @@ static FormField Field(
     string logicalName,
     string label,
     FormControlClass controlClass,
-    bool disabled = false) => new(logicalName, label, controlClass, disabled);
+    bool disabled = false) => new(logicalName, label, controlClass, disabled, false);
+
+static FormField SlaPcfField(
+    string logicalName,
+    string label,
+    FormControlClass controlClass,
+    bool disabled = true) => new(logicalName, label, controlClass, disabled, true);
 
 static void EnsureMainForm(
     IOrganizationService service,
@@ -1386,6 +1410,7 @@ static string BuildMainFormXml(
     builder.AppendLine("    </row></rows>");
     builder.AppendLine("  </header>");
     builder.AppendLine($"  <footer id=\"{{{DeterministicGuid($"{entityLogicalName}:footer")}}}\" celllabelposition=\"Top\" columns=\"111\" labelwidth=\"115\" celllabelalignment=\"Left\"><rows><row /></rows></footer>");
+    AppendPcfControlDescriptions(builder, entityLogicalName, sections.SelectMany(section => section.Fields));
     builder.AppendLine("  <DisplayConditions Order=\"0\" FallbackForm=\"true\"><Everyone /></DisplayConditions>");
     builder.AppendLine("</form>");
     _ = formId;
@@ -1406,9 +1431,12 @@ static void AppendCell(
     }
 
     var disabled = field.Disabled ? " disabled=\"true\"" : string.Empty;
+    var uniqueId = field.UseSlaPcf
+        ? $" uniqueid=\"{{{DeterministicGuid($"{entityLogicalName}:{field.LogicalName}:sla-pcf")}}}\""
+        : string.Empty;
     builder.AppendLine($"{indent}<cell id=\"{{{DeterministicGuid($"{entityLogicalName}:{field.LogicalName}:cell")}}}\" showlabel=\"true\">");
     builder.AppendLine($"{indent}  <labels><label description=\"{Xml(field.Label)}\" languagecode=\"1033\" /></labels>");
-    builder.AppendLine($"{indent}  <control id=\"{Xml(field.LogicalName)}\" classid=\"{field.ControlClass.Id}\" datafieldname=\"{Xml(field.LogicalName)}\"{disabled} />");
+    builder.AppendLine($"{indent}  <control id=\"{Xml(field.LogicalName)}\" classid=\"{field.ControlClass.Id}\" datafieldname=\"{Xml(field.LogicalName)}\"{disabled}{uniqueId} />");
     builder.AppendLine($"{indent}</cell>");
 
     if (includeRow)
@@ -1417,7 +1445,36 @@ static void AppendCell(
     }
 }
 
-static void EnsureSystemView(
+static void AppendPcfControlDescriptions(StringBuilder builder, string entityLogicalName, IEnumerable<FormField> fields)
+{
+    var pcfFields = fields.Where(field => field.UseSlaPcf).ToList();
+    if (pcfFields.Count == 0)
+    {
+        return;
+    }
+
+    builder.AppendLine("  <controlDescriptions>");
+    foreach (var field in pcfFields)
+    {
+        var controlId = DeterministicGuid($"{entityLogicalName}:{field.LogicalName}:sla-pcf");
+        builder.AppendLine($"    <controlDescription forControl=\"{{{controlId}}}\">");
+        foreach (var formFactor in new[] { 0, 1, 2 })
+        {
+            builder.AppendLine($"      <customControl formFactor=\"{formFactor}\" name=\"hx_HelloX.ServiceIntake.SlaStatusIndicator\">");
+            builder.AppendLine("        <parameters>");
+            builder.AppendLine($"          <statusText>{Xml(field.LogicalName)}</statusText>");
+            builder.AppendLine("          <severity>hx_visualseverity</severity>");
+            builder.AppendLine("          <slaDueOn>hx_duedate</slaDueOn>");
+            builder.AppendLine("          <requiresApproval>hx_requiresapproval</requiresApproval>");
+            builder.AppendLine("        </parameters>");
+            builder.AppendLine("      </customControl>");
+        }
+        builder.AppendLine("    </controlDescription>");
+    }
+    builder.AppendLine("  </controlDescriptions>");
+}
+
+static Guid EnsureSystemView(
     IOrganizationService service,
     string entityLogicalName,
     string viewName,
@@ -1440,11 +1497,13 @@ static void EnsureSystemView(
         savedQuery["querytype"] = queryType;
         var id = service.Create(savedQuery);
         AddToSolution(service, id, 26);
+        return id;
     }
     else
     {
         service.Update(savedQuery);
         AddToSolution(service, savedQuery.Id, 26);
+        return savedQuery.Id;
     }
 }
 
@@ -1492,6 +1551,328 @@ static Entity? FindSystemView(IOrganizationService service, int objectTypeCode, 
     query.Criteria.AddCondition("querytype", ConditionOperator.Equal, queryType);
     query.Criteria.AddCondition("name", ConditionOperator.Equal, viewName);
     return service.RetrieveMultiple(query).Entities.FirstOrDefault();
+}
+
+static Guid FindRequiredSystemViewId(IOrganizationService service, string entityLogicalName, string viewName)
+{
+    var objectTypeCode = GetObjectTypeCode(service, entityLogicalName);
+    var view = FindSystemView(service, objectTypeCode, viewName, queryType: 0)
+        ?? throw new InvalidOperationException($"Required view was not found: {entityLogicalName}/{viewName}");
+    return view.Id;
+}
+
+static void EnsureServiceIntakeDashboards(IOrganizationService service)
+{
+    var coordinatorQueueView = FindRequiredSystemViewId(service, "hx_servicerequest", "Coordinator Queue");
+    var pendingApprovalView = FindRequiredSystemViewId(service, "hx_servicerequest", "Pending Manager Approval");
+    var criticalDocsView = FindRequiredSystemViewId(service, "hx_servicerequest", "Critical Documentation Guardrails");
+    var erpMonitorView = FindRequiredSystemViewId(service, "hx_servicerequest", "ERP Sync Monitor");
+    var syncAttemptsView = FindRequiredSystemViewId(service, "hx_externalsynclog", "ERP Sync Attempts");
+    var errorLogView = FindRequiredSystemViewId(service, "hx_errorlog", "Open Integration and Automation Errors");
+
+    var requestsByDepartment = EnsureSystemChart(
+        service,
+        "ESI - Requests by Department",
+        "hx_servicerequest",
+        BuildCountByAttributeChartData("hx_servicerequest", "hx_assigneddepartment", "hx_servicerequestid"),
+        BuildSingleSeriesPresentation("Bar", includeLegend: false));
+    var requestsBySeverity = EnsureSystemChart(
+        service,
+        "ESI - Requests by Severity",
+        "hx_servicerequest",
+        BuildCountByAttributeChartData("hx_servicerequest", "hx_severity", "hx_servicerequestid"),
+        BuildSingleSeriesPresentation("Pie", includeLegend: true));
+    var requestsByLifecycle = EnsureSystemChart(
+        service,
+        "ESI - Lifecycle Mix",
+        "hx_servicerequest",
+        BuildCountByAttributeChartData("hx_servicerequest", "hx_lifecyclestatus", "hx_servicerequestid"),
+        BuildSingleSeriesPresentation("Column", includeLegend: false));
+    var approvalOutcomes = EnsureSystemChart(
+        service,
+        "ESI - Approval Outcomes",
+        "hx_servicerequest",
+        BuildCountByAttributeChartData("hx_servicerequest", "hx_approvalstatus", "hx_servicerequestid"),
+        BuildSingleSeriesPresentation("Column", includeLegend: false));
+    var documentationQueue = EnsureSystemChart(
+        service,
+        "ESI - Documentation Guardrails",
+        "hx_servicerequest",
+        BuildCountByAttributeChartData("hx_servicerequest", "hx_resolutiondocumentationprovided", "hx_servicerequestid"),
+        BuildSingleSeriesPresentation("Doughnut", includeLegend: true));
+    var syncStatus = EnsureSystemChart(
+        service,
+        "ESI - ERP Sync Status",
+        "hx_servicerequest",
+        BuildCountByAttributeChartData("hx_servicerequest", "hx_integrationsyncstatus", "hx_servicerequestid"),
+        BuildSingleSeriesPresentation("StackedColumn", includeLegend: true));
+    var syncTrend = EnsureSystemChart(
+        service,
+        "ESI - Sync Attempts by Day",
+        "hx_externalsynclog",
+        BuildCountByDateChartData("hx_externalsynclog", "hx_attemptedon", "hx_externalsynclogid"),
+        BuildSingleSeriesPresentation("Line", includeLegend: false));
+    var errorsBySource = EnsureSystemChart(
+        service,
+        "ESI - Errors by Source",
+        "hx_errorlog",
+        BuildCountByAttributeChartData("hx_errorlog", "hx_sourcecomponent", "hx_errorlogid"),
+        BuildSingleSeriesPresentation("Pie", includeLegend: true));
+
+    var coordinatorDashboard = EnsureSystemDashboard(
+        service,
+        "ESI - Coordinator Operations Dashboard",
+        "Coordinator queue, routing, severity, and SLA workbench.",
+        BuildDashboardFormXml(
+            "ESI - Coordinator Operations Dashboard",
+            new[]
+            {
+                DashboardComponent.Chart("RequestsByDepartment", "Requests by department", "hx_servicerequest", coordinatorQueueView, requestsByDepartment),
+                DashboardComponent.Chart("RequestsBySeverity", "Severity mix", "hx_servicerequest", coordinatorQueueView, requestsBySeverity),
+                DashboardComponent.Chart("LifecycleMix", "Lifecycle mix", "hx_servicerequest", coordinatorQueueView, requestsByLifecycle)
+            },
+            new[]
+            {
+                DashboardComponent.Grid("CoordinatorQueue", "Coordinator queue", "hx_servicerequest", coordinatorQueueView),
+                DashboardComponent.Grid("CriticalDocs", "Critical documentation queue", "hx_servicerequest", criticalDocsView)
+            }));
+
+    var managerDashboard = EnsureSystemDashboard(
+        service,
+        "ESI - Manager Approval Dashboard",
+        "Manager view of pending approvals, approval outcomes, and critical documentation risk.",
+        BuildDashboardFormXml(
+            "ESI - Manager Approval Dashboard",
+            new[]
+            {
+                DashboardComponent.Chart("ApprovalOutcomes", "Approval outcomes", "hx_servicerequest", pendingApprovalView, approvalOutcomes),
+                DashboardComponent.Chart("PendingSeverity", "Pending approval severity", "hx_servicerequest", pendingApprovalView, requestsBySeverity),
+                DashboardComponent.Chart("DocumentationGuardrails", "Documentation guardrails", "hx_servicerequest", criticalDocsView, documentationQueue)
+            },
+            new[]
+            {
+                DashboardComponent.Grid("PendingApprovals", "Pending manager approval", "hx_servicerequest", pendingApprovalView),
+                DashboardComponent.Grid("CriticalDocsManager", "Critical documentation gaps", "hx_servicerequest", criticalDocsView)
+            }));
+
+    var integrationDashboard = EnsureSystemDashboard(
+        service,
+        "ESI - Integration Monitoring Dashboard",
+        "ERP sync and automation support dashboard.",
+        BuildDashboardFormXml(
+            "ESI - Integration Monitoring Dashboard",
+            new[]
+            {
+                DashboardComponent.Chart("SyncStatus", "ERP sync status", "hx_servicerequest", erpMonitorView, syncStatus),
+                DashboardComponent.Chart("SyncTrend", "Sync attempts by day", "hx_externalsynclog", syncAttemptsView, syncTrend),
+                DashboardComponent.Chart("ErrorsBySource", "Errors by source", "hx_errorlog", errorLogView, errorsBySource)
+            },
+            new[]
+            {
+                DashboardComponent.Grid("SyncAttempts", "Recent sync attempts", "hx_externalsynclog", syncAttemptsView),
+                DashboardComponent.Grid("OpenErrors", "Open automation errors", "hx_errorlog", errorLogView)
+            }));
+
+    AddDashboardToAppModule(service, coordinatorDashboard);
+    AddDashboardToAppModule(service, managerDashboard);
+    AddDashboardToAppModule(service, integrationDashboard);
+}
+
+static Guid EnsureSystemChart(
+    IOrganizationService service,
+    string name,
+    string entityLogicalName,
+    string dataDescription,
+    string presentationDescription)
+{
+    var existing = FindByAttribute(service, "savedqueryvisualization", "name", name);
+    var chart = existing ?? new Entity("savedqueryvisualization");
+    chart["name"] = name;
+    chart["description"] = "Enterprise Service Intake demo dashboard chart.";
+    chart["primaryentitytypecode"] = entityLogicalName;
+    chart["datadescription"] = dataDescription;
+    chart["presentationdescription"] = presentationDescription;
+    chart["charttype"] = new OptionSetValue(0);
+    chart["type"] = new OptionSetValue(0);
+    chart["isdefault"] = false;
+
+    if (existing == null)
+    {
+        var id = service.Create(chart);
+        AddToSolution(service, id, 59);
+        return id;
+    }
+
+    service.Update(chart);
+    AddToSolution(service, chart.Id, 59);
+    return chart.Id;
+}
+
+static string BuildCountByAttributeChartData(string entityLogicalName, string groupByAttribute, string countAttribute)
+{
+    return
+        "<datadefinition>" +
+        "<fetchcollection>" +
+        "<fetch mapping=\"logical\" aggregate=\"true\">" +
+        $"<entity name=\"{Xml(entityLogicalName)}\">" +
+        $"<attribute name=\"{Xml(countAttribute)}\" aggregate=\"count\" alias=\"aggregate_column\" />" +
+        $"<attribute name=\"{Xml(groupByAttribute)}\" groupby=\"true\" alias=\"groupby_column\" />" +
+        "</entity>" +
+        "</fetch>" +
+        "</fetchcollection>" +
+        "<categorycollection><category><measurecollection><measure alias=\"aggregate_column\" /></measurecollection></category></categorycollection>" +
+        "</datadefinition>";
+}
+
+static string BuildCountByDateChartData(string entityLogicalName, string groupByAttribute, string countAttribute)
+{
+    return
+        "<datadefinition>" +
+        "<fetchcollection>" +
+        "<fetch mapping=\"logical\" aggregate=\"true\">" +
+        $"<entity name=\"{Xml(entityLogicalName)}\">" +
+        $"<attribute name=\"{Xml(countAttribute)}\" aggregate=\"count\" alias=\"aggregate_column\" />" +
+        $"<attribute name=\"{Xml(groupByAttribute)}\" groupby=\"true\" dategrouping=\"day\" alias=\"groupby_column\" />" +
+        "<order alias=\"groupby_column\" descending=\"false\" />" +
+        "</entity>" +
+        "</fetch>" +
+        "</fetchcollection>" +
+        "<categorycollection><category><measurecollection><measure alias=\"aggregate_column\" /></measurecollection></category></categorycollection>" +
+        "</datadefinition>";
+}
+
+static string BuildSingleSeriesPresentation(string chartType, bool includeLegend)
+{
+    var legend = includeLegend
+        ? "<Legends><Legend Alignment=\"Center\" LegendStyle=\"Table\" Docking=\"Right\" IsEquallySpacedItems=\"True\" Font=\"{0}, 11px\" ForeColor=\"59,59,59\" /></Legends>"
+        : string.Empty;
+
+    return
+        "<Chart Palette=\"None\" PaletteCustomColors=\"31,78,121; 14,118,110; 181,71,8; 180,35,24; 37,99,235; 92,110,128; 22,163,74\">" +
+        "<Series>" +
+        $"<Series ChartType=\"{Xml(chartType)}\" IsValueShownAsLabel=\"True\" Font=\"{{0}}, 9.5px\" LabelForeColor=\"59,59,59\" CustomProperties=\"PointWidth=0.75, MaxPixelPointWidth=40\"><SmartLabelStyle Enabled=\"True\" /></Series>" +
+        "</Series>" +
+        "<ChartAreas><ChartArea BorderColor=\"White\" BorderDashStyle=\"Solid\"><AxisY LineColor=\"165,172,181\"><MajorGrid LineColor=\"239,242,246\" /><LabelStyle Font=\"{0}, 10.5px\" ForeColor=\"59,59,59\" /></AxisY><AxisX LineColor=\"165,172,181\"><MajorGrid Enabled=\"False\" /><LabelStyle Font=\"{0}, 10.5px\" ForeColor=\"59,59,59\" /></AxisX><Area3DStyle Enable3D=\"False\" /></ChartArea></ChartAreas>" +
+        legend +
+        "<Titles><Title Alignment=\"TopLeft\" DockingOffset=\"-3\" Font=\"{0}, 13px\" ForeColor=\"59,59,59\" /></Titles>" +
+        "</Chart>";
+}
+
+static Guid EnsureSystemDashboard(IOrganizationService service, string name, string description, string formXml)
+{
+    var existing = FindByAttribute(service, "systemform", "name", name);
+    var dashboard = existing ?? new Entity("systemform");
+    dashboard["name"] = name;
+    dashboard["description"] = description;
+    dashboard["formxml"] = formXml;
+    dashboard["type"] = new OptionSetValue(0);
+    dashboard["isdefault"] = false;
+    dashboard["isdesktopenabled"] = true;
+    dashboard["istabletenabled"] = true;
+
+    if (existing == null)
+    {
+        var id = service.Create(dashboard);
+        AddToSolution(service, id, 60);
+        return id;
+    }
+
+    service.Update(dashboard);
+    AddToSolution(service, dashboard.Id, 60);
+    return dashboard.Id;
+}
+
+static string BuildDashboardFormXml(
+    string dashboardName,
+    IReadOnlyList<DashboardComponent> chartComponents,
+    IReadOnlyList<DashboardComponent> gridComponents)
+{
+    var builder = new StringBuilder();
+    builder.AppendLine("<form>");
+    builder.AppendLine("  <tabs>");
+    builder.AppendLine($"    <tab showlabel=\"true\" verticallayout=\"true\" id=\"{{{DeterministicGuid($"{dashboardName}:tab")}}}\" name=\"{XmlName(dashboardName)}\" locklevel=\"0\" expanded=\"true\">");
+    builder.AppendLine($"      <labels><label description=\"{Xml(dashboardName)}\" languagecode=\"1033\" /></labels>");
+    builder.AppendLine("      <columns><column width=\"100%\"><sections>");
+    AppendDashboardSection(builder, dashboardName, "Visual filters", chartComponents);
+    AppendDashboardSection(builder, dashboardName, "Action queues", gridComponents);
+    builder.AppendLine("      </sections></column></columns>");
+    builder.AppendLine("    </tab>");
+    builder.AppendLine("  </tabs>");
+    builder.AppendLine("</form>");
+    return builder.ToString();
+}
+
+static void AppendDashboardSection(StringBuilder builder, string dashboardName, string sectionName, IReadOnlyList<DashboardComponent> components)
+{
+    var columns = new string('1', Math.Max(1, components.Count));
+    builder.AppendLine($"        <section showlabel=\"true\" showbar=\"false\" columns=\"{columns}\" id=\"{{{DeterministicGuid($"{dashboardName}:{sectionName}:section")}}}\" name=\"{XmlName(sectionName)}\">");
+    builder.AppendLine($"          <labels><label description=\"{Xml(sectionName)}\" languagecode=\"1033\" /></labels>");
+    builder.AppendLine("          <rows>");
+    builder.AppendLine("            <row>");
+    foreach (var component in components)
+    {
+        AppendDashboardCell(builder, dashboardName, component);
+    }
+    builder.AppendLine("            </row>");
+    for (var i = 0; i < 9; i++)
+    {
+        builder.AppendLine("            <row />");
+    }
+    builder.AppendLine("          </rows>");
+    builder.AppendLine("        </section>");
+}
+
+static void AppendDashboardCell(StringBuilder builder, string dashboardName, DashboardComponent component)
+{
+    builder.AppendLine($"              <cell colspan=\"1\" rowspan=\"10\" showlabel=\"false\" id=\"{{{DeterministicGuid($"{dashboardName}:{component.Id}:cell")}}}\" auto=\"false\">");
+    builder.AppendLine($"                <labels><label description=\"{Xml(component.Label)}\" languagecode=\"1033\" /></labels>");
+    builder.AppendLine($"                <control id=\"{Xml(component.Id)}\" classid=\"{{E7A81278-8635-4d9e-8D4D-59480B391C5B}}\">");
+    builder.AppendLine("                  <parameters>");
+    builder.AppendLine($"                    <TargetEntityType>{Xml(component.TargetEntityLogicalName)}</TargetEntityType>");
+    builder.AppendLine($"                    <ChartGridMode>{Xml(component.Mode)}</ChartGridMode>");
+    builder.AppendLine("                    <EnableQuickFind>false</EnableQuickFind>");
+    builder.AppendLine("                    <EnableViewPicker>true</EnableViewPicker>");
+    builder.AppendLine("                    <EnableJumpBar>true</EnableJumpBar>");
+    builder.AppendLine("                    <RecordsPerPage>8</RecordsPerPage>");
+    builder.AppendLine($"                    <ViewId>{{{component.ViewId}}}</ViewId>");
+    builder.AppendLine("                    <IsUserView>false</IsUserView>");
+    builder.AppendLine("                    <ViewIds></ViewIds>");
+    builder.AppendLine("                    <AutoExpand>Fixed</AutoExpand>");
+    if (component.VisualizationId.HasValue)
+    {
+        builder.AppendLine($"                    <VisualizationId>{{{component.VisualizationId.Value}}}</VisualizationId>");
+        builder.AppendLine("                    <IsUserChart>false</IsUserChart>");
+        builder.AppendLine("                    <EnableChartPicker>false</EnableChartPicker>");
+    }
+    builder.AppendLine("                    <RelationshipName></RelationshipName>");
+    builder.AppendLine("                  </parameters>");
+    builder.AppendLine("                </control>");
+    builder.AppendLine("              </cell>");
+}
+
+static void AddDashboardToAppModule(IOrganizationService service, Guid dashboardId)
+{
+    try
+    {
+        var app = FindByAttribute(service, "appmodule", "uniquename", "hx_EnterpriseServiceIntake");
+        if (app == null)
+        {
+            return;
+        }
+
+        service.Execute(new AddAppComponentsRequest
+        {
+            AppId = app.Id,
+            Components = new EntityReferenceCollection
+            {
+                new("systemform", dashboardId)
+            }
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Warning: dashboard {dashboardId} was not added to app module: {ex.Message}");
+    }
 }
 
 static string BuildViewFetchXml(
@@ -1867,24 +2248,147 @@ static void SeedSampleData(IOrganizationService service)
 
     var customerOneId = UpsertContact(service, "Customer One", "customer.one@example.com");
     var customerTwoId = UpsertContact(service, "Customer Two", "customer.two@example.com");
+    var customerThreeId = UpsertContact(service, "Customer Three", "customer.three@example.com");
+    var customerFourId = UpsertContact(service, "Customer Four", "customer.four@example.com");
+    var customerFiveId = UpsertContact(service, "Customer Five", "customer.five@example.com");
 
-    UpsertDemoRequest(service,
+    var criticalPendingId = UpsertDemoRequest(service,
         title: "Demo - Critical funding agreement support",
         contactId: customerOneId,
         categoryId: categories["Funding Agreement"],
         severity: 752630003,
         priority: 752630003,
-        description: "Customer reports a funding agreement issue that blocks an active project milestone.");
+        description: "Customer reports a funding agreement issue that blocks an active project milestone.",
+        assignState: entity =>
+        {
+            entity["hx_lifecyclestatus"] = new OptionSetValue(752630003);
+            entity["hx_approvalstatus"] = new OptionSetValue(752630001);
+            entity["hx_integrationsyncstatus"] = new OptionSetValue(752630000);
+            entity["hx_duedate"] = DateTime.UtcNow.AddHours(4);
+            entity["hx_slaindicatorstatus"] = "Pending manager approval";
+        });
 
-    UpsertDemoRequest(service,
+    var technicalSupportId = UpsertDemoRequest(service,
         title: "Demo - Standard technical support",
         contactId: customerTwoId,
         categoryId: categories["Technical Support"],
         severity: 752630001,
         priority: 752630001,
-        description: "Customer needs help accessing a portal resource.");
+        description: "Customer needs help accessing a portal resource.",
+        assignState: entity =>
+        {
+            entity["hx_lifecyclestatus"] = new OptionSetValue(752630002);
+            entity["hx_approvalstatus"] = new OptionSetValue(752630000);
+            entity["hx_integrationsyncstatus"] = new OptionSetValue(752630000);
+            entity["hx_duedate"] = DateTime.UtcNow.AddHours(20);
+            entity["hx_slaindicatorstatus"] = "Ready for coordinator triage";
+        });
 
-    Console.WriteLine("Seeded sample configuration data.");
+    var syncedResearchId = UpsertDemoRequest(service,
+        title: "Demo - Approved research partnership synced",
+        contactId: customerThreeId,
+        categoryId: categories["Research Partnership"],
+        severity: 752630002,
+        priority: 752630002,
+        description: "Research partner request approved by management and synchronized to the external ERP.",
+        assignState: entity =>
+        {
+            entity["hx_lifecyclestatus"] = new OptionSetValue(752630005);
+            entity["hx_approvalstatus"] = new OptionSetValue(752630002);
+            entity["hx_integrationsyncstatus"] = new OptionSetValue(752630002);
+            entity["hx_externalerpid"] = "HX-ERP-DEMO-1001";
+            entity["hx_resolutiondocumentationprovided"] = true;
+            entity["hx_internalresolutionnotes"] = "Manager approval completed and ERP accepted the record.";
+            entity["hx_duedate"] = DateTime.UtcNow.AddHours(-6);
+            entity["hx_slaindicatorstatus"] = "ERP sync complete";
+        });
+
+    var rejectedResearchId = UpsertDemoRequest(service,
+        title: "Demo - Rejected research exception",
+        contactId: customerFourId,
+        categoryId: categories["Research Partnership"],
+        severity: 752630002,
+        priority: 752630002,
+        description: "Request was rejected because the required eligibility evidence was not provided.",
+        assignState: entity =>
+        {
+            entity["hx_lifecyclestatus"] = new OptionSetValue(752630009);
+            entity["hx_approvalstatus"] = new OptionSetValue(752630003);
+            entity["hx_integrationsyncstatus"] = new OptionSetValue(752630000);
+            entity["hx_customervisibleupdates"] = "Manager review completed. Additional eligibility evidence is required before resubmission.";
+            entity["hx_slaindicatorstatus"] = "Rejected after manager review";
+        });
+
+    var failedSyncId = UpsertDemoRequest(service,
+        title: "Demo - Approved funding ERP sync failure",
+        contactId: customerFiveId,
+        categoryId: categories["Funding Agreement"],
+        severity: 752630003,
+        priority: 752630003,
+        description: "Approved funding request that demonstrates the Power Automate catch branch and error logging.",
+        assignState: entity =>
+        {
+            entity["hx_lifecyclestatus"] = new OptionSetValue(752630004);
+            entity["hx_approvalstatus"] = new OptionSetValue(752630002);
+            entity["hx_integrationsyncstatus"] = new OptionSetValue(752630003);
+            entity["hx_resolutiondocumentationprovided"] = true;
+            entity["hx_internalresolutionnotes"] = "Approved for ERP sync; mock endpoint failure is retained for demo evidence.";
+            entity["hx_duedate"] = DateTime.UtcNow.AddHours(-2);
+            entity["hx_slaindicatorstatus"] = "ERP sync failed";
+        });
+
+    var eventSupportId = UpsertDemoRequest(service,
+        title: "Demo - Event support in progress",
+        contactId: customerFourId,
+        categoryId: categories["Event Support"],
+        severity: 752630001,
+        priority: 752630001,
+        description: "Customer needs event logistics support and does not require manager approval.",
+        assignState: entity =>
+        {
+            entity["hx_lifecyclestatus"] = new OptionSetValue(752630006);
+            entity["hx_approvalstatus"] = new OptionSetValue(752630000);
+            entity["hx_integrationsyncstatus"] = new OptionSetValue(752630000);
+            entity["hx_duedate"] = DateTime.UtcNow.AddHours(32);
+            entity["hx_slaindicatorstatus"] = "Coordinator working request";
+        });
+
+    UpsertDemoDocument(service, "Demo Doc - Critical funding support evidence", criticalPendingId, 752630000,
+        "funding-agreement-blocker.pdf", verified: true, notes: "Customer uploaded the supporting contract excerpt through the portal.");
+    UpsertDemoDocument(service, "Demo Doc - Technical support screenshot", technicalSupportId, 752630000,
+        "portal-access-error.png", verified: false, notes: "Screenshot supplied by the customer.");
+    UpsertDemoDocument(service, "Demo Doc - Research manager approval", syncedResearchId, 752630002,
+        "manager-approval-note.txt", verified: true, notes: "Approval captured by Power Automate.");
+    UpsertDemoDocument(service, "Demo Doc - Research resolution package", syncedResearchId, 752630001,
+        "erp-sync-resolution.pdf", verified: true, notes: "Resolution documentation required for critical closure guard evidence.");
+    UpsertDemoDocument(service, "Demo Doc - Rejection evidence", rejectedResearchId, 752630002,
+        "eligibility-review.txt", verified: true, notes: "Manager rejection note retained for audit.");
+    UpsertDemoDocument(service, "Demo Doc - Failed ERP resolution evidence", failedSyncId, 752630001,
+        "erp-sync-failure-resolution.txt", verified: true, notes: "Resolution documentation exists; integration error remains open.");
+    UpsertDemoDocument(service, "Demo Doc - Event support brief", eventSupportId, 752630003,
+        "event-support-brief.docx", verified: false, notes: "Coordinator will validate after triage.");
+
+    UpsertDemoSyncLog(service, "Demo Sync - Research accepted by HelloX ERP", syncedResearchId, 752630002,
+        "HelloX mock ERP", "HX-ERP-DEMO-1001", DateTime.UtcNow.AddHours(-5),
+        "{\"confirmationNumber\":\"SR-20260520-00031\",\"title\":\"Approved research partnership synced\"}",
+        "{\"ok\":true,\"externalId\":\"HX-ERP-DEMO-1001\",\"status\":\"accepted\"}");
+    UpsertDemoSyncLog(service, "Demo Sync - Funding rejected by HelloX ERP", failedSyncId, 752630003,
+        "HelloX mock ERP", string.Empty, DateTime.UtcNow.AddHours(-1),
+        "{\"confirmationNumber\":\"SR-20260520-00044\",\"simulateFailure\":true}",
+        "{\"ok\":false,\"error\":{\"code\":\"ERP_DEMO_REJECTION\"},\"retryable\":true}");
+    UpsertDemoSyncLog(service, "Demo Sync - Pending approval not sent", criticalPendingId, 752630000,
+        "HelloX mock ERP", string.Empty, DateTime.UtcNow.AddMinutes(-45),
+        "{\"status\":\"held until approval\"}",
+        "No API call made because manager approval is still pending.");
+
+    UpsertDemoErrorLog(service, "Demo Error - ERP sync failure captured", failedSyncId, 752630003,
+        "ERP Sync", "FLOW-DEMO-ERP-FAIL", "HelloX mock ERP returned the demo failure response.",
+        "HTTP 503 from /api/esi-service-requests?fail=true", "{\"simulateFailure\":true}", resolved: false);
+    UpsertDemoErrorLog(service, "Demo Error - Approval notification retry resolved", rejectedResearchId, 752630001,
+        "Approval", "FLOW-DEMO-APPROVAL-RETRY", "Approval notification was delayed and then retried successfully.",
+        "Approval connector transient timeout on first attempt.", "{\"approvalStatus\":\"Rejected\"}", resolved: true);
+
+    Console.WriteLine("Seeded sample configuration and demo transaction data.");
 }
 
 static Guid UpsertNamed(IOrganizationService service, string logicalName, string name, Action<Entity> assign)
@@ -1948,14 +2452,15 @@ static Guid UpsertContact(IOrganizationService service, string fullName, string 
     }
 }
 
-static void UpsertDemoRequest(
+static Guid UpsertDemoRequest(
     IOrganizationService service,
     string title,
     Guid contactId,
     Guid categoryId,
     int severity,
     int priority,
-    string description)
+    string description,
+    Action<Entity>? assignState = null)
 {
     var existing = FindByAttribute(service, "hx_servicerequest", "hx_title", title);
     var entity = existing ?? new Entity("hx_servicerequest");
@@ -1968,16 +2473,93 @@ static void UpsertDemoRequest(
     entity["hx_submittedon"] = DateTime.UtcNow;
     entity["hx_lifecyclestatus"] = new OptionSetValue(752630001);
 
+    Guid id;
     if (existing == null)
     {
-        service.Create(entity);
+        id = service.Create(entity);
     }
     else
     {
         service.Update(entity);
+        id = entity.Id;
     }
+
+    if (assignState != null)
+    {
+        var stateUpdate = new Entity("hx_servicerequest", id);
+        assignState(stateUpdate);
+        service.Update(stateUpdate);
+    }
+
+    return id;
 }
 
+static void UpsertDemoDocument(
+    IOrganizationService service,
+    string name,
+    Guid serviceRequestId,
+    int documentType,
+    string filename,
+    bool verified,
+    string notes)
+{
+    UpsertNamed(service, "hx_servicedocument", name, entity =>
+    {
+        entity["hx_servicerequest"] = new EntityReference("hx_servicerequest", serviceRequestId);
+        entity["hx_documenttype"] = new OptionSetValue(documentType);
+        entity["hx_filename"] = filename;
+        entity["hx_verified"] = verified;
+        entity["hx_notes"] = notes;
+    });
+}
+
+static void UpsertDemoSyncLog(
+    IOrganizationService service,
+    string name,
+    Guid serviceRequestId,
+    int syncStatus,
+    string endpointName,
+    string externalId,
+    DateTime attemptedOn,
+    string requestPayload,
+    string responseSummary)
+{
+    UpsertNamed(service, "hx_externalsynclog", name, entity =>
+    {
+        entity["hx_servicerequest"] = new EntityReference("hx_servicerequest", serviceRequestId);
+        entity["hx_syncstatus"] = new OptionSetValue(syncStatus);
+        entity["hx_endpointname"] = endpointName;
+        entity["hx_externalid"] = externalId;
+        entity["hx_attemptedon"] = attemptedOn;
+        entity["hx_requestpayload"] = requestPayload;
+        entity["hx_responsesummary"] = responseSummary;
+    });
+}
+
+static void UpsertDemoErrorLog(
+    IOrganizationService service,
+    string name,
+    Guid serviceRequestId,
+    int sourceComponent,
+    string stage,
+    string correlationId,
+    string message,
+    string technicalDetail,
+    string payload,
+    bool resolved)
+{
+    UpsertNamed(service, "hx_errorlog", name, entity =>
+    {
+        entity["hx_servicerequest"] = new EntityReference("hx_servicerequest", serviceRequestId);
+        entity["hx_sourcecomponent"] = new OptionSetValue(sourceComponent);
+        entity["hx_stage"] = stage;
+        entity["hx_correlationid"] = correlationId;
+        entity["hx_message"] = message;
+        entity["hx_technicaldetail"] = technicalDetail;
+        entity["hx_payload"] = payload;
+        entity["hx_resolved"] = resolved;
+    });
+}
 static void RunValidationSmokeTests(IOrganizationService service)
 {
     var fundingCategory = FindByAttribute(service, "hx_servicecategory", "hx_name", "Funding Agreement")
@@ -2021,6 +2603,383 @@ static void RunValidationSmokeTests(IOrganizationService service)
     Console.WriteLine("Closure guard smoke test passed: documented critical close succeeded.");
 }
 
+static void EnsureConfirmationEmailFlow(IOrganizationService service)
+{
+    const string flowName = "ESI - Send Confirmation Email";
+    EnsureConnectorConnectionReference(
+        service,
+        Office365ConnectionReferenceLogicalName,
+        "Office 365 Outlook",
+        Office365ConnectorId,
+        Environment.GetEnvironmentVariable("POWERPLATFORM_OFFICE365_CONNECTION_ID"));
+
+    var query = new QueryExpression("workflow")
+    {
+        ColumnSet = new ColumnSet("workflowid", "name", "clientdata", "statecode", "statuscode"),
+        TopCount = 1
+    };
+    query.Criteria.AddCondition("name", ConditionOperator.Equal, flowName);
+
+    var flow = service.RetrieveMultiple(query).Entities.FirstOrDefault();
+    var clientData = BuildConfirmationEmailFlowClientData(service)
+        .ToJsonString(new JsonSerializerOptions { WriteIndented = false });
+
+    if (flow == null)
+    {
+        var created = new Entity("workflow")
+        {
+            ["name"] = flowName,
+            ["category"] = new OptionSetValue(5),
+            ["scope"] = new OptionSetValue(4),
+            ["type"] = new OptionSetValue(1),
+            ["mode"] = new OptionSetValue(0),
+            ["ondemand"] = false,
+            ["subprocess"] = false,
+            ["primaryentity"] = "none",
+            ["runas"] = new OptionSetValue(1),
+            ["asyncautodelete"] = false,
+            ["iscrmuiworkflow"] = false,
+            ["istransacted"] = true,
+            ["businessprocesstype"] = new OptionSetValue(0),
+            ["clientdata"] = clientData
+        };
+
+        var id = service.Create(created);
+        AddToSolution(service, id, 29);
+        var saved = service.Retrieve("workflow", id, new ColumnSet("workflowid", "statecode", "statuscode"));
+        ActivateFlow(service, saved);
+        Console.WriteLine($"Created and activated cloud flow: {flowName}");
+        return;
+    }
+
+    TryUpdateFlowDefinition(service, flow, new Entity("workflow", flow.Id)
+    {
+        ["clientdata"] = clientData
+    });
+    AddToSolution(service, flow.Id, 29);
+    ActivateFlow(service, flow);
+    Console.WriteLine($"Updated cloud flow: {flowName}");
+}
+
+static JsonObject BuildConfirmationEmailFlowClientData(IOrganizationService service)
+{
+    return new JsonObject
+    {
+        ["properties"] = new JsonObject
+        {
+            ["connectionReferences"] = BuildConfirmationEmailConnectionReferences(service),
+            ["definition"] = new JsonObject
+            {
+                ["$schema"] = "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                ["contentVersion"] = "1.0.0.0",
+                ["parameters"] = new JsonObject
+                {
+                    ["$authentication"] = new JsonObject
+                    {
+                        ["defaultValue"] = new JsonObject(),
+                        ["type"] = "SecureObject"
+                    },
+                    ["$connections"] = new JsonObject
+                    {
+                        ["defaultValue"] = new JsonObject(),
+                        ["type"] = "Object"
+                    }
+                },
+                ["triggers"] = new JsonObject
+                {
+                    ["When_a_service_request_is_created"] = new JsonObject
+                    {
+                        ["type"] = "OpenApiConnectionWebhook",
+                        ["inputs"] = DataverseInputs("SubscribeWebhookTrigger", new JsonObject
+                        {
+                            ["subscriptionRequest/message"] = 1,
+                            ["subscriptionRequest/entityname"] = "hx_servicerequest",
+                            ["subscriptionRequest/scope"] = 4
+                        }, "shared_commondataserviceforapps")
+                    }
+                },
+                ["actions"] = BuildConfirmationEmailActions(),
+                ["outputs"] = new JsonObject()
+            }
+        },
+        ["schemaVersion"] = "1.0.0.0"
+    };
+}
+
+static JsonObject BuildConfirmationEmailActions()
+{
+    return new JsonObject
+    {
+        ["Try_-_send_confirmation_email"] = new JsonObject
+        {
+            ["runAfter"] = new JsonObject(),
+            ["type"] = "Scope",
+            ["actions"] = new JsonObject
+            {
+                ["Condition_-_applicant_contact_exists"] = new JsonObject
+                {
+                    ["type"] = "If",
+                    ["expression"] = new JsonObject
+                    {
+                        ["and"] = new JsonArray(new JsonObject
+                        {
+                            ["equals"] = new JsonArray("@empty(triggerOutputs()?['body/_hx_customercontact_value'])", false)
+                        })
+                    },
+                    ["actions"] = new JsonObject
+                    {
+                        ["Get_applicant_contact"] = DataverseGetAction(new JsonObject
+                        {
+                            ["entityName"] = "contacts",
+                            ["recordId"] = "@triggerOutputs()?['body/_hx_customercontact_value']"
+                        }),
+                        ["Condition_-_applicant_email_exists"] = new JsonObject
+                        {
+                            ["runAfter"] = RunAfterSucceeded("Get_applicant_contact"),
+                            ["type"] = "If",
+                            ["expression"] = new JsonObject
+                            {
+                                ["and"] = new JsonArray(new JsonObject
+                                {
+                                    ["equals"] = new JsonArray("@empty(outputs('Get_applicant_contact')?['body/emailaddress1'])", false)
+                                })
+                            },
+                            ["actions"] = new JsonObject
+                            {
+                                ["Send_confirmation_email"] = OutlookSendEmailV2Action(new JsonObject
+                                {
+                                    ["emailMessage/To"] = "@outputs('Get_applicant_contact')?['body/emailaddress1']",
+                                    ["emailMessage/Subject"] = "Mitacs service request received - @{triggerOutputs()?['body/hx_confirmationnumber']}",
+                                    ["emailMessage/Body"] = BuildConfirmationEmailBody(),
+                                    ["emailMessage/Importance"] = "Normal"
+                                }),
+                                ["Mark_request_confirmation_sent"] = DataverseUpdateAction(new JsonObject
+                                {
+                                    ["entityName"] = "hx_servicerequests",
+                                    ["recordId"] = "@triggerOutputs()?['body/hx_servicerequestid']",
+                                    ["item/hx_customervisibleupdates"] = "Confirmation email sent to the applicant through Office 365 Outlook. Supporting files can be uploaded through the secure SharePoint upload page."
+                                }, RunAfterSucceeded("Send_confirmation_email"))
+                            },
+                            ["else"] = new JsonObject
+                            {
+                                ["actions"] = new JsonObject
+                                {
+                                    ["Log_missing_applicant_email"] = BuildConfirmationEmailLogAction(
+                                        "Confirmation email skipped - @{triggerOutputs()?['body/hx_confirmationnumber']}",
+                                        "Applicant contact does not have an email address.",
+                                        "@string(outputs('Get_applicant_contact')?['body'])")
+                                }
+                            }
+                        }
+                    },
+                    ["else"] = new JsonObject
+                    {
+                        ["actions"] = new JsonObject
+                        {
+                            ["Log_missing_applicant_contact"] = BuildConfirmationEmailLogAction(
+                                "Confirmation email skipped - @{triggerOutputs()?['body/hx_confirmationnumber']}",
+                                "Service request has no applicant contact.",
+                                "@string(triggerOutputs()?['body'])")
+                        }
+                    }
+                }
+            }
+        },
+        ["Catch_-_log_confirmation_email_error"] = new JsonObject
+        {
+            ["runAfter"] = new JsonObject
+            {
+                ["Try_-_send_confirmation_email"] = new JsonArray("Failed", "Skipped", "TimedOut")
+            },
+            ["type"] = "Scope",
+            ["actions"] = new JsonObject
+            {
+                ["Create_confirmation_email_error_log"] = BuildConfirmationEmailLogAction(
+                    "Confirmation email failure - @{triggerOutputs()?['body/hx_confirmationnumber']}",
+                    "Power Automate could not send the confirmation email. See technical detail for the failed scope result.",
+                    "@string(result('Try_-_send_confirmation_email'))")
+            }
+        }
+    };
+}
+
+static JsonObject BuildConfirmationEmailLogAction(string name, string message, string technicalDetail)
+{
+    return DataverseCreateAction(new JsonObject
+    {
+        ["entityName"] = "hx_errorlogs",
+        ["item/hx_name"] = name,
+        ["item/hx_sourcecomponent"] = 752630001,
+        ["item/hx_stage"] = "Confirmation email",
+        ["item/hx_correlationid"] = "@workflow()?['run']?['name']",
+        ["item/hx_message"] = message,
+        ["item/hx_technicaldetail"] = technicalDetail,
+        ["item/hx_payload"] = "@string(triggerOutputs()?['body'])",
+        ["item/hx_resolved"] = false,
+        ["item/hx_Servicerequest@odata.bind"] = "@triggerOutputs()?['body/hx_servicerequestid']"
+    });
+}
+
+static string BuildConfirmationEmailBody()
+{
+    return """
+<div style="font-family:Segoe UI,Arial,sans-serif;background:#f6f8fb;padding:24px;color:#1f2933;">
+  <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #d9e2ec;border-radius:8px;overflow:hidden;">
+    <div style="background:#0067b1;padding:20px 24px;color:#ffffff;">
+      <h1 style="font-size:22px;line-height:1.3;margin:0;">Service request received</h1>
+    </div>
+    <div style="padding:24px;">
+      <p style="margin:0 0 16px 0;">Hello @{outputs('Get_applicant_contact')?['body/fullname']},</p>
+      <p style="margin:0 0 18px 0;">Thank you for submitting your request. We have received it and assigned the confirmation number below.</p>
+      <div style="border:1px solid #c8d3df;border-radius:6px;padding:16px;margin:18px 0;background:#f9fbfd;">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#52616f;">Confirmation number</div>
+        <div style="font-size:24px;font-weight:700;color:#111827;margin-top:4px;">@{triggerOutputs()?['body/hx_confirmationnumber']}</div>
+      </div>
+      <table role="presentation" style="border-collapse:collapse;width:100%;margin:18px 0;">
+        <tr>
+          <td style="padding:8px 0;color:#52616f;width:150px;">Request title</td>
+          <td style="padding:8px 0;color:#111827;font-weight:600;">@{triggerOutputs()?['body/hx_title']}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;color:#52616f;">Submitted</td>
+          <td style="padding:8px 0;color:#111827;">@{utcNow()}</td>
+        </tr>
+      </table>
+      <p style="margin:18px 0 0 0;">If you need to add screenshots, forms, or other evidence, use the portal after submission to upload supporting files to the secure SharePoint folder for this request.</p>
+      <p style="margin:20px 0 0 0;">Regards,<br/>Mitacs Service Intake</p>
+    </div>
+  </div>
+</div>
+""";
+}
+
+static JsonObject BuildConfirmationEmailConnectionReferences(IOrganizationService service)
+{
+    var references = BuildDataverseConnectionReferences(service);
+    var currentFlowReferences = GetConnectionReferencesFromFlow(service, "ESI - Send Confirmation Email");
+    references["shared_office365"] =
+        CloneJson(currentFlowReferences?["shared_office365"]) ??
+        BuildConnectorConnectionReference(Office365ConnectionReferenceLogicalName, "shared_office365");
+
+    return references;
+}
+
+static void EnsureConnectorConnectionReference(
+    IOrganizationService service,
+    string logicalName,
+    string displayName,
+    string connectorId,
+    string? connectionId)
+{
+    var existing = FindByAttribute(service, "connectionreference", "connectionreferencelogicalname", logicalName);
+    if (existing == null)
+    {
+        var created = new Entity("connectionreference")
+        {
+            ["connectionreferencedisplayname"] = displayName,
+            ["connectionreferencelogicalname"] = logicalName,
+            ["connectorid"] = connectorId,
+            ["iscustomizable"] = new BooleanManagedProperty(true),
+            ["promptingbehavior"] = new OptionSetValue(0),
+            ["statuscode"] = new OptionSetValue(1)
+        };
+        if (!string.IsNullOrWhiteSpace(connectionId))
+        {
+            created["connectionid"] = connectionId;
+        }
+
+        var id = service.Create(created);
+        AddToSolution(service, id, 10210);
+        Console.WriteLine($"Created connection reference: {displayName}");
+        return;
+    }
+
+    var updated = new Entity("connectionreference", existing.Id);
+    var hasUpdates = false;
+    if (existing.GetAttributeValue<string>("connectionreferencedisplayname") != displayName)
+    {
+        updated["connectionreferencedisplayname"] = displayName;
+        hasUpdates = true;
+    }
+    if (existing.GetAttributeValue<string>("connectorid") != connectorId)
+    {
+        updated["connectorid"] = connectorId;
+        hasUpdates = true;
+    }
+    if (!string.IsNullOrWhiteSpace(connectionId) &&
+        existing.GetAttributeValue<string>("connectionid") != connectionId)
+    {
+        updated["connectionid"] = connectionId;
+        hasUpdates = true;
+    }
+
+    if (hasUpdates)
+    {
+        service.Update(updated);
+    }
+    AddToSolution(service, existing.Id, 10210);
+}
+
+static JsonObject BuildDataverseConnectionReferences(IOrganizationService service)
+{
+    var source = GetConnectionReferencesFromFlow(service, "ESI - Approval and ERP Sync");
+    return new JsonObject
+    {
+        ["shared_commondataserviceforapps"] =
+            CloneJson(source?["shared_commondataserviceforapps"]) ??
+            BuildDataverseConnectionReference("new_sharedcommondataserviceforapps_30187"),
+        ["shared_commondataserviceforapps-1"] =
+            CloneJson(source?["shared_commondataserviceforapps-1"]) ??
+            CloneJson(source?["shared_commondataserviceforapps"]) ??
+            BuildDataverseConnectionReference("new_sharedcommondataserviceforapps_80dda")
+    };
+}
+
+static JsonObject? GetConnectionReferencesFromFlow(IOrganizationService service, string flowName)
+{
+    var query = new QueryExpression("workflow")
+    {
+        ColumnSet = new ColumnSet("clientdata"),
+        TopCount = 1
+    };
+    query.Criteria.AddCondition("name", ConditionOperator.Equal, flowName);
+
+    var flow = service.RetrieveMultiple(query).Entities.FirstOrDefault();
+    var clientData = flow?.GetAttributeValue<string>("clientdata");
+    if (string.IsNullOrWhiteSpace(clientData))
+    {
+        return null;
+    }
+
+    return JsonNode.Parse(clientData)?["properties"]?["connectionReferences"]?.AsObject();
+}
+
+static JsonObject BuildDataverseConnectionReference(string logicalName)
+    => BuildConnectorConnectionReference(logicalName, "shared_commondataserviceforapps");
+
+static JsonObject BuildConnectorConnectionReference(string logicalName, string apiName)
+{
+    return new JsonObject
+    {
+        ["runtimeSource"] = "embedded",
+        ["connection"] = new JsonObject
+        {
+            ["connectionReferenceLogicalName"] = logicalName
+        },
+        ["api"] = new JsonObject
+        {
+            ["name"] = apiName
+        }
+    };
+}
+
+static JsonObject? CloneJson(JsonNode? node)
+{
+    return node == null
+        ? null
+        : JsonNode.Parse(node.ToJsonString())?.AsObject();
+}
+
 static void PatchApprovalFlowDefinition(IOrganizationService service)
 {
     var query = new QueryExpression("workflow")
@@ -2048,6 +3007,22 @@ static void PatchApprovalFlowDefinition(IOrganizationService service)
         ?? throw new InvalidOperationException("Approval condition was not found in the cloud flow definition.");
     var elseActions = condition["else"]?["actions"]?.AsObject()
         ?? throw new InvalidOperationException("Approval condition false branch was not found.");
+    var approvedActions = condition["actions"]?.AsObject()
+        ?? throw new InvalidOperationException("Approval condition true branch was not found.");
+
+    if (approvedActions["HTTP"] is JsonObject httpAction)
+    {
+        var inputs = httpAction["inputs"]?.AsObject()
+            ?? throw new InvalidOperationException("HTTP action inputs were not found.");
+        inputs["uri"] = HelloXMockErpEndpoint;
+    }
+
+    if (approvedActions["Add_a_new_row"] is JsonObject syncLogAction)
+    {
+        var parameters = syncLogAction["inputs"]?["parameters"]?.AsObject()
+            ?? throw new InvalidOperationException("External Sync Log action parameters were not found.");
+        parameters["item/hx_endpointname"] = "HelloX mock ERP";
+    }
 
     if (!elseActions.ContainsKey("Update_request_as_rejected"))
     {
@@ -2106,14 +3081,36 @@ static void PatchApprovalFlowDefinition(IOrganizationService service)
     };
 
     TryUpdateFlowDefinition(service, flow, updated);
-    Console.WriteLine("Patched cloud flow false branch and Catch error-log scope.");
+    Console.WriteLine("Patched cloud flow endpoint, false branch, and Catch error-log scope.");
 }
 
-static JsonObject DataverseCreateAction(JsonObject parameters) => new()
+static JsonObject DataverseCreateAction(JsonObject parameters, JsonObject? runAfter = null)
 {
-    ["type"] = "OpenApiConnection",
-    ["inputs"] = DataverseInputs("CreateRecord", parameters)
-};
+    var action = new JsonObject
+    {
+        ["type"] = "OpenApiConnection",
+        ["inputs"] = DataverseInputs("CreateRecord", parameters)
+    };
+    if (runAfter != null)
+    {
+        action["runAfter"] = runAfter;
+    }
+    return action;
+}
+
+static JsonObject DataverseGetAction(JsonObject parameters, JsonObject? runAfter = null)
+{
+    var action = new JsonObject
+    {
+        ["type"] = "OpenApiConnection",
+        ["inputs"] = DataverseInputs("GetItem", parameters)
+    };
+    if (runAfter != null)
+    {
+        action["runAfter"] = runAfter;
+    }
+    return action;
+}
 
 static JsonObject DataverseUpdateAction(JsonObject parameters, JsonObject? runAfter = null)
 {
@@ -2129,16 +3126,61 @@ static JsonObject DataverseUpdateAction(JsonObject parameters, JsonObject? runAf
     return action;
 }
 
-static JsonObject DataverseInputs(string operationId, JsonObject parameters) => new()
+static JsonObject OutlookSendEmailV2Action(JsonObject parameters, JsonObject? runAfter = null)
+{
+    var action = new JsonObject
+    {
+        ["type"] = "OpenApiConnection",
+        ["inputs"] = new JsonObject
+        {
+            ["parameters"] = parameters,
+            ["host"] = new JsonObject
+            {
+                ["apiId"] = "/providers/Microsoft.PowerApps/apis/shared_office365",
+                ["operationId"] = "SendEmailV2",
+                ["connectionName"] = "shared_office365"
+            }
+        }
+    };
+    if (runAfter != null)
+    {
+        action["runAfter"] = runAfter;
+    }
+    return action;
+}
+
+static JsonObject RunAfterSucceeded(string actionName) => new()
+{
+    [actionName] = new JsonArray("Succeeded")
+};
+
+static JsonObject DataverseInputs(string operationId, JsonObject parameters, string connectionName = "shared_commondataserviceforapps-1") => new()
 {
     ["parameters"] = parameters,
     ["host"] = new JsonObject
     {
         ["apiId"] = "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
         ["operationId"] = operationId,
-        ["connectionName"] = "shared_commondataserviceforapps-1"
+        ["connectionName"] = connectionName
     }
 };
+
+static void ActivateFlow(IOrganizationService service, Entity flow)
+{
+    var state = flow.GetAttributeValue<OptionSetValue>("statecode")?.Value;
+    var status = flow.GetAttributeValue<OptionSetValue>("statuscode")?.Value;
+    if (state == 1 && status == 2)
+    {
+        return;
+    }
+
+    service.Execute(new SetStateRequest
+    {
+        EntityMoniker = flow.ToEntityReference(),
+        State = new OptionSetValue(1),
+        Status = new OptionSetValue(2)
+    });
+}
 
 static void TryUpdateFlowDefinition(IOrganizationService service, Entity flow, Entity updated)
 {
@@ -2170,7 +3212,22 @@ static void TryUpdateFlowDefinition(IOrganizationService service, Entity flow, E
 
 internal sealed record FormSection(string Name, IReadOnlyList<FormField> Fields);
 
-internal sealed record FormField(string LogicalName, string Label, FormControlClass ControlClass, bool Disabled);
+internal sealed record FormField(string LogicalName, string Label, FormControlClass ControlClass, bool Disabled, bool UseSlaPcf);
+
+internal sealed record DashboardComponent(
+    string Id,
+    string Label,
+    string TargetEntityLogicalName,
+    string Mode,
+    Guid ViewId,
+    Guid? VisualizationId)
+{
+    public static DashboardComponent Chart(string id, string label, string targetEntityLogicalName, Guid viewId, Guid visualizationId)
+        => new(id, label, targetEntityLogicalName, "Chart", viewId, visualizationId);
+
+    public static DashboardComponent Grid(string id, string label, string targetEntityLogicalName, Guid viewId)
+        => new(id, label, targetEntityLogicalName, "Grid", viewId, null);
+}
 
 internal sealed record FormControlClass(string Id)
 {

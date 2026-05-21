@@ -10,20 +10,19 @@
     <layoutxml>
       <grid name="resultset" jump="hx_name" select="1" icon="1" preview="1">
         <row name="result" id="hx_errorlogid">
-          <cell name="hx_name" width="240" />
-          <cell name="hx_sourcecomponent" width="140" />
-          <cell name="hx_stage" width="140" />
-          <cell name="hx_servicerequest" width="190" />
-          <cell name="hx_resolved" width="140" />
-          <cell name="createdon" width="150" />
+          <cell name="hx_name" width="160" />
+          <cell name="hx_sourcecomponent" width="160" />
+          <cell name="hx_stage" width="160" />
+          <cell name="hx_servicerequest" width="160" />
+          <cell name="hx_resolved" width="160" />
+          <cell name="createdon" width="160" />
         </row>
       </grid>
     </layoutxml>
     <querytype>64</querytype>
     <fetchxml>
-      <fetch version="1.0" mapping="logical" output-format="xml-platform">
+      <fetch version="1.0" mapping="logical">
         <entity name="hx_errorlog">
-          <attribute name="hx_errorlogid" />
           <attribute name="hx_name" />
           <attribute name="hx_sourcecomponent" />
           <attribute name="hx_stage" />

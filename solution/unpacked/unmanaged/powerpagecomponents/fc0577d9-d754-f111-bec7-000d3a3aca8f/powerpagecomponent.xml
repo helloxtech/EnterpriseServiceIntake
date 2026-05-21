@@ -1,0 +1,23 @@
+<powerpagecomponent powerpagecomponentid="fc0577d9-d754-f111-bec7-000d3a3aca8f">
+  <content>{
+  "append": true,
+  "appendto": true,
+  "create": true,
+  "delete": false,
+  "entitylogicalname": "sharepointdocumentlocation",
+  "entityname": "Document Location - Upload - Service Request Parent",
+  "parententitypermission": "661201d9-75ba-45bd-9454-8bd18d428bb5",
+  "parentrelationship": "hx_servicerequest_SharePointDocumentLocations",
+  "read": true,
+  "scope": 756150003,
+  "write": true
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Document Location - Upload - Service Request Parent</name>
+  <powerpagecomponenttype>18</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

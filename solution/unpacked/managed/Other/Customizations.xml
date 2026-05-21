@@ -9,6 +9,7 @@
   <EntityRelationships />
   <OrganizationSettings />
   <optionsets />
+  <Dashboards />
   <WebResources />
   <CustomControls />
   <SolutionPluginAssemblies />
@@ -36,6 +37,14 @@
     <connectionreference connectionreferencelogicalname="new_sharedcommondataserviceforapps_80dda">
       <connectionreferencedisplayname>Microsoft Dataverse</connectionreferencedisplayname>
       <connectorid>/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps</connectorid>
+      <iscustomizable>1</iscustomizable>
+      <promptingbehavior>0</promptingbehavior>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </connectionreference>
+    <connectionreference connectionreferencelogicalname="new_sharedoffice365_confirmation">
+      <connectionreferencedisplayname>Office 365 Outlook</connectionreferencedisplayname>
+      <connectorid>/providers/Microsoft.PowerApps/apis/shared_office365</connectorid>
       <iscustomizable>1</iscustomizable>
       <promptingbehavior>0</promptingbehavior>
       <statecode>0</statecode>

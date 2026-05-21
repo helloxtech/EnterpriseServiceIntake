@@ -7,14 +7,14 @@
     <FormActivationState>1</FormActivationState>
     <form headerdensity="HighWithControls">
       <tabs>
-        <tab verticallayout="true" id="{80a60eb4-2e98-08ef-910b-78c00ccb1a00}" name="tab_summary" IsUserDefined="1" showlabel="true">
+        <tab verticallayout="true" id="{4b6729b0-bb8d-efa9-2cd7-e9a17467c5a6}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
             <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section id="{f4ea09a0-8424-7849-c023-a12623e442dc}" name="department" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{f4ea09a0-8424-7849-c023-a12623e442dc}" name="department" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Department" languagecode="1033" />
                   </labels>
@@ -53,7 +53,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{0542918c-e749-f489-b372-34f7bda49867}" name="operating_notes" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="180">
+                <section id="{0542918c-e749-f489-b372-34f7bda49867}" name="operating_notes" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
                     <label description="Operating Notes" languagecode="1033" />
                   </labels>

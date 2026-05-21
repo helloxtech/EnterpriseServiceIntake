@@ -37,8 +37,8 @@ from reportlab.platypus import (
 ROOT = Path(__file__).resolve().parents[1]
 SUBMISSION_DIR = ROOT / "docs" / "submission"
 ASSET_DIR = ROOT / "artifacts" / "doc-assets"
-DOCX_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_Architecture_Design_ForrestZhang.docx"
-PDF_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_Architecture_Design_ForrestZhang.pdf"
+DOCX_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v2.docx"
+PDF_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v2.pdf"
 
 BLUE = "0067B1"
 DARK_BLUE = "003B66"
@@ -85,14 +85,31 @@ def set_cell_border(cell, color: str = "D0D5DD", size: str = "6") -> None:
         element.set(qn("w:color"), color)
 
 
-def set_cell_text(cell, text: str, bold: bool = False, color: str = INK, size: int = 9) -> None:
+CellValue = str | list[str]
+
+
+def set_cell_text(cell, text: CellValue, bold: bool = False, color: str = INK, size: int = 9) -> None:
     cell.text = ""
-    paragraph = cell.paragraphs[0]
-    paragraph.paragraph_format.space_after = Pt(0)
-    run = paragraph.add_run(text)
-    run.bold = bold
-    run.font.color.rgb = rgb(color)
-    run.font.size = Pt(size)
+    if isinstance(text, list):
+        for idx, item in enumerate(text):
+            paragraph = cell.paragraphs[0] if idx == 0 else cell.add_paragraph()
+            paragraph.paragraph_format.space_after = Pt(2)
+            paragraph.paragraph_format.left_indent = Pt(10)
+            paragraph.paragraph_format.first_line_indent = Pt(-8)
+            marker = paragraph.add_run("• ")
+            marker.font.color.rgb = rgb(color)
+            marker.font.size = Pt(size)
+            run = paragraph.add_run(item)
+            run.bold = bold
+            run.font.color.rgb = rgb(color)
+            run.font.size = Pt(size)
+    else:
+        paragraph = cell.paragraphs[0]
+        paragraph.paragraph_format.space_after = Pt(0)
+        run = paragraph.add_run(text)
+        run.bold = bold
+        run.font.color.rgb = rgb(color)
+        run.font.size = Pt(size)
     cell.vertical_alignment = WD_ALIGN_VERTICAL.TOP
 
 
@@ -191,7 +208,7 @@ def add_key_value_table(doc: Document, rows: list[tuple[str, str]], widths: tupl
 def add_standard_table(
     doc: Document,
     headers: list[str],
-    rows: list[list[str]],
+    rows: list[list[CellValue]],
     widths: list[float],
     font_size: int = 8,
 ) -> None:
@@ -289,63 +306,88 @@ def arrow(draw: ImageDraw.ImageDraw, start: tuple[int, int], end: tuple[int, int
     draw.polygon([end, left, right], fill=f"#{color}")
 
 
+def poly_arrow(draw: ImageDraw.ImageDraw, points: list[tuple[int, int]], color: str = BLUE, width: int = 4) -> None:
+    if len(points) < 2:
+        return
+    for start, end in zip(points, points[1:]):
+        draw.line([start, end], fill=f"#{color}", width=width)
+    start = points[-2]
+    end = points[-1]
+    angle = math.atan2(end[1] - start[1], end[0] - start[0])
+    length = 18
+    spread = math.pi / 7
+    left = (end[0] - length * math.cos(angle - spread), end[1] - length * math.sin(angle - spread))
+    right = (end[0] - length * math.cos(angle + spread), end[1] - length * math.sin(angle + spread))
+    draw.polygon([end, left, right], fill=f"#{color}")
+
+
 def create_architecture_diagram(path: Path) -> None:
-    image = PILImage.new("RGB", (1800, 1120), "white")
+    image = PILImage.new("RGB", (2000, 1180), "white")
     draw = ImageDraw.Draw(image)
-    draw.rectangle((0, 0, 1800, 1120), fill="#FFFFFF")
+    draw.rectangle((0, 0, 2000, 1180), fill="#FFFFFF")
     draw.text((70, 48), "Enterprise Service Intake - Runtime Architecture", font=font(42, bold=True), fill=f"#{DARK_BLUE}")
-    draw.text((70, 104), "Power Pages intake, Dataverse system of record, plugin guardrails, approval flow, and mock ERP sync", font=font(24), fill=f"#{MID_GREY}")
+    draw.text((70, 104), "Customer intake, Dataverse rules, SharePoint documents, confirmation email, approval, and mock ERP sync", font=font(24), fill=f"#{MID_GREY}")
+    draw.text((70, 138), "Arrowheads show runtime flow direction; colors indicate the owning platform area.", font=font(18), fill=f"#{MID_GREY}")
 
     boxes = {
-        "customer": (80, 235, 390, 390),
-        "portal": (500, 220, 825, 405),
-        "dataverse": (960, 220, 1295, 405),
-        "plugin": (960, 515, 1295, 680),
-        "rules": (1395, 515, 1695, 680),
-        "app": (960, 790, 1295, 965),
-        "flow": (1395, 220, 1695, 405),
-        "erp": (1395, 790, 1695, 965),
+        "customer": (70, 250, 350, 405),
+        "portal": (450, 235, 750, 420),
+        "dataverse": (850, 235, 1160, 420),
+        "flow": (1260, 235, 1580, 420),
+        "erp": (1670, 235, 1940, 420),
+        "sharepoint": (450, 575, 750, 745),
+        "plugin": (850, 575, 1160, 745),
+        "rules": (1260, 575, 1580, 745),
+        "app": (1260, 865, 1580, 1035),
     }
     draw_round_box(draw, boxes["customer"], "External Customer", "Authenticated portal user", fill=LIGHT_BLUE)
-    draw_round_box(draw, boxes["portal"], "Power Pages", "Multi-step intake, upload, live SLA preview", fill=LIGHT_BLUE)
-    draw_round_box(draw, boxes["dataverse"], "Dataverse", "Service Request, documents, logs", fill=WHITE, outline=DARK_BLUE)
+    draw_round_box(draw, boxes["portal"], "Power Pages", "Multi-step intake and live routing preview", fill=LIGHT_BLUE)
+    draw_round_box(draw, boxes["dataverse"], "Dataverse", "Service Request, rules, logs, email activity", fill=WHITE, outline=DARK_BLUE)
+    draw_round_box(draw, boxes["sharepoint"], "SharePoint", "Post-submit supporting files through document management", fill=WHITE, outline=GREEN, title_color=GREEN)
     draw_round_box(draw, boxes["plugin"], "C# Plugins", "Routing, SLA calculation, close guardrail", fill=GREY, outline=DARK_BLUE)
     draw_round_box(draw, boxes["rules"], "Rules Engine", "Routing Rules, Departments, SLA Policies", fill=GREY, outline=DARK_BLUE)
     draw_round_box(draw, boxes["app"], "Model-driven App", "Coordinator queue and PCF status indicator", fill=WHITE, outline=GREEN, title_color=GREEN)
-    draw_round_box(draw, boxes["flow"], "Power Automate", "Approval, HTTP POST, Try/Catch logging", fill=WHITE, outline=AMBER, title_color=AMBER)
+    draw_round_box(draw, boxes["flow"], "Power Automate", "Confirmation email, approval, HTTP POST, Try/Catch logging", fill=WHITE, outline=AMBER, title_color=AMBER)
     draw_round_box(draw, boxes["erp"], "Mock ERP API", "External ID written back to Dataverse", fill=WHITE, outline=RED, title_color=RED)
 
-    arrow(draw, (390, 312), (500, 312))
-    arrow(draw, (825, 312), (960, 312))
-    arrow(draw, (1128, 405), (1128, 515), DARK_BLUE)
-    arrow(draw, (1295, 598), (1395, 598), DARK_BLUE)
-    arrow(draw, (1295, 312), (1395, 312), AMBER)
-    arrow(draw, (1545, 405), (1545, 790), AMBER)
-    arrow(draw, (1545, 790), (1295, 880), RED)
-    arrow(draw, (1128, 405), (1128, 790), GREEN)
+    arrow(draw, (350, 328), (450, 328), BLUE)
+    arrow(draw, (750, 328), (850, 328), BLUE)
+    arrow(draw, (1160, 328), (1260, 328), AMBER)
+    arrow(draw, (1580, 328), (1670, 328), RED)
+    arrow(draw, (600, 420), (600, 575), GREEN)
+    arrow(draw, (1005, 420), (1005, 575), DARK_BLUE)
+    arrow(draw, (1160, 660), (1260, 660), DARK_BLUE)
+    poly_arrow(draw, [(1005, 745), (1005, 950), (1260, 950)], GREEN)
 
-    legend_y = 1030
+    legend_y = 1090
     legend = [
         (BLUE, "External intake"),
         (DARK_BLUE, "Transactional Dataverse logic"),
-        (AMBER, "Approval and integration orchestration"),
-        (GREEN, "Internal operations"),
+        (GREEN, "Document storage and internal operations"),
+        (AMBER, "Email, approval, and integration orchestration"),
         (RED, "External system response"),
     ]
     x = 80
-    for color, label in legend:
+    for color, label in legend[:3]:
         draw.rounded_rectangle((x, legend_y, x + 28, legend_y + 28), radius=6, fill=f"#{color}")
         draw.text((x + 42, legend_y - 1), label, font=font(19), fill=f"#{DARK_GREY}")
-        x += 330
+        x += 545
+
+    x = 80
+    for color, label in legend[3:]:
+        draw.rounded_rectangle((x, legend_y + 45, x + 28, legend_y + 73), radius=6, fill=f"#{color}")
+        draw.text((x + 42, legend_y + 44), label, font=font(19), fill=f"#{DARK_GREY}")
+        x += 545
 
     image.save(path)
 
 
 def create_erd_diagram(path: Path) -> None:
-    image = PILImage.new("RGB", (1800, 1260), "white")
+    image = PILImage.new("RGB", (1900, 1350), "white")
     draw = ImageDraw.Draw(image)
     draw.text((70, 48), "Dataverse Entity Relationship Diagram", font=font(42, bold=True), fill=f"#{DARK_BLUE}")
-    draw.text((70, 104), "Core tables support request intake, dynamic routing, SLA assignment, integration logs, and error handling.", font=font(24), fill=f"#{MID_GREY}")
+    draw.text((70, 104), "Core tables support request intake, routing, SLA assignment, SharePoint documents, integration logs, and error handling.", font=font(24), fill=f"#{MID_GREY}")
+    draw.text((70, 138), "Arrowheads point to the dependent/many-side table; labels show relationship cardinality.", font=font(18), fill=f"#{MID_GREY}")
 
     def entity(box, title, fields, fill=WHITE, outline=BLUE):
         x1, y1, x2, y2 = box
@@ -354,20 +396,21 @@ def create_erd_diagram(path: Path) -> None:
         draw.text((x1 + 18, y1 + 13), title, font=font(24, bold=True), fill="white")
         y = y1 + 74
         for field in fields:
-            draw.text((x1 + 18, y), field, font=font(18), fill=f"#{INK}")
+            draw.text((x1 + 18, y), "•", font=font(18, bold=True), fill=f"#{outline}")
+            draw.text((x1 + 38, y), field, font=font(18), fill=f"#{INK}")
             y += 28
 
     entities = {
-        "contact": (80, 215, 390, 365),
-        "account": (80, 430, 390, 575),
-        "category": (80, 675, 390, 850),
-        "request": (570, 235, 1055, 720),
-        "department": (1270, 215, 1685, 370),
-        "sla": (1270, 435, 1685, 590),
-        "rule": (1245, 665, 1710, 930),
-        "document": (570, 820, 1055, 1015),
-        "sync": (570, 1060, 1055, 1210),
-        "error": (1245, 1015, 1710, 1210),
+        "contact": (70, 235, 420, 385),
+        "account": (70, 455, 420, 605),
+        "category": (70, 735, 420, 910),
+        "request": (650, 225, 1245, 635),
+        "department": (1460, 235, 1830, 405),
+        "sla": (1460, 455, 1830, 625),
+        "rule": (1460, 735, 1830, 995),
+        "document": (650, 740, 1245, 925),
+        "sync": (650, 1075, 975, 1265),
+        "error": (1075, 1075, 1400, 1265),
     }
 
     entity(entities["contact"], "Contact", ["External portal user", "Owns submitted requests"], LIGHT_BLUE)
@@ -404,43 +447,47 @@ def create_erd_diagram(path: Path) -> None:
         GREY,
         DARK_BLUE,
     )
-    entity(entities["document"], "Service Document", ["Portal upload metadata", "Document type", "Visible to customer flag"], WHITE, GREEN)
+    entity(entities["document"], "SharePoint Documents", ["Stored by document management", "Linked to Service Request", "Optional review metadata"], WHITE, GREEN)
     entity(entities["sync"], "External Sync Log", ["Endpoint", "HTTP status", "Payload snapshot"], WHITE, AMBER)
     entity(entities["error"], "System Error Log", ["Source component", "Stage", "Correlation ID", "Technical detail"], WHITE, RED)
 
-    def connect(source_key, target_key, text, color=DARK_BLUE):
-        sx1, sy1, sx2, sy2 = entities[source_key]
-        tx1, ty1, tx2, ty2 = entities[target_key]
-        if sx2 <= tx1:
-            start = (sx2, (sy1 + sy2) // 2)
-            end = (tx1, (ty1 + ty2) // 2)
-        elif tx2 <= sx1:
-            start = (sx1, (sy1 + sy2) // 2)
-            end = (tx2, (ty1 + ty2) // 2)
-        elif sy2 <= ty1:
-            start = ((sx1 + sx2) // 2, sy2)
-            end = ((tx1 + tx2) // 2, ty1)
-        else:
-            start = ((sx1 + sx2) // 2, sy1)
-            end = ((tx1 + tx2) // 2, ty2)
-        draw.line([start, end], fill=f"#{color}", width=3)
-        mx = (start[0] + end[0]) // 2
-        my = (start[1] + end[1]) // 2
+    def label(text: str, x: int, y: int, color: str = DARK_BLUE) -> None:
         bbox = draw.textbbox((0, 0), text, font=font(16, bold=True))
-        draw.rounded_rectangle((mx - 12, my - 14, mx + (bbox[2] - bbox[0]) + 12, my + 17), radius=8, fill="white", outline=f"#{color}", width=1)
-        draw.text((mx, my - 11), text, font=font(16, bold=True), fill=f"#{color}")
+        draw.rounded_rectangle((x - 12, y - 14, x + (bbox[2] - bbox[0]) + 12, y + 18), radius=8, fill="white", outline=f"#{color}", width=1)
+        draw.text((x, y - 11), text, font=font(16, bold=True), fill=f"#{color}")
 
-    connect("contact", "request", "1:N", BLUE)
-    connect("account", "request", "1:N", BLUE)
-    connect("category", "request", "1:N", BLUE)
-    connect("request", "department", "N:1")
-    connect("request", "sla", "N:1")
-    connect("category", "rule", "1:N")
-    connect("rule", "department", "N:1")
-    connect("rule", "sla", "N:1")
-    connect("request", "document", "1:N", GREEN)
-    connect("request", "sync", "1:N", AMBER)
-    connect("request", "error", "1:N", RED)
+    def rel(points: list[tuple[int, int]], color: str = DARK_BLUE) -> None:
+        poly_arrow(draw, points, color=color, width=3)
+
+    # Customer ownership and intake references.
+    rel([(420, 310), (650, 310)], BLUE)
+    label("1:N", 510, 286, BLUE)
+    rel([(420, 530), (650, 530)], BLUE)
+    label("1:N", 510, 506, BLUE)
+    rel([(420, 822), (535, 822), (535, 585), (650, 585)], BLUE)
+    label("1:N", 500, 795, BLUE)
+
+    # Request lookups to operational routing targets.
+    rel([(1460, 310), (1245, 310)], DARK_BLUE)
+    label("1:N", 1328, 286, DARK_BLUE)
+    rel([(1460, 530), (1245, 530)], DARK_BLUE)
+    label("1:N", 1328, 506, DARK_BLUE)
+
+    # Routing rule configuration relationships are routed outside the entity boxes.
+    rel([(245, 910), (245, 1290), (1645, 1290), (1645, 995)], BLUE)
+    label("1:N", 900, 1265, BLUE)
+    rel([(1830, 310), (1870, 310), (1870, 805), (1830, 805)], DARK_BLUE)
+    label("1:N", 1845, 555, DARK_BLUE)
+    rel([(1830, 530), (1890, 530), (1890, 925), (1830, 925)], DARK_BLUE)
+    label("1:N", 1865, 725, DARK_BLUE)
+
+    # Child records and telemetry are routed around the document box to avoid crossings.
+    rel([(948, 635), (948, 740)], GREEN)
+    label("1:N", 970, 674, GREEN)
+    rel([(760, 635), (760, 665), (575, 665), (575, 1170), (650, 1170)], AMBER)
+    label("1:N", 585, 1028, AMBER)
+    rel([(1135, 635), (1135, 665), (1425, 665), (1425, 1170), (1400, 1170)], RED)
+    label("1:N", 1360, 955, RED)
 
     image.save(path)
 
@@ -502,7 +549,7 @@ def configure_styles(doc: Document) -> None:
     footer = section.footer
     footer_p = footer.paragraphs[0]
     footer_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    footer_run = footer_p.add_run("Prepared for Mitacs technical review - May 2026")
+    footer_run = footer_p.add_run("Prepared for Mitacs hiring review - May 2026")
     footer_run.font.size = Pt(8)
     footer_run.font.color.rgb = rgb(MID_GREY)
 
@@ -517,7 +564,7 @@ def add_title_page(doc: Document) -> None:
 
     subtitle = doc.add_paragraph()
     subtitle.paragraph_format.space_after = Pt(14)
-    sub_run = subtitle.add_run("Architecture & Design Brief")
+    sub_run = subtitle.add_run("Architecture & Design Brief - V2")
     sub_run.font.size = Pt(18)
     sub_run.bold = True
     sub_run.font.color.rgb = rgb(BLUE)
@@ -525,10 +572,10 @@ def add_title_page(doc: Document) -> None:
     meta_rows = [
         ("Candidate", "Forrest Zhang"),
         ("Role", "Power Platform Senior Developer - Take-Home Case"),
-        ("Prepared For", "Mitacs technical review team"),
+        ("Prepared For", "Mitacs hiring and technical review team"),
         ("Environment", "https://mitacs.crm.dynamics.com/"),
         ("Portal", "https://enterprise-service-intake-hellox.powerappsportals.com"),
-        ("Status", "Interview submission artifact"),
+        ("Status", "Candidate submission brief - V2"),
     ]
     add_key_value_table(doc, meta_rows, widths=(1.7, 5.0))
 
@@ -536,11 +583,11 @@ def add_title_page(doc: Document) -> None:
     paragraph = doc.add_paragraph()
     paragraph.style = doc.styles["Body Text"]
     paragraph.add_run(
-        "This solution implements an enterprise-grade external service request intake process using Power Pages, "
+        "This candidate submission implements an enterprise-grade external service request intake process using Power Pages, "
         "Dataverse, Power Automate, C# plugins, and PCF. External customers submit authenticated multi-step "
-        "requests, receive real-time routing and SLA feedback, and upload supporting documentation. Dataverse "
+        "requests, receive real-time routing and SLA feedback, and upload supporting documentation to SharePoint after submission. Dataverse "
         "holds the system of record while server-side plugins apply non-bypassable routing and close-validation "
-        "rules. Power Automate handles manager approval, mock ERP synchronization, and resilient error logging."
+        "rules. Power Automate handles applicant confirmation email, manager approval, mock ERP synchronization, and resilient error logging."
     )
 
     add_subtitle(doc, "End-to-End Outcome")
@@ -548,9 +595,11 @@ def add_title_page(doc: Document) -> None:
         doc,
         [
             "Customer submits a portal request and receives a formatted confirmation number.",
+            "Customer can upload supporting files to the SharePoint document library associated to the saved Service Request.",
             "Dataverse plugin applies the matching routing/SLA rule and flags approval or documentation requirements.",
             "Internal coordinator reviews the request in the model-driven app with a PCF status indicator.",
             "Critical or high-priority items route to manager approval.",
+            "Power Automate sends the confirmation number to the applicant and records failures in System Error Logs.",
             "Approved requests are posted to a mock REST endpoint and the external system ID is written back to Dataverse.",
             "Failures in approval or integration are captured in a custom System Error Log table.",
         ],
@@ -558,19 +607,19 @@ def add_title_page(doc: Document) -> None:
 
 
 def add_reviewer_links(doc: Document) -> None:
-    add_section_title(doc, "Reviewer Access", "The environment, portal, and repository are prepared so reviewers can walk through the complete vertical slice.")
+    add_section_title(doc, "Live Review Access", "These links and accounts are included so the hiring team can validate the submitted solution end to end during the review.")
     table = doc.add_table(rows=1, cols=3)
     table.style = "Table Grid"
-    headers = ["Area", "Value", "Reviewer Use"]
+    headers = ["Area", "Value", "What Reviewers Can Validate"]
     for idx, header in enumerate(headers):
         set_cell_text(table.rows[0].cells[idx], header, bold=True, color=DARK_BLUE, size=8)
         set_cell_shading(table.rows[0].cells[idx], GREY)
     rows = [
         ["Environment", "https://mitacs.crm.dynamics.com/", "Open Dataverse tables, model-driven app, flow runs, and solution components."],
         ["Maker Solution", "https://make.powerapps.com/environments/99dd50ed-a753-e37f-912c-78a022b12b09/solutions", "Review solution-aware components and exports."],
-        ["Model-driven App", "https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f", "Review request queue, form fields, and PCF/internal user experience."],
-        ["Power Pages Site", "https://enterprise-service-intake-hellox.powerappsportals.com", "Submit a customer request and verify dynamic SLA/routing preview."],
-        ["Cloud Flow", "ESI - Approval and ERP Sync", "Review approval, HTTP sync, run history, and Try/Catch error handling."],
+        ["Model-driven App", "https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f", "Review request queue, form fields, and PCF coordinator experience."],
+        ["Power Pages Site", "https://enterprise-service-intake-hellox.powerappsportals.com", "Submit a customer request, verify dynamic SLA/routing preview, and open post-submit SharePoint upload."],
+        ["Cloud Flows", "ESI - Send Confirmation Email; ESI - Approval and ERP Sync", "Review applicant email, approval, HTTP sync, run history, and Try/Catch error handling."],
     ]
     for row in rows:
         cells = table.add_row().cells
@@ -579,7 +628,7 @@ def add_reviewer_links(doc: Document) -> None:
     set_table_widths(table, [1.35, 2.85, 2.55])
     style_table(table, header=True)
 
-    add_subtitle(doc, "Reviewer Accounts")
+    add_subtitle(doc, "Live Review Accounts")
     add_standard_table(
         doc,
         ["Account", "Purpose"],
@@ -591,9 +640,6 @@ def add_reviewer_links(doc: Document) -> None:
         [2.8, 3.9],
         font_size=9,
     )
-    note = doc.add_paragraph()
-    note.style = doc.styles["Body Text"]
-    add_field_run(note, "Credential handling: ", "passwords are intentionally not stored in Git or in this document. The system administrator should share them out of band and rotate them after the interview.")
 
 
 def add_architecture(doc: Document, architecture_image: Path) -> None:
@@ -607,12 +653,12 @@ def add_architecture(doc: Document, architecture_image: Path) -> None:
         doc,
         ["Requirement", "Component", "Reason"],
         [
-            ["External intake", "Power Pages", "Provides authenticated customer access, contact-scoped data permissions, multi-step forms, upload support, and Liquid/Web API extensibility."],
-            ["System of record", "Dataverse", "Central relational model, security roles, ownership, auditing, solution packaging, and consistency across portal, app, flow, and APIs."],
-            ["Routing and SLA", "C# plugin", "Runs transactionally when rows are created or updated and cannot be bypassed through imports, API calls, flows, or alternate clients."],
-            ["Close guardrail", "C# plugin", "Enforces critical-request documentation requirements at the server boundary, which is stronger than form scripts or flow validation."],
-            ["Approval and ERP sync", "Power Automate", "Human approval, HTTP action, connector run history, retry behavior, and clear Try/Catch observability belong in orchestration."],
-            ["Internal coordinator UX", "Model-driven app + PCF", "Model-driven app gives secure operational CRUD; PCF adds concise visual severity/SLA/approval status."],
+            ["External intake", "Power Pages", ["Authenticated customer access", "Contact-scoped table permissions", "Multi-step forms", "Post-submit SharePoint upload", "Liquid/Web API extensibility"]],
+            ["System of record", "Dataverse", ["Relational data model", "Security roles and ownership", "Auditing and solution packaging", "Consistent state across portal, app, flow, and API entry points"]],
+            ["Routing and SLA", "C# plugin", ["Runs transactionally on create/update", "Applies the same rule result for all entry points", "Cannot be bypassed by imports, flows, APIs, or alternate clients"]],
+            ["Close guardrail", "C# plugin", ["Enforces critical documentation requirements at the server boundary", "Stronger than form scripts or after-the-fact flow validation"]],
+            ["Applicant email, approval, and ERP sync", "Power Automate", ["Sends the confirmation email", "Handles human approval", "Calls the mock ERP API", "Provides connector run history, retry visibility, and Try/Catch logging"]],
+            ["Internal coordinator UX", "Model-driven app + PCF", ["Secure operational CRUD", "Coordinator queue views", "Compact visual severity, SLA, approval, and sync status"]],
         ],
         [1.45, 1.45, 3.85],
         font_size=7,
@@ -629,13 +675,13 @@ def add_data_model(doc: Document, erd_image: Path) -> None:
         doc,
         ["Table", "Purpose", "Key Relationships"],
         [
-            ["Service Request", "Primary intake and work-management row. Stores confirmation number, status, priority, SLA, assigned department, approval state, integration state, external ERP ID, and internal notes.", "Contact, Account, Service Category, Department, SLA Policy, Service Document, External Sync Log, System Error Log"],
-            ["Routing Rule", "Configurable rules engine row. Matches category/severity/priority and supplies department, SLA, approval requirement, and documentation requirement.", "Service Category, Department, SLA Policy"],
-            ["Department", "Internal routing destination for operational ownership.", "Service Request, Routing Rule"],
-            ["SLA Policy", "Response target and escalation policy assigned by routing.", "Service Request, Routing Rule"],
-            ["Service Document", "Supporting documentation metadata for portal uploads.", "Service Request"],
-            ["External Sync Log", "Integration audit trail for outbound ERP calls.", "Service Request"],
-            ["System Error Log", "Structured error capture for plugin, flow, and integration failures.", "Service Request optional"],
+            ["Service Request", ["Primary intake and work-management row", "Stores confirmation number, status, priority, SLA, approval state, external ERP ID, and internal notes"], ["Contact", "Account", "Service Category", "Department", "SLA Policy", "SharePoint Documents", "External Sync Log", "System Error Log"]],
+            ["Routing Rule", ["Configurable rules engine row", "Matches category, severity, and priority", "Supplies department, SLA, approval, and documentation requirements"], ["Service Category", "Department", "SLA Policy"]],
+            ["Department", ["Internal routing destination", "Operational ownership for assigned requests"], ["Service Request", "Routing Rule"]],
+            ["SLA Policy", ["Response target", "Business-hours and escalation policy assigned by routing"], ["Service Request", "Routing Rule"]],
+            ["SharePoint Documents", ["Supporting files stored through Power Pages document management", "Files are linked to the saved Service Request after creation"], ["Service Request", "SharePoint Document Location"]],
+            ["External Sync Log", ["Integration audit trail", "Tracks outbound ERP endpoint, status, and payload snapshot"], ["Service Request"]],
+            ["System Error Log", ["Structured error capture", "Used by plugin, flow, and integration failure paths"], ["Service Request optional"]],
         ],
         [1.45, 3.25, 2.05],
         font_size=7,
@@ -681,9 +727,9 @@ def add_security(doc: Document) -> None:
         doc,
         ["Area", "Lean Demo Choice", "Production Hardening"],
         [
-            ["Portal identity", "Authenticated Power Pages users in the interview tenant.", "Use Entra External ID or a configured B2C provider, lifecycle controls, and conditional access where appropriate."],
-            ["Uploads", "Portal upload step captures supporting documentation metadata.", "Apply file type limits, malware scanning, retention rules, and DLP review."],
-            ["Secrets", "No tenant passwords or tokens committed to Git.", "Use connection references, environment variables, Key Vault-backed custom connectors, and managed identities where available."],
+            ["Portal identity", ["Authenticated Power Pages users in the interview tenant"], ["Use Entra External ID or configured B2C provider", "Apply lifecycle controls", "Add conditional access where appropriate"]],
+            ["Uploads", ["Post-submit document-management page", "Files stored in SharePoint for the saved Service Request"], ["Apply file type limits", "Use malware scanning", "Review retention and DLP rules"]],
+            ["Secrets", ["No tenant passwords or tokens committed to Git"], ["Use connection references and environment variables", "Use Key Vault-backed custom connectors", "Prefer managed identities where available"]],
         ],
         [1.35, 2.65, 2.75],
         font_size=7,
@@ -700,8 +746,8 @@ def add_portal_ux(doc: Document) -> None:
             "User starts a new service request and enters request details.",
             "User selects category, severity, and priority.",
             "Portal dynamically previews expected department, SLA target, approval requirement, and documentation requirement before final submission.",
-            "User uploads supporting documentation where needed.",
             "User reviews and submits the request, then receives a confirmation number.",
+            "User opens the secure document upload step and adds files to the SharePoint folder associated with the saved request.",
         ],
     )
     add_subtitle(doc, "Dynamic Preview Implementation")
@@ -722,11 +768,24 @@ def add_automation(doc: Document) -> None:
         doc,
         ["Stage", "Implementation"],
         [
-            ["Trigger", "Dataverse row added or modified for Service Request where approval is required, approval is pending, and integration is unsynced."],
-            ["Try scope", "Start and wait for approval assigned to manager@hellosmart.ca, branch on decision, call mock ERP API, update request, and write External Sync Log."],
-            ["HTTP sync", "POST approved request details to https://api.restful-api.dev/objects and store the returned external id in Dataverse."],
-            ["Reject branch", "Mark approval rejected and skip ERP sync."],
-            ["Catch scope", "Runs after failure, timeout, or skipped Try scope; writes System Error Log with flow run correlation details and marks the request failed."],
+            ["Trigger", ["Dataverse row added or modified", "Approval required", "Approval pending", "Integration unsynced"]],
+            ["Try scope", ["Start and wait for manager approval", "Branch on approval decision", "Call mock ERP API", "Update Service Request", "Write External Sync Log"]],
+            ["HTTP sync", ["POST approved request details to https://hellox.ca/api/esi-service-requests", "Store returned external ID in Dataverse"]],
+            ["Reject branch", ["Mark approval rejected", "Skip ERP sync"]],
+            ["Catch scope", ["Runs after failure, timeout, or skipped Try scope", "Writes System Error Log with flow run correlation details", "Marks request failed where appropriate"]],
+        ],
+        [1.35, 5.4],
+        font_size=8,
+    )
+    add_subtitle(doc, "Flow: ESI - Send Confirmation Email")
+    add_standard_table(
+        doc,
+        ["Stage", "Implementation"],
+        [
+            ["Trigger", ["Dataverse row added for Service Request"]],
+            ["Try scope", ["Validate applicant Contact and email", "Send HTML confirmation through Office 365 Outlook Send an email (V2)", "Include confirmation number, request title, and submitted timestamp", "Update customer-visible notes"]],
+            ["Skip path", ["Missing Contact or email writes a System Error Log", "Flow avoids silent failures"]],
+            ["Catch scope", ["Runs after failure, timeout, or skipped Try scope", "Writes System Error Log with flow run correlation details"]],
         ],
         [1.35, 5.4],
         font_size=8,
@@ -738,7 +797,7 @@ def add_automation(doc: Document) -> None:
             "Try/Catch scopes make failures observable and reviewable during the live demo.",
             "The custom System Error Log captures source component, stage, message, technical detail, correlation ID, and related request.",
             "Request integration status is updated to failed when the integration path cannot complete.",
-            "Flow run history and Approval records provide proof if tenant email delivery is restricted.",
+            "Office 365 Outlook action output, Flow run history, and Approval records provide proof if tenant email delivery is restricted.",
         ],
     )
 
@@ -749,10 +808,10 @@ def add_pro_code(doc: Document) -> None:
         doc,
         ["Component", "Location", "Responsibility", "Why Here"],
         [
-            ["ServiceRequestRoutingPlugin", "src/plugins/ServiceIntake.Plugins/ServiceRequestRoutingPlugin.cs", "Evaluates routing rules, assigns department/SLA, sets due date, approval requirement, documentation requirement, and lifecycle defaults.", "PreOperation server-side plugin keeps routing transactional and consistent across all entry points."],
-            ["ServiceRequestClosureGuardPlugin", "src/plugins/ServiceIntake.Plugins/ServiceRequestClosureGuardPlugin.cs", "Blocks closure of critical requests unless internal resolution notes and documentation evidence are present.", "Server-side validation prevents bypass from forms, imports, flows, and APIs."],
-            ["SlaStatusIndicator PCF", "src/pcf/SlaStatusIndicator/", "Displays severity, SLA, approval, and sync status as a compact coordinator-facing visual.", "PCF improves internal model-driven usability without duplicating authoritative business logic."],
-            ["Provisioning Utility", "src/scripts/ServiceIntake.Provisioning/", "Creates metadata, registers plugins, provisions app/forms/views, sample data, and flow definition patching.", "Makes the environment build repeatable and keeps ALM steps reviewable."],
+            ["ServiceRequestRoutingPlugin", "src/plugins/ServiceIntake.Plugins/ServiceRequestRoutingPlugin.cs", ["Evaluates routing rules", "Assigns department and SLA", "Sets due date and lifecycle defaults", "Sets approval and documentation requirements"], ["PreOperation server-side execution", "Transactional rule result", "Consistent across portal, model app, imports, flows, and APIs"]],
+            ["ServiceRequestClosureGuardPlugin", "src/plugins/ServiceIntake.Plugins/ServiceRequestClosureGuardPlugin.cs", ["Blocks critical request closure", "Requires internal resolution notes", "Requires documentation evidence"], ["Server-side validation", "Prevents bypass from forms, imports, flows, and APIs"]],
+            ["SlaStatusIndicator PCF", "src/pcf/SlaStatusIndicator/", ["Displays severity", "Shows SLA, approval, and sync status", "Keeps coordinator status scanning compact"], ["Improves internal model-driven usability", "Does not duplicate authoritative business logic"]],
+            ["Provisioning Utility", "src/scripts/ServiceIntake.Provisioning/", ["Creates metadata", "Registers plugins", "Provisions app, forms, views, dashboards, and sample data", "Patches flow definitions"], ["Repeatable environment build", "Reviewable ALM steps"]],
         ],
         [1.45, 1.75, 2.05, 1.5],
         font_size=6,
@@ -785,12 +844,12 @@ def add_alm_verification(doc: Document) -> None:
         ["Check", "Evidence"],
         [
             ["Plugin build", "Passed."],
-            ["Provisioning utility", "Builds and runs, with upstream SDK NU1903 warnings from Microsoft.PowerPlatform.Dataverse.Client dependency."],
+            ["Provisioning utility", ["Builds with zero warnings", "NuGet vulnerability audit reports no vulnerable packages"]],
             ["PCF", "Build and pac pcf push passed."],
-            ["Power Pages", "Dynamic preview shows Finance, 4 hour SLA, approval required, and documentation required for critical funding requests."],
-            ["Portal submission", "Portal demo request created with formatted confirmation SR-20260521-001004."],
-            ["Closure guard", "Smoke test blocked undocumented critical closure and allowed documented closure."],
-            ["Flow", "Active, solution-aware, and includes approval, HTTP sync, reject branch, External Sync Log, and Catch error-log scope."],
+            ["Power Pages", ["Dynamic preview shows Finance", "4 hour SLA and approval required display before submit", "Post-submit SharePoint upload is available from the confirmation dialog"]],
+            ["Portal submission", ["Portal demo request created with formatted confirmation SR-20260521-001004", "Outlook confirmation smoke test created SR-20260521-001018"]],
+            ["Closure guard", ["Blocked undocumented critical closure", "Allowed documented closure"]],
+            ["Flows", ["Approval/ERP flow is active and solution-aware", "Confirmation email flow is active and solution-aware", "Both use Try/Catch logging patterns"]],
             ["Solution export/unpack", "Managed and unmanaged exports and unpacked source generated successfully."],
         ],
         [1.55, 5.2],
@@ -801,8 +860,9 @@ def add_alm_verification(doc: Document) -> None:
     add_bullets(
         doc,
         [
-            "If email delivery is restricted, use Approval records and Flow run history as evidence.",
-            "reqres.in currently requires an API key for POST, so the mock ERP endpoint uses api.restful-api.dev to keep the demo self-contained.",
+            "If email delivery is restricted, use Office 365 Outlook action output, Approval records, and Flow run history as evidence.",
+            "The HelloX mock ERP endpoint avoids third-party API keys and includes a deliberate failure mode for Catch-scope demos.",
+            "The hidden HelloX console at https://hellox.ca/esi/ is noindex and not linked from public navigation.",
             "If a target environment does not automatically bind the PCF control on import, add the PCF control to the coordinator form field in the form designer.",
         ],
     )
@@ -815,7 +875,7 @@ def add_appendix(doc: Document) -> None:
         [
             "Walk through the ERD and architecture choices.",
             "Submit a critical funding request from the portal and show dynamic preview before submit.",
-            "Open the request in the model-driven app and review routing, SLA, approval, sync status, and internal fields.",
+            "Open the request in the model-driven app and review routing, SLA, approval, sync status, dashboards, and internal fields.",
             "Open the cloud flow and explain approval, HTTP POST, writeback, sync log, reject branch, and Catch scope.",
             "Demonstrate or explain failure handling through System Error Log rows.",
             "Demonstrate the critical close guardrail through the smoke test or form behavior.",
@@ -920,6 +980,13 @@ def pp(text: str, style: ParagraphStyle) -> Paragraph:
     return Paragraph(escape(text), style)
 
 
+def pdf_cell(value: CellValue, style: ParagraphStyle) -> Paragraph:
+    if isinstance(value, list):
+        bullet_html = "<br/>".join(f"&#8226; {escape(item)}" for item in value)
+        return Paragraph(bullet_html, style)
+    return Paragraph(escape(str(value)), style)
+
+
 def pdf_heading(story: list, text: str, styles: dict[str, ParagraphStyle], level: int = 1) -> None:
     story.append(pp(text, styles["H1" if level == 1 else "H2"]))
 
@@ -953,7 +1020,7 @@ def pdf_numbers(story: list, items: list[str], styles: dict[str, ParagraphStyle]
 def pdf_table(
     story: list,
     headers: list[str],
-    rows: list[list[str]],
+    rows: list[list[CellValue]],
     widths: list[float],
     styles: dict[str, ParagraphStyle],
     font_style: str = "Small",
@@ -961,7 +1028,7 @@ def pdf_table(
     header_style = styles["Header"]
     cell_style = styles[font_style]
     data = [[pp(header, header_style) for header in headers]]
-    data.extend([[pp(value, cell_style) for value in row] for row in rows])
+    data.extend([[pdf_cell(value, cell_style) for value in row] for row in rows])
     table = Table(data, colWidths=[width * inch for width in widths], repeatRows=1)
     table.setStyle(
         TableStyle(
@@ -1012,7 +1079,7 @@ def pdf_page(canvas, doc) -> None:
     canvas.setFillColor(pdf_color(MID_GREY))
     canvas.setFont("Helvetica", 7.5)
     canvas.drawRightString(7.75 * inch, 10.43 * inch, "Enterprise Service Intake | Architecture & Design Brief")
-    canvas.drawString(0.75 * inch, 0.45 * inch, "Prepared for Mitacs technical review - May 2026")
+    canvas.drawString(0.75 * inch, 0.45 * inch, "Prepared for Mitacs hiring review - May 2026")
     canvas.drawRightString(7.75 * inch, 0.45 * inch, f"Page {doc.page}")
     canvas.restoreState()
 
@@ -1033,23 +1100,23 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
     story: list = []
 
     story.append(pp("Enterprise Service Intake", styles["Title"]))
-    story.append(pp("Architecture & Design Brief", styles["Subtitle"]))
+    story.append(pp("Architecture & Design Brief - V2", styles["Subtitle"]))
     pdf_key_value_table(
         story,
         [
             ("Candidate", "Forrest Zhang"),
             ("Role", "Power Platform Senior Developer - Take-Home Case"),
-            ("Prepared For", "Mitacs technical review team"),
+            ("Prepared For", "Mitacs hiring and technical review team"),
             ("Environment", "https://mitacs.crm.dynamics.com/"),
             ("Portal", "https://enterprise-service-intake-hellox.powerappsportals.com"),
-            ("Status", "Interview submission artifact"),
+            ("Status", "Candidate submission brief - V2"),
         ],
         styles,
     )
     pdf_heading(story, "Executive Summary", styles, level=2)
     story.append(
         pp(
-            "This solution implements an enterprise-grade external service request intake process using Power Pages, Dataverse, Power Automate, C# plugins, and PCF. External customers submit authenticated multi-step requests, receive real-time routing and SLA feedback, and upload supporting documentation. Dataverse holds the system of record while server-side plugins apply non-bypassable routing and close-validation rules. Power Automate handles manager approval, mock ERP synchronization, and resilient error logging.",
+            "This candidate submission implements an enterprise-grade external service request intake process using Power Pages, Dataverse, Power Automate, C# plugins, and PCF. External customers submit authenticated multi-step requests, receive real-time routing and SLA feedback, and upload supporting documentation to SharePoint after submission. Dataverse holds the system of record while server-side plugins apply non-bypassable routing and close-validation rules. Power Automate handles applicant confirmation email, manager approval, mock ERP synchronization, and resilient error logging.",
             styles["Body"],
         )
     )
@@ -1058,9 +1125,11 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         story,
         [
             "Customer submits a portal request and receives a formatted confirmation number.",
+            "Customer can upload supporting files to the SharePoint document library associated to the saved Service Request.",
             "Dataverse plugin applies the matching routing/SLA rule and flags approval or documentation requirements.",
             "Internal coordinator reviews the request in the model-driven app with a PCF status indicator.",
             "Critical or high-priority items route to manager approval.",
+            "Power Automate sends the confirmation number to the applicant and records failures in System Error Logs.",
             "Approved requests are posted to a mock REST endpoint and the external system ID is written back to Dataverse.",
             "Failures in approval or integration are captured in a custom System Error Log table.",
         ],
@@ -1068,22 +1137,22 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
     )
     story.append(PageBreak())
 
-    pdf_heading(story, "Reviewer Access", styles)
-    story.append(pp("The environment, portal, and repository are prepared so reviewers can walk through the complete vertical slice.", styles["Body"]))
+    pdf_heading(story, "Live Review Access", styles)
+    story.append(pp("These links and accounts are included so the hiring team can validate the submitted solution end to end during the review.", styles["Body"]))
     pdf_table(
         story,
-        ["Area", "Value", "Reviewer Use"],
+        ["Area", "Value", "What Reviewers Can Validate"],
         [
             ["Environment", "https://mitacs.crm.dynamics.com/", "Open Dataverse tables, model-driven app, flow runs, and solution components."],
             ["Maker Solution", "https://make.powerapps.com/environments/99dd50ed-a753-e37f-912c-78a022b12b09/solutions", "Review solution-aware components and exports."],
-            ["Model-driven App", "https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f", "Review request queue, form fields, and PCF/internal user experience."],
-            ["Power Pages Site", "https://enterprise-service-intake-hellox.powerappsportals.com", "Submit a customer request and verify dynamic SLA/routing preview."],
-            ["Cloud Flow", "ESI - Approval and ERP Sync", "Review approval, HTTP sync, run history, and Try/Catch error handling."],
+            ["Model-driven App", "https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f", "Review request queue, form fields, and PCF coordinator experience."],
+            ["Power Pages Site", "https://enterprise-service-intake-hellox.powerappsportals.com", "Submit a customer request, verify dynamic SLA/routing preview, and open post-submit SharePoint upload."],
+            ["Cloud Flows", "ESI - Send Confirmation Email; ESI - Approval and ERP Sync", "Review applicant email, approval, HTTP sync, run history, and Try/Catch error handling."],
         ],
         [1.25, 2.75, 2.75],
         styles,
     )
-    pdf_heading(story, "Reviewer Accounts", styles, level=2)
+    pdf_heading(story, "Live Review Accounts", styles, level=2)
     pdf_table(
         story,
         ["Account", "Purpose"],
@@ -1095,8 +1164,6 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         [2.8, 3.9],
         styles,
     )
-    story.append(pp("Credential handling: passwords are intentionally not stored in Git or in this document. The system administrator should share them out of band and rotate them after the interview.", styles["Body"]))
-
     pdf_heading(story, "Architecture Overview", styles)
     story.append(pp("The solution keeps Dataverse as the authority for state while placing business logic in the component that best enforces the requirement.", styles["Body"]))
     story.append(RLImage(str(architecture_image), width=6.7 * inch, height=4.17 * inch))
@@ -1105,12 +1172,12 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         story,
         ["Requirement", "Component", "Reason"],
         [
-            ["External intake", "Power Pages", "Authenticated customer access, contact-scoped permissions, multi-step forms, upload support, and Liquid/Web API extensibility."],
-            ["System of record", "Dataverse", "Relational model, security roles, ownership, auditing, solution packaging, and consistency across portal, app, flow, and APIs."],
-            ["Routing and SLA", "C# plugin", "Runs transactionally when rows are created or updated and cannot be bypassed through imports, API calls, flows, or alternate clients."],
-            ["Close guardrail", "C# plugin", "Enforces critical-request documentation requirements at the server boundary."],
-            ["Approval and ERP sync", "Power Automate", "Human approval, HTTP action, connector run history, retry behavior, and clear Try/Catch observability belong in orchestration."],
-            ["Internal coordinator UX", "Model-driven app + PCF", "Secure operational CRUD with concise visual severity/SLA/approval status."],
+            ["External intake", "Power Pages", ["Authenticated customer access", "Contact-scoped permissions", "Multi-step forms", "Post-submit SharePoint upload", "Liquid/Web API extensibility"]],
+            ["System of record", "Dataverse", ["Relational model", "Security roles and ownership", "Auditing and solution packaging", "Consistent state across portal, app, flow, and APIs"]],
+            ["Routing and SLA", "C# plugin", ["Runs transactionally on create/update", "Same rule result for all entry points", "Cannot be bypassed by imports, flows, APIs, or alternate clients"]],
+            ["Close guardrail", "C# plugin", ["Enforces critical documentation requirements", "Runs at the server boundary"]],
+            ["Applicant email, approval, and ERP sync", "Power Automate", ["Sends the confirmation email", "Handles human approval", "Calls the mock ERP API", "Provides run history, retry visibility, and Try/Catch logging"]],
+            ["Internal coordinator UX", "Model-driven app + PCF", ["Secure operational CRUD", "Coordinator queue views", "Compact visual severity, SLA, approval, and sync status"]],
         ],
         [1.4, 1.4, 3.95],
         styles,
@@ -1125,13 +1192,13 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         story,
         ["Table", "Purpose", "Key Relationships"],
         [
-            ["Service Request", "Primary intake and work-management row. Stores confirmation number, status, priority, SLA, assigned department, approval state, integration state, external ERP ID, and internal notes.", "Contact, Account, Service Category, Department, SLA Policy, Service Document, External Sync Log, System Error Log"],
-            ["Routing Rule", "Configurable rules engine row. Matches category/severity/priority and supplies department, SLA, approval requirement, and documentation requirement.", "Service Category, Department, SLA Policy"],
-            ["Department", "Internal routing destination for operational ownership.", "Service Request, Routing Rule"],
-            ["SLA Policy", "Response target and escalation policy assigned by routing.", "Service Request, Routing Rule"],
-            ["Service Document", "Supporting documentation metadata for portal uploads.", "Service Request"],
-            ["External Sync Log", "Integration audit trail for outbound ERP calls.", "Service Request"],
-            ["System Error Log", "Structured error capture for plugin, flow, and integration failures.", "Service Request optional"],
+            ["Service Request", ["Primary intake and work-management row", "Stores confirmation number, status, priority, SLA, approval state, external ERP ID, and internal notes"], ["Contact", "Account", "Service Category", "Department", "SLA Policy", "SharePoint Documents", "External Sync Log", "System Error Log"]],
+            ["Routing Rule", ["Configurable rules engine row", "Matches category, severity, and priority", "Supplies department, SLA, approval, and documentation requirements"], ["Service Category", "Department", "SLA Policy"]],
+            ["Department", ["Internal routing destination", "Operational ownership for assigned requests"], ["Service Request", "Routing Rule"]],
+            ["SLA Policy", ["Response target", "Business-hours and escalation policy assigned by routing"], ["Service Request", "Routing Rule"]],
+            ["SharePoint Documents", ["Supporting files stored through Power Pages document management", "Files linked to the saved Service Request after creation"], ["Service Request", "SharePoint Document Location"]],
+            ["External Sync Log", ["Integration audit trail", "Tracks outbound ERP endpoint, status, and payload snapshot"], ["Service Request"]],
+            ["System Error Log", ["Structured error capture", "Used by plugin, flow, and integration failure paths"], ["Service Request optional"]],
         ],
         [1.35, 3.2, 2.2],
         styles,
@@ -1175,9 +1242,9 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         story,
         ["Area", "Lean Demo Choice", "Production Hardening"],
         [
-            ["Portal identity", "Authenticated Power Pages users in the interview tenant.", "Use Entra External ID or a configured B2C provider, lifecycle controls, and conditional access where appropriate."],
-            ["Uploads", "Portal upload step captures supporting documentation metadata.", "Apply file type limits, malware scanning, retention rules, and DLP review."],
-            ["Secrets", "No tenant passwords or tokens committed to Git.", "Use connection references, environment variables, Key Vault-backed custom connectors, and managed identities where available."],
+            ["Portal identity", ["Authenticated Power Pages users in the interview tenant"], ["Use Entra External ID or configured B2C provider", "Apply lifecycle controls", "Add conditional access where appropriate"]],
+            ["Uploads", ["Post-submit document-management page", "Files stored in SharePoint for the saved Service Request"], ["Apply file type limits", "Use malware scanning", "Review retention and DLP rules"]],
+            ["Secrets", ["No tenant passwords or tokens committed to Git"], ["Use connection references and environment variables", "Use Key Vault-backed custom connectors", "Prefer managed identities where available"]],
         ],
         [1.25, 2.7, 2.8],
         styles,
@@ -1193,8 +1260,8 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
             "User starts a new service request and enters request details.",
             "User selects category, severity, and priority.",
             "Portal dynamically previews expected department, SLA target, approval requirement, and documentation requirement before final submission.",
-            "User uploads supporting documentation where needed.",
             "User reviews and submits the request, then receives a confirmation number.",
+            "User opens the secure document upload step and adds files to the SharePoint folder associated with the saved request.",
         ],
         styles,
     )
@@ -1214,11 +1281,24 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         story,
         ["Stage", "Implementation"],
         [
-            ["Trigger", "Dataverse row added or modified for Service Request where approval is required, approval is pending, and integration is unsynced."],
-            ["Try scope", "Start and wait for approval assigned to manager@hellosmart.ca, branch on decision, call mock ERP API, update request, and write External Sync Log."],
-            ["HTTP sync", "POST approved request details to https://api.restful-api.dev/objects and store the returned external id in Dataverse."],
-            ["Reject branch", "Mark approval rejected and skip ERP sync."],
-            ["Catch scope", "Runs after failure, timeout, or skipped Try scope; writes System Error Log with flow run correlation details and marks the request failed."],
+            ["Trigger", ["Dataverse row added or modified", "Approval required", "Approval pending", "Integration unsynced"]],
+            ["Try scope", ["Start and wait for manager approval", "Branch on approval decision", "Call mock ERP API", "Update Service Request", "Write External Sync Log"]],
+            ["HTTP sync", ["POST approved request details to https://hellox.ca/api/esi-service-requests", "Store returned external ID in Dataverse"]],
+            ["Reject branch", ["Mark approval rejected", "Skip ERP sync"]],
+            ["Catch scope", ["Runs after failure, timeout, or skipped Try scope", "Writes System Error Log with flow run correlation details", "Marks request failed where appropriate"]],
+        ],
+        [1.25, 5.5],
+        styles,
+    )
+    pdf_heading(story, "Flow: ESI - Send Confirmation Email", styles, level=2)
+    pdf_table(
+        story,
+        ["Stage", "Implementation"],
+        [
+            ["Trigger", ["Dataverse row added for Service Request"]],
+            ["Try scope", ["Validate applicant Contact and email", "Send HTML confirmation through Office 365 Outlook Send an email (V2)", "Include confirmation number, request title, and submitted timestamp", "Update customer-visible notes"]],
+            ["Skip path", ["Missing Contact or email writes a System Error Log", "Flow avoids silent failures"]],
+            ["Catch scope", ["Runs after failure, timeout, or skipped Try scope", "Writes System Error Log with flow run correlation details"]],
         ],
         [1.25, 5.5],
         styles,
@@ -1230,7 +1310,7 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
             "Try/Catch scopes make failures observable and reviewable during the live demo.",
             "The custom System Error Log captures source component, stage, message, technical detail, correlation ID, and related request.",
             "Request integration status is updated to failed when the integration path cannot complete.",
-            "Flow run history and Approval records provide proof if tenant email delivery is restricted.",
+            "Office 365 Outlook action output, Flow run history, and Approval records provide proof if tenant email delivery is restricted.",
         ],
         styles,
     )
@@ -1241,10 +1321,10 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         story,
         ["Component", "Location", "Responsibility", "Why Here"],
         [
-            ["ServiceRequestRoutingPlugin", "src/plugins/ServiceIntake.Plugins/ServiceRequestRoutingPlugin.cs", "Evaluates routing rules, assigns department/SLA, sets due date, approval requirement, documentation requirement, and lifecycle defaults.", "PreOperation server-side plugin keeps routing transactional and consistent across all entry points."],
-            ["ServiceRequestClosureGuardPlugin", "src/plugins/ServiceIntake.Plugins/ServiceRequestClosureGuardPlugin.cs", "Blocks closure of critical requests unless internal resolution notes and documentation evidence are present.", "Server-side validation prevents bypass from forms, imports, flows, and APIs."],
-            ["SlaStatusIndicator PCF", "src/pcf/SlaStatusIndicator/", "Displays severity, SLA, approval, and sync status as a compact coordinator-facing visual.", "PCF improves internal model-driven usability without duplicating authoritative business logic."],
-            ["Provisioning Utility", "src/scripts/ServiceIntake.Provisioning/", "Creates metadata, registers plugins, provisions app/forms/views, sample data, and flow definition patching.", "Makes the environment build repeatable and keeps ALM steps reviewable."],
+            ["ServiceRequestRoutingPlugin", "src/plugins/ServiceIntake.Plugins/ServiceRequestRoutingPlugin.cs", ["Evaluates routing rules", "Assigns department and SLA", "Sets due date and lifecycle defaults", "Sets approval and documentation requirements"], ["PreOperation server-side execution", "Transactional rule result", "Consistent across portal, model app, imports, flows, and APIs"]],
+            ["ServiceRequestClosureGuardPlugin", "src/plugins/ServiceIntake.Plugins/ServiceRequestClosureGuardPlugin.cs", ["Blocks critical request closure", "Requires internal resolution notes", "Requires documentation evidence"], ["Server-side validation", "Prevents bypass from forms, imports, flows, and APIs"]],
+            ["SlaStatusIndicator PCF", "src/pcf/SlaStatusIndicator/", ["Displays severity", "Shows SLA, approval, and sync status", "Keeps coordinator status scanning compact"], ["Improves internal model-driven usability", "Does not duplicate authoritative business logic"]],
+            ["Provisioning Utility", "src/scripts/ServiceIntake.Provisioning/", ["Creates metadata", "Registers plugins", "Provisions app, forms, views, dashboards, and sample data", "Patches flow definitions"], ["Repeatable environment build", "Reviewable ALM steps"]],
         ],
         [1.35, 1.55, 2.05, 1.8],
         styles,
@@ -1276,12 +1356,12 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         ["Check", "Evidence"],
         [
             ["Plugin build", "Passed."],
-            ["Provisioning utility", "Builds and runs, with upstream SDK NU1903 warnings from Microsoft.PowerPlatform.Dataverse.Client dependency."],
+            ["Provisioning utility", ["Builds with zero warnings", "NuGet vulnerability audit reports no vulnerable packages"]],
             ["PCF", "Build and pac pcf push passed."],
-            ["Power Pages", "Dynamic preview shows Finance, 4 hour SLA, approval required, and documentation required for critical funding requests."],
-            ["Portal submission", "Portal demo request created with formatted confirmation SR-20260521-001004."],
-            ["Closure guard", "Smoke test blocked undocumented critical closure and allowed documented closure."],
-            ["Flow", "Active, solution-aware, and includes approval, HTTP sync, reject branch, External Sync Log, and Catch error-log scope."],
+            ["Power Pages", ["Dynamic preview shows Finance", "4 hour SLA and approval required display before submit", "Post-submit SharePoint upload is available from the confirmation dialog"]],
+            ["Portal submission", ["Portal demo request created with formatted confirmation SR-20260521-001004", "Outlook confirmation smoke test created SR-20260521-001018"]],
+            ["Closure guard", ["Blocked undocumented critical closure", "Allowed documented closure"]],
+            ["Flows", ["Approval/ERP flow is active and solution-aware", "Confirmation email flow is active and solution-aware", "Both use Try/Catch logging patterns"]],
             ["Solution export/unpack", "Managed and unmanaged exports and unpacked source generated successfully."],
         ],
         [1.55, 5.2],
@@ -1291,8 +1371,9 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
     pdf_bullets(
         story,
         [
-            "If email delivery is restricted, use Approval records and Flow run history as evidence.",
-            "reqres.in currently requires an API key for POST, so the mock ERP endpoint uses api.restful-api.dev to keep the demo self-contained.",
+            "If email delivery is restricted, use Office 365 Outlook action output, Approval records, and Flow run history as evidence.",
+            "The HelloX mock ERP endpoint avoids third-party API keys and includes a deliberate failure mode for Catch-scope demos.",
+            "The hidden HelloX console at https://hellox.ca/esi/ is noindex and not linked from public navigation.",
             "If a target environment does not automatically bind the PCF control on import, add the PCF control to the coordinator form field in the form designer.",
         ],
         styles,
@@ -1305,7 +1386,7 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         [
             "Walk through the ERD and architecture choices.",
             "Submit a critical funding request from the portal and show dynamic preview before submit.",
-            "Open the request in the model-driven app and review routing, SLA, approval, sync status, and internal fields.",
+            "Open the request in the model-driven app and review routing, SLA, approval, sync status, dashboards, and internal fields.",
             "Open the cloud flow and explain approval, HTTP POST, writeback, sync log, reject branch, and Catch scope.",
             "Demonstrate or explain failure handling through System Error Log rows.",
             "Demonstrate the critical close guardrail through the smoke test or form behavior.",
@@ -1334,8 +1415,8 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
 def build_document() -> None:
     SUBMISSION_DIR.mkdir(parents=True, exist_ok=True)
     ASSET_DIR.mkdir(parents=True, exist_ok=True)
-    architecture_image = ASSET_DIR / "architecture-overview.png"
-    erd_image = ASSET_DIR / "dataverse-erd.png"
+    architecture_image = ASSET_DIR / "architecture-overview-v2.png"
+    erd_image = ASSET_DIR / "dataverse-erd-v2.png"
     create_architecture_diagram(architecture_image)
     create_erd_diagram(erd_image)
 

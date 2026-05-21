@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <LocalizedNames>
+    <LocalizedName description="ESI - Coordinator Operations Dashboard" languagecode="1033" />
+  </LocalizedNames>
+  <Descriptions>
+    <Description description="Coordinator queue, routing, severity, and SLA workbench." languagecode="1033" />
+  </Descriptions>
+  <FormId>{2141bfc2-e554-f111-bec7-000d3a3aca8f}</FormId>
+  <IsCustomizable>1</IsCustomizable>
+  <IsDefault>0</IsDefault>
+  <FormXml>
+    <forms type="dashboard">
+      <form>
+        <tabs>
+          <tab showlabel="true" verticallayout="true" id="{a18fe8a7-cc2a-4815-c347-c9f43c2038ac}" name="esi_coordinator_operations_dashboard" locklevel="0" expanded="true">
+            <labels>
+              <label description="ESI - Coordinator Operations Dashboard" languagecode="1033" />
+            </labels>
+            <columns>
+              <column width="100%">
+                <sections>
+                  <section showlabel="true" showbar="false" columns="111" id="{0d9cb075-e197-0519-60b5-4817929ec7cb}" name="visual_filters">
+                    <labels>
+                      <label description="Visual filters" languagecode="1033" />
+                    </labels>
+                    <rows>
+                      <row>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{100f9823-b933-d1c8-4dda-657c6591225e}" auto="false">
+                          <labels>
+                            <label description="Requests by department" languagecode="1033" />
+                          </labels>
+                          <control id="RequestsByDepartment" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_servicerequest</TargetEntityType>
+                              <ChartGridMode>Chart</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{ec3dd74d-b654-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <VisualizationId>{ded29bbc-e554-f111-bec7-000d3a3aca8f}</VisualizationId>
+                              <IsUserChart>false</IsUserChart>
+                              <EnableChartPicker>false</EnableChartPicker>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{7fca1a2e-6649-af3e-1eee-1dd526008dd1}" auto="false">
+                          <labels>
+                            <label description="Severity mix" languagecode="1033" />
+                          </labels>
+                          <control id="RequestsBySeverity" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_servicerequest</TargetEntityType>
+                              <ChartGridMode>Chart</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{ec3dd74d-b654-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <VisualizationId>{0b41bfc2-e554-f111-bec7-000d3a3aca8f}</VisualizationId>
+                              <IsUserChart>false</IsUserChart>
+                              <EnableChartPicker>false</EnableChartPicker>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{674f23bb-1e3f-df4f-eeec-83ed262fed37}" auto="false">
+                          <labels>
+                            <label description="Lifecycle mix" languagecode="1033" />
+                          </labels>
+                          <control id="LifecycleMix" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_servicerequest</TargetEntityType>
+                              <ChartGridMode>Chart</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{ec3dd74d-b654-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <VisualizationId>{0e41bfc2-e554-f111-bec7-000d3a3aca8f}</VisualizationId>
+                              <IsUserChart>false</IsUserChart>
+                              <EnableChartPicker>false</EnableChartPicker>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                      </row>
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                    </rows>
+                  </section>
+                  <section showlabel="true" showbar="false" columns="11" id="{8e468304-8552-37e7-0212-55926bd58eb6}" name="action_queues">
+                    <labels>
+                      <label description="Action queues" languagecode="1033" />
+                    </labels>
+                    <rows>
+                      <row>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{744826f2-43a4-cd15-19a9-bcfba54f6a95}" auto="false">
+                          <labels>
+                            <label description="Coordinator queue" languagecode="1033" />
+                          </labels>
+                          <control id="CoordinatorQueue" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_servicerequest</TargetEntityType>
+                              <ChartGridMode>Grid</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{ec3dd74d-b654-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{aaf7cfd1-49f8-e0a6-02a1-596a1a288a27}" auto="false">
+                          <labels>
+                            <label description="Critical documentation queue" languagecode="1033" />
+                          </labels>
+                          <control id="CriticalDocs" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_servicerequest</TargetEntityType>
+                              <ChartGridMode>Grid</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{6c4ef04c-ce54-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                      </row>
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                    </rows>
+                  </section>
+                </sections>
+              </column>
+            </columns>
+          </tab>
+        </tabs>
+      </form>
+    </forms>
+  </FormXml>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsTabletEnabled>1</IsTabletEnabled>
+</Dashboard>

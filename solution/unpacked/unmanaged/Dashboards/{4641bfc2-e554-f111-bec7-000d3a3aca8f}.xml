@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <LocalizedNames>
+    <LocalizedName description="ESI - Integration Monitoring Dashboard" languagecode="1033" />
+  </LocalizedNames>
+  <Descriptions>
+    <Description description="ERP sync and automation support dashboard." languagecode="1033" />
+  </Descriptions>
+  <FormId>{4641bfc2-e554-f111-bec7-000d3a3aca8f}</FormId>
+  <IsCustomizable>1</IsCustomizable>
+  <IsDefault>0</IsDefault>
+  <FormXml>
+    <forms type="dashboard">
+      <form>
+        <tabs>
+          <tab showlabel="true" verticallayout="true" id="{17b91eda-71b3-d4ad-ea4c-90a8ea08a9cf}" name="esi_integration_monitoring_dashboard" locklevel="0" expanded="true">
+            <labels>
+              <label description="ESI - Integration Monitoring Dashboard" languagecode="1033" />
+            </labels>
+            <columns>
+              <column width="100%">
+                <sections>
+                  <section showlabel="true" showbar="false" columns="111" id="{7e1a92dd-d0cb-0ca5-a423-d1132a4c26ab}" name="visual_filters">
+                    <labels>
+                      <label description="Visual filters" languagecode="1033" />
+                    </labels>
+                    <rows>
+                      <row>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{038a298b-c237-fc5c-5e0f-6f245f4b7716}" auto="false">
+                          <labels>
+                            <label description="ERP sync status" languagecode="1033" />
+                          </labels>
+                          <control id="SyncStatus" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_servicerequest</TargetEntityType>
+                              <ChartGridMode>Chart</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{6e4ef04c-ce54-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <VisualizationId>{1841bfc2-e554-f111-bec7-000d3a3aca8f}</VisualizationId>
+                              <IsUserChart>false</IsUserChart>
+                              <EnableChartPicker>false</EnableChartPicker>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{f046d11e-6526-1a4c-ec58-a172aaba7c55}" auto="false">
+                          <labels>
+                            <label description="Sync attempts by day" languagecode="1033" />
+                          </labels>
+                          <control id="SyncTrend" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_externalsynclog</TargetEntityType>
+                              <ChartGridMode>Chart</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{f03dd74d-b654-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <VisualizationId>{1b41bfc2-e554-f111-bec7-000d3a3aca8f}</VisualizationId>
+                              <IsUserChart>false</IsUserChart>
+                              <EnableChartPicker>false</EnableChartPicker>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{228f1ce5-ba97-e417-f147-9fd8c4a18b65}" auto="false">
+                          <labels>
+                            <label description="Errors by source" languagecode="1033" />
+                          </labels>
+                          <control id="ErrorsBySource" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_errorlog</TargetEntityType>
+                              <ChartGridMode>Chart</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{ee3dd74d-b654-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <VisualizationId>{1e41bfc2-e554-f111-bec7-000d3a3aca8f}</VisualizationId>
+                              <IsUserChart>false</IsUserChart>
+                              <EnableChartPicker>false</EnableChartPicker>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                      </row>
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                    </rows>
+                  </section>
+                  <section showlabel="true" showbar="false" columns="11" id="{20497ac0-c2b5-7299-92c7-a8ae6fd05a31}" name="action_queues">
+                    <labels>
+                      <label description="Action queues" languagecode="1033" />
+                    </labels>
+                    <rows>
+                      <row>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{486f685c-bcd9-c800-df8d-b53ffe771fdb}" auto="false">
+                          <labels>
+                            <label description="Recent sync attempts" languagecode="1033" />
+                          </labels>
+                          <control id="SyncAttempts" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_externalsynclog</TargetEntityType>
+                              <ChartGridMode>Grid</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{f03dd74d-b654-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                        <cell colspan="1" rowspan="10" showlabel="false" id="{0d49b7a1-b9b4-a7d1-2464-feaf7d285503}" auto="false">
+                          <labels>
+                            <label description="Open automation errors" languagecode="1033" />
+                          </labels>
+                          <control id="OpenErrors" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
+                            <parameters>
+                              <TargetEntityType>hx_errorlog</TargetEntityType>
+                              <ChartGridMode>Grid</ChartGridMode>
+                              <EnableQuickFind>false</EnableQuickFind>
+                              <EnableViewPicker>true</EnableViewPicker>
+                              <EnableJumpBar>true</EnableJumpBar>
+                              <RecordsPerPage>8</RecordsPerPage>
+                              <ViewId>{ee3dd74d-b654-f111-bec7-000d3a3aca8f}</ViewId>
+                              <IsUserView>false</IsUserView>
+                              <ViewIds></ViewIds>
+                              <AutoExpand>Fixed</AutoExpand>
+                              <RelationshipName></RelationshipName>
+                            </parameters>
+                          </control>
+                        </cell>
+                      </row>
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                      <row />
+                    </rows>
+                  </section>
+                </sections>
+              </column>
+            </columns>
+          </tab>
+        </tabs>
+      </form>
+    </forms>
+  </FormXml>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsTabletEnabled>1</IsTabletEnabled>
+</Dashboard>
