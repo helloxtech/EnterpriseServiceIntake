@@ -59,9 +59,9 @@ body {
   display: block;
   flex: 0 0 auto;
   height: auto;
-  max-height: 58px;
+  max-height: 50px;
   object-fit: contain;
-  width: min(280px, 54vw);
+  width: min(240px, 50vw);
 }
 
 .esi-site-title {
@@ -94,12 +94,14 @@ body {
 }
 
 .esi-hero h1 {
-  color: var(--esi-ink);
-  font-size: 44px;
-  font-weight: 800;
+  color: var(--esi-blue-dark);
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 40px;
+  font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.08;
+  line-height: 1.14;
   margin: 0 0 14px;
+  text-wrap: balance;
 }
 
 .esi-hero p {
@@ -754,7 +756,7 @@ body {
   }
 
   .esi-hero h1 {
-    font-size: 34px;
+    font-size: 31px;
   }
 
   .esi-shell {
@@ -802,7 +804,7 @@ body {
   }
 
   .esi-site-logo {
-    max-height: 44px;
-    width: min(220px, 60vw);
+    max-height: 38px;
+    width: min(190px, 58vw);
   }
 }

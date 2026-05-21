@@ -164,9 +164,9 @@ a.homelink:focus {
 .esi-site-logo {
   display: block;
   height: auto;
-  max-height: 58px;
+  max-height: 50px;
   object-fit: contain;
-  width: min(280px, 54vw);
+  width: min(240px, 50vw);
 }
 
 .esi-site-title {
@@ -191,8 +191,8 @@ a.homelink:focus {
 
 @media (max-width: 640px) {
   .esi-site-logo {
-    max-height: 44px;
-    width: min(220px, 60vw);
+    max-height: 38px;
+    width: min(190px, 58vw);
   }
 }
 
