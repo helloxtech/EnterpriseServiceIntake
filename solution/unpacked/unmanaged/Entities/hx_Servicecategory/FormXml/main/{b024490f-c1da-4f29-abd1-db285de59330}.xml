@@ -46,7 +46,7 @@
                     <row>
                       <cell id="{ee5b0760-2924-ec99-9109-aa2afdc3a503}" showlabel="true">
                         <labels>
-                          <label description="Default Documentation Required" languagecode="1033" />
+                          <label description="Docs Required" languagecode="1033" />
                         </labels>
                         <control id="hx_defaultdocumentationrequired" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_defaultdocumentationrequired" />
                       </cell>
@@ -83,7 +83,7 @@
             </cell>
             <cell id="{ee5b0760-2924-ec99-9109-aa2afdc3a503}" showlabel="true">
               <labels>
-                <label description="Default Documentation Required" languagecode="1033" />
+                <label description="Docs Required" languagecode="1033" />
               </labels>
               <control id="hx_defaultdocumentationrequired" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_defaultdocumentationrequired" />
             </cell>

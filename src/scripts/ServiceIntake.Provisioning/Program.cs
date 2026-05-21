@@ -1399,10 +1399,6 @@ static string BuildMainFormXml(
 
     builder.AppendLine("      </sections></column></columns>");
     builder.AppendLine("    </tab>");
-    if (string.Equals(entityLogicalName, "hx_servicerequest", StringComparison.Ordinal))
-    {
-        AppendSharePointDocumentsTab(builder, entityLogicalName);
-    }
     builder.AppendLine("  </tabs>");
     var headerColumns = new string('1', Math.Max(1, headerFields.Count));
     builder.AppendLine($"  <header id=\"{{{DeterministicGuid($"{entityLogicalName}:header")}}}\" celllabelposition=\"Top\" columns=\"{headerColumns}\" labelwidth=\"115\" celllabelalignment=\"Left\">");
@@ -1419,42 +1415,6 @@ static string BuildMainFormXml(
     builder.AppendLine("</form>");
     _ = formId;
     return builder.ToString();
-}
-
-static void AppendSharePointDocumentsTab(StringBuilder builder, string entityLogicalName)
-{
-    const string sharePointDocumentViewId = "820684b1-8d57-df11-a5a2-00155d2a9005";
-
-    builder.AppendLine($"    <tab verticallayout=\"true\" id=\"{{{DeterministicGuid($"{entityLogicalName}:documents-tab")}}}\" name=\"tab_documents\" IsUserDefined=\"1\" showlabel=\"true\">");
-    builder.AppendLine("      <labels><label description=\"Documents\" languagecode=\"1033\" /></labels>");
-    builder.AppendLine("      <columns><column width=\"100%\"><sections>");
-    builder.AppendLine($"        <section id=\"{{{DeterministicGuid($"{entityLogicalName}:sharepoint-documents-section")}}}\" name=\"sharepoint_documents\" IsUserDefined=\"1\" showlabel=\"true\" showbar=\"false\" layout=\"varwidth\" columns=\"1\" labelwidth=\"160\">");
-    builder.AppendLine("          <labels><label description=\"SharePoint Documents\" languagecode=\"1033\" /></labels>");
-    builder.AppendLine("          <rows>");
-    builder.AppendLine("            <row>");
-    builder.AppendLine($"              <cell id=\"{{{DeterministicGuid($"{entityLogicalName}:sharepoint-documents-cell")}}}\" showlabel=\"false\" rowspan=\"8\" colspan=\"1\" auto=\"false\">");
-    builder.AppendLine("                <labels><label description=\"SharePoint Documents\" languagecode=\"1033\" /></labels>");
-    builder.AppendLine("                <control id=\"SharePointDocuments\" classid=\"{E7A81278-8635-4d9e-8D4D-59480B391C5B}\">");
-    builder.AppendLine("                  <parameters>");
-    builder.AppendLine("                    <TargetEntityType>sharepointdocumentlocation</TargetEntityType>");
-    builder.AppendLine("                    <ChartGridMode>Grid</ChartGridMode>");
-    builder.AppendLine("                    <EnableQuickFind>false</EnableQuickFind>");
-    builder.AppendLine("                    <EnableViewPicker>false</EnableViewPicker>");
-    builder.AppendLine("                    <EnableJumpBar>false</EnableJumpBar>");
-    builder.AppendLine("                    <RecordsPerPage>10</RecordsPerPage>");
-    builder.AppendLine($"                    <ViewId>{{{sharePointDocumentViewId}}}</ViewId>");
-    builder.AppendLine("                    <IsUserView>false</IsUserView>");
-    builder.AppendLine($"                    <ViewIds>{{{sharePointDocumentViewId}}}</ViewIds>");
-    builder.AppendLine("                    <AutoExpand>Fixed</AutoExpand>");
-    builder.AppendLine("                    <RelationshipName>hx_servicerequest_SharePointDocumentLocations</RelationshipName>");
-    builder.AppendLine("                  </parameters>");
-    builder.AppendLine("                </control>");
-    builder.AppendLine("              </cell>");
-    builder.AppendLine("            </row>");
-    builder.AppendLine("          </rows>");
-    builder.AppendLine("        </section>");
-    builder.AppendLine("      </sections></column></columns>");
-    builder.AppendLine("    </tab>");
 }
 
 static void AppendCell(

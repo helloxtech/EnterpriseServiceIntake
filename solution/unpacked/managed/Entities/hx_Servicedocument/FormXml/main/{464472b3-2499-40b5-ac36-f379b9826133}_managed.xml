@@ -38,7 +38,7 @@
                     <row>
                       <cell id="{12b31eca-d629-471e-c6eb-baf1be873d77}" showlabel="true">
                         <labels>
-                          <label description="Document Type" languagecode="1033" />
+                          <label description="Type" languagecode="1033" />
                         </labels>
                         <control id="hx_documenttype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_documenttype" />
                       </cell>
@@ -94,7 +94,7 @@
           <row>
             <cell id="{12b31eca-d629-471e-c6eb-baf1be873d77}" showlabel="true">
               <labels>
-                <label description="Document Type" languagecode="1033" />
+                <label description="Type" languagecode="1033" />
               </labels>
               <control id="hx_documenttype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_documenttype" />
             </cell>

@@ -30,7 +30,7 @@
                     <row>
                       <cell id="{c56b4979-ab69-02c1-a0c6-79ebf6fa8609}" showlabel="true">
                         <labels>
-                          <label description="Source Component" languagecode="1033" />
+                          <label description="Source" languagecode="1033" />
                         </labels>
                         <control id="hx_sourcecomponent" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_sourcecomponent" />
                       </cell>
@@ -110,7 +110,7 @@
           <row>
             <cell id="{c56b4979-ab69-02c1-a0c6-79ebf6fa8609}" showlabel="true">
               <labels>
-                <label description="Source Component" languagecode="1033" />
+                <label description="Source" languagecode="1033" />
               </labels>
               <control id="hx_sourcecomponent" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_sourcecomponent" />
             </cell>
