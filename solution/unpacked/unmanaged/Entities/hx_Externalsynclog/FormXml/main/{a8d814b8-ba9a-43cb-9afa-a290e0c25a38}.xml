@@ -38,7 +38,7 @@
                     <row>
                       <cell id="{8bb46063-33f8-cf6c-c75b-fb4fa1191a76}" showlabel="true">
                         <labels>
-                          <label description="Status" languagecode="1033" />
+                          <label description="Sync Status" languagecode="1033" />
                         </labels>
                         <control id="hx_syncstatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_syncstatus" />
                       </cell>
@@ -62,7 +62,7 @@
                     <row>
                       <cell id="{12e98d31-e23c-fe8f-2b5f-60f3aa538eeb}" showlabel="true">
                         <labels>
-                          <label description="Attempted" languagecode="1033" />
+                          <label description="Attempted On" languagecode="1033" />
                         </labels>
                         <control id="hx_attemptedon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_attemptedon" />
                       </cell>
@@ -102,13 +102,13 @@
           <row>
             <cell id="{8bb46063-33f8-cf6c-c75b-fb4fa1191a76}" showlabel="true">
               <labels>
-                <label description="Status" languagecode="1033" />
+                <label description="Sync Status" languagecode="1033" />
               </labels>
               <control id="hx_syncstatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_syncstatus" />
             </cell>
             <cell id="{12e98d31-e23c-fe8f-2b5f-60f3aa538eeb}" showlabel="true">
               <labels>
-                <label description="Attempted" languagecode="1033" />
+                <label description="Attempted On" languagecode="1033" />
               </labels>
               <control id="hx_attemptedon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_attemptedon" />
             </cell>

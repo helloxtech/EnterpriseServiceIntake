@@ -121,8 +121,8 @@ Use the seeded critical request or run the provisioning smoke test.
 
 Expected behavior:
 
-- Setting a critical request to Resolved/Closed without internal resolution notes and documentation flag is blocked.
-- Adding internal resolution notes and setting documentation provided allows closure.
+- Setting a critical request to Resolved/Closed without internal resolution notes and accepted resolution evidence is blocked.
+- Adding internal resolution notes plus an accepted `Service Request Evidence Review` row with a SharePoint file URL allows closure.
 
 Command evidence:
 
@@ -146,7 +146,7 @@ Show:
 | Question | Answer |
 | --- | --- |
 | Why a plugin for routing instead of Flow? | Routing affects transactional Service Request creation and must apply equally from portal, model app, import, API, or automation. A PreOperation plugin keeps it centralized and non-bypassable. |
-| Why a plugin for closure guardrail? | The requirement explicitly says agents cannot bypass documentation requirements. A server-side PreOperation plugin is the strongest Dataverse enforcement point. |
+| Why a plugin for closure guardrail? | The requirement explicitly says agents cannot bypass documentation requirements. A server-side PreOperation plugin is the strongest Dataverse enforcement point, and it checks accepted evidence rows instead of trusting a user-editable checkbox. |
 | Why Flow for approvals and ERP sync? | It has native approval records, connector run history, retries, connection references, and a clear Try/Catch pattern for integration work. |
 | Why Flow for confirmation email? | Email delivery is asynchronous and should not block Service Request creation; Flow gives run history, Outlook delivery evidence, and centralized error logging. |
 | Why upload after submit instead of before submit? | SharePoint document management needs a saved Dataverse record to associate files with the correct folder, so the portal creates the request first and then opens the document upload page with the request ID. |

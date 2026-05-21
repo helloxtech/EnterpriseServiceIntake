@@ -84,8 +84,8 @@ adx_entitypermission:
   IsDeleted: false
 - RecordId: dfd59887-b948-4fe6-b3a7-6a017dfa6f1c
   DisplayName: Service Document - Create - Global
-  CheckSum: fb6c9e4485c516dbe4ae2f3f4bb86a1ac4c7f994dea4f1c71860f82b06175292
-  IsDeleted: false
+  CheckSum:
+  IsDeleted: true
 - RecordId: fc0577d9-d754-f111-bec7-000d3a3aca8f
   DisplayName: Document Location - Upload - Service Request Parent
   CheckSum: 6af3514bfb3e78cdbfa4c94bf8dcac82b2e8b38861f5d480022eba5cd7adebf0
@@ -121,8 +121,8 @@ adx_entitypermission_webrole:
   IsDeleted: false
 - RecordId: 074793e4-f9a3-4031-b22a-fae4fdd37b05
   DisplayName: $RELATIONSHIP$adx_entitypermission:dfd59887-b948-4fe6-b3a7-6a017dfa6f1c:adx_webrole
-  CheckSum: 70afc1618bab295a6c3d6d189e9b2375fd15444aa174e10f2d215ad9db52a27a
-  IsDeleted: false
+  CheckSum:
+  IsDeleted: true
 adx_pagetemplate:
 - RecordId: 20e96a20-10fe-44b8-84b2-586abc89757e
   DisplayName: Access Denied
@@ -338,8 +338,8 @@ adx_sitesetting:
   IsDeleted: false
 - RecordId: 99a3061a-ea4e-4529-87ee-7cb39be211e8
   DisplayName: Webapi/hx_servicedocument/enabled
-  CheckSum: c72ceff798f53c85b14665a1a88184eb4b1288974eb86fe3c62728e02acb74eb
-  IsDeleted: false
+  CheckSum:
+  IsDeleted: true
 - RecordId: 9aabaac5-eefd-4ba3-9725-ebbc80ad747e
   DisplayName: Authentication/OpenAuth/Facebook/AppId
   CheckSum: c365bbe6fbfe0d2499d87cbd51bc18270afd24309cb4d93c72696652135593c7
@@ -382,8 +382,8 @@ adx_sitesetting:
   IsDeleted: false
 - RecordId: b8e8f467-656c-43f6-be61-d86f560fcd37
   DisplayName: Webapi/hx_servicedocument/fields
-  CheckSum: 0b3a266ded2876a428cfd3ed543c40396592a7be8536002f538c464f5ef1b0d6
-  IsDeleted: false
+  CheckSum:
+  IsDeleted: true
 - RecordId: bd2b3b95-e8c9-4b8e-b346-517b0d7def70
   DisplayName: Authentication/Registration/TermsPublicationDate
   CheckSum: 1ea65b24879213817426281da5fd1a4f0d9f428e05e4e2db5ce86606c6b3d4e2
@@ -498,7 +498,7 @@ adx_webpage:
   IsDeleted: false
 - RecordId: 340115d5-8ee9-4b87-b1ee-e80d8b0f2e38
   DisplayName: Home
-  CheckSum: 71de8eae958d2eee25fe0a90c021a07ca34f973361028745350a98c9c317c184
+  CheckSum: ad0c5510ee26816c513db7ed4d908ef1c70a76bde2801bdcb495e8cb5d035b68
   IsDeleted: false
 - RecordId: 6eeb5220-aafd-41e5-b201-1e317957c098
   DisplayName: Search
@@ -514,11 +514,11 @@ adx_webpage:
   IsDeleted: false
 - RecordId: c4ff3b37-d854-f111-bec7-000d3a3aca8f
   DisplayName: Request Documents
-  CheckSum: ca15453fea8f460847c4d3dc19c6bd14db0a40f566f36151ee01393afadbf1c7
+  CheckSum: 57f1c06bbfaca0d557b44e49f46e45fa985dada7e73f295ff8f8ad045472579b
   IsDeleted: false
 - RecordId: c5ff3b37-d854-f111-bec7-000d3a3aca8f
   DisplayName: Request Documents
-  CheckSum: 5845c0b753332558928eb3bff306db39ce6a9764283718faa7d86d0b0e9e60a2
+  CheckSum: f7d015d45edc1f731b4b7e2c31897afa30c959d42019d211c5cfcf37e423fb28
   IsDeleted: false
 - RecordId: ddcd0442-8554-481b-a299-3b684bd3d811
   DisplayName: Profile
@@ -640,27 +640,55 @@ annotation:
 - RecordId: 503da809-d654-f111-bec7-000d3a3aca8f
   DisplayName: theme.css
   CheckSum: 39f758aa8712c173d290f6bfabe4a72c22bc8dc28c5b4cf50bfe5a31d98da38c
-  IsDeleted: false
+  IsDeleted: true
 - RecordId: 513da809-d654-f111-bec7-000d3a3aca8f
   DisplayName: Logo_Mitacs-scaled.webp
   CheckSum: 1371c7accb67b35c544853b1692368529553e23b5e82a3c6884f79b0d2e98616
-  IsDeleted: false
+  IsDeleted: true
 - RecordId: 523da809-d654-f111-bec7-000d3a3aca8f
   DisplayName: Logo-sm-64.png
   CheckSum: d378b44f5756c733f256ce8a3dcdd60b056b28b80c6933214500b49ae6ad5bba
+  IsDeleted: true
+- RecordId: 8abb9538-e454-f111-bec7-000d3a3aca8f
+  DisplayName: Cat-PC.png
+  CheckSum: 1943a8f8f5d0846022aaac4d53ebf1eac8951ce1f146baaf9640f7990a86a9b8
+  IsDeleted: false
+- RecordId: 8bbb9538-e454-f111-bec7-000d3a3aca8f
+  DisplayName: theme.css
+  CheckSum: cba1ce8dc36e160c300ae23c0fe54bc53c688dcb6f1664f9af93909f5d0a097d
+  IsDeleted: false
+- RecordId: 8cbb9538-e454-f111-bec7-000d3a3aca8f
+  DisplayName: Logo_Mitacs-scaled.webp
+  CheckSum: e2d2b767c0c343ff86b38aef3ce78f4db0aebc1934d9f638910c2e1182266e6e
+  IsDeleted: false
+- RecordId: 8dbb9538-e454-f111-bec7-000d3a3aca8f
+  DisplayName: robots.txt
+  CheckSum: c9fb5442b3897734bdc69bf5c8f486b7e88d78ab777eec01a3dc9c5eb000888d
+  IsDeleted: false
+- RecordId: 8ebb9538-e454-f111-bec7-000d3a3aca8f
+  DisplayName: portalbasictheme.css
+  CheckSum: f78c5f59499e834b2d5966b2fd421c6412ac1cc98435f960afdd6c6d7bbb5e8f
+  IsDeleted: false
+- RecordId: 8fbb9538-e454-f111-bec7-000d3a3aca8f
+  DisplayName: bootstrap.min.css
+  CheckSum: a4a4600720fab86c01064abedae7d7dc0d471526da9120739e85c7b3d4bac4f2
+  IsDeleted: false
+- RecordId: 90bb9538-e454-f111-bec7-000d3a3aca8f
+  DisplayName: Logo-sm-64.png
+  CheckSum: f829b3ad163e2c35307f12d3a899cf3f4df8209ba1ffc0ecdafaa5f1a2cb62ce
   IsDeleted: false
 - RecordId: d8a7da83-d554-f111-bec7-000d3a3aca8f
   DisplayName: robots.txt
   CheckSum: 82477b9607f2c96b526cb9d7a9df701d9e78b4ac0907a87a633e83d4e03718dd
-  IsDeleted: false
+  IsDeleted: true
 - RecordId: d9a7da83-d554-f111-bec7-000d3a3aca8f
   DisplayName: Cat-PC.png
   CheckSum: 85e658adc5c34305511d801cc442bd633b9668424dd222f70636c5f29c180ab4
-  IsDeleted: false
+  IsDeleted: true
 - RecordId: daa7da83-d554-f111-bec7-000d3a3aca8f
   DisplayName: portalbasictheme.css
   CheckSum: fa8626b6ae89453ba4020288e6f0e4c61612e3194924adc6e7b87c2d46ff3fd2
-  IsDeleted: false
+  IsDeleted: true
 - RecordId: dafd3f97-b354-f111-bec7-000d3a3aca8f
   DisplayName: Cat-PC.png
   CheckSum: fd3fa1ab4196263631688b497f1d8d66b93e5b8c56c86522b99d91c65b1ad7bf
@@ -680,7 +708,7 @@ annotation:
 - RecordId: dea7da83-d554-f111-bec7-000d3a3aca8f
   DisplayName: bootstrap.min.css
   CheckSum: c8a6ac75921a0c4a849d35643a80604cea2df6f868f8acc80a12efa4b7b8181b
-  IsDeleted: false
+  IsDeleted: true
 - RecordId: dffd3f97-b354-f111-bec7-000d3a3aca8f
   DisplayName: robots.txt
   CheckSum: 0205c6030c59914f1f2db637b5b8ece7ccc67479740bf672916c61ef8e41d000

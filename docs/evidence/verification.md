@@ -51,9 +51,10 @@
 | Upload page diagnostics | Request Documents page now shows a visible ready/warning/error status for the SharePoint document grid instead of failing silently. |
 | SharePoint upload smoke test | `Portal smoke file upload 2026-05-21T07-24-18-212Z` created confirmation `SR-20260521-001025`; `esi-upload-smoke.txt` uploaded through the document grid and appeared on the page. |
 | SharePoint document location | Dataverse returned `sharepointdocumentlocationid` `4c2b05a7-e654-f111-89e7-0022488fbd9b` for request `df11b114-e654-f111-bec7-000d3a3aca8f`. |
-| Model-driven documents | SharePoint uploads use the out-of-box Service Request Documents associated tab for the file list; the custom `Service Request Document` table is kept only for internal review metadata/closure evidence. |
+| Model-driven documents | SharePoint uploads use the out-of-box Service Request Documents associated tab for the file list; `Service Request Evidence Review` stores accepted/rejected review metadata and SharePoint file links for official evidence. |
+| Portal evidence-review security | Power Pages live source no longer exposes `hx_servicedocument` through Web API settings or a global create table permission; Evidence Review is internal-only. |
 | Plugin routing | Critical funding request routed to Finance with 4 hour SLA. |
-| Closure guard | Smoke test blocked undocumented critical closure and allowed documented closure. |
+| Closure guard | Smoke test blocked undocumented critical closure and allowed closure only after an accepted resolution evidence-review row with a SharePoint file URL was created. |
 | Model-driven app | Coordinator queue and Service Request form open in the app. |
 | Approval/ERP flow | Active, solution-aware, includes approval, HTTP sync to HelloX mock ERP, sync log, reject branch, and catch error-log scope. |
 | Confirmation email flow | Active, solution-aware, sends generated confirmation number to applicant and logs missing/failed email cases to System Error Logs. |

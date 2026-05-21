@@ -90,6 +90,7 @@
       <RootComponent type="1" schemaName="hx_servicedocument" behavior="0" />
       <RootComponent type="1" schemaName="hx_servicerequest" behavior="0" />
       <RootComponent type="1" schemaName="hx_slapolicy" behavior="0" />
+      <RootComponent type="1" schemaName="systemuser" behavior="1" />
       <RootComponent type="29" id="{ab021e8c-bb54-f111-bec7-000d3a3acaff}" behavior="0" />
       <RootComponent type="29" id="{c97dbafe-d854-f111-bec7-000d3a3aca8f}" behavior="0" />
       <RootComponent type="60" id="{2141bfc2-e554-f111-bec7-000d3a3aca8f}" behavior="0" />

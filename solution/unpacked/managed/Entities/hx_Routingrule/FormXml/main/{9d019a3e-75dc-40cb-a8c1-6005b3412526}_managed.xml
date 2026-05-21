@@ -30,7 +30,7 @@
                     <row>
                       <cell id="{d6759e7d-f71c-d40c-89ca-72a9ceae925d}" showlabel="true">
                         <labels>
-                          <label description="Sort" languagecode="1033" />
+                          <label description="Sort Order" languagecode="1033" />
                         </labels>
                         <control id="hx_sortorder" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_sortorder" />
                       </cell>
@@ -100,7 +100,7 @@
                     <row>
                       <cell id="{a4ee7c0c-aba9-cd54-e76d-b8f861e8ee4b}" showlabel="true">
                         <labels>
-                          <label description="Approval" languagecode="1033" />
+                          <label description="Requires Manager Approval" languagecode="1033" />
                         </labels>
                         <control id="hx_requiresapproval" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_requiresapproval" />
                       </cell>
@@ -125,7 +125,7 @@
           <row>
             <cell id="{d6759e7d-f71c-d40c-89ca-72a9ceae925d}" showlabel="true">
               <labels>
-                <label description="Sort" languagecode="1033" />
+                <label description="Sort Order" languagecode="1033" />
               </labels>
               <control id="hx_sortorder" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_sortorder" />
             </cell>
@@ -137,7 +137,7 @@
             </cell>
             <cell id="{a4ee7c0c-aba9-cd54-e76d-b8f861e8ee4b}" showlabel="true">
               <labels>
-                <label description="Approval" languagecode="1033" />
+                <label description="Requires Manager Approval" languagecode="1033" />
               </labels>
               <control id="hx_requiresapproval" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_requiresapproval" />
             </cell>

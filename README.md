@@ -67,7 +67,7 @@ erDiagram
     HX_SERVICECATEGORY ||--o{ HX_SERVICEREQUEST : classifies
     HX_DEPARTMENT ||--o{ HX_SERVICEREQUEST : assigned_department
     HX_SLAPOLICY ||--o{ HX_SERVICEREQUEST : applied_sla
-    HX_SERVICEREQUEST ||--o{ HX_SERVICEDOCUMENT : has
+    HX_SERVICEREQUEST ||--o{ HX_SERVICEDOCUMENT : evidence_reviews
     HX_SERVICEREQUEST ||--o{ HX_EXTERNALSYNCLOG : records_sync
     HX_SERVICEREQUEST ||--o{ HX_ERRORLOG : records_error
 
@@ -104,6 +104,17 @@ erDiagram
         memo hx_technicaldetail
         bool hx_resolved
     }
+
+    HX_SERVICEDOCUMENT {
+        string hx_name
+        choice hx_documenttype
+        choice hx_reviewstatus
+        string hx_filename
+        string hx_sharepointfileurl
+        string hx_sharepointdocumentid
+        bool hx_verified
+        datetime hx_verifiedon
+    }
 ```
 
 ## Key Design Choices
@@ -112,8 +123,8 @@ erDiagram
 | --- | --- | --- |
 | Dynamic routing/SLA | Dataverse routing rules evaluated by `ServiceRequestRoutingPlugin` on create/update. | Routing must be transactional and consistent for portal, app, and automation creates. |
 | Confirmation number | Dataverse autonumber `SR-{yyyyMMdd}-{SEQNUM}` on Service Request. | Server-generated and tamper-resistant. |
-| Critical close guardrail | PreOperation C# plugin blocks resolved/closed critical requests without resolution notes and documentation flag. | A plugin is the right layer because agents cannot bypass it from forms, imports, flows, or API calls. |
-| Supporting documents | After request creation, the portal sends the applicant to a secure SharePoint upload page backed by Power Pages Basic Form/document management. Uploaded files are stored against the request's native document location and are viewed from the out-of-box model-driven Documents associated tab. `Service Request Document` remains available only for internal review metadata, such as document type, verification, and closure evidence. | The applicant must have a saved request ID before SharePoint can associate files to the correct Dataverse record; this keeps the custom intake fast while using the supported document-management path for files and Dataverse for request, routing, approval, and review state. |
+| Critical close guardrail | PreOperation C# plugin blocks resolved/closed critical requests unless internal resolution notes exist and an accepted `Service Request Evidence Review` row references a SharePoint file. | A plugin is the right layer because agents cannot bypass it from forms, imports, flows, or API calls. The guardrail does not rely on a user-editable documentation checkbox. |
+| Supporting documents | After request creation, the portal sends the applicant to a secure SharePoint upload page backed by Power Pages Basic Form/document management. Uploaded files are stored against the request's native document location and are viewed from the out-of-box model-driven Documents associated tab. `Service Request Evidence Review` stores Dataverse-owned review metadata and file links only for documents that become official evidence. | The applicant must have a saved request ID before SharePoint can associate files to the correct Dataverse record; this keeps the custom intake fast while using the supported document-management path for files and Dataverse for request, routing, approval, and review state. |
 | Approval + ERP sync | Cloud flow `ESI - Approval and ERP Sync` with Try scope, approval, HTTP POST, Dataverse writeback, sync log, reject branch, and Catch error-log scope. | Flow is appropriate for human approvals, connector-based integration, retries, and run history evidence. |
 | Applicant confirmation email | Cloud flow `ESI - Send Confirmation Email` triggers on Service Request create, sends the generated confirmation number to the applicant, and logs email failures to System Error Logs. | Email delivery belongs in automation so failures are visible in flow history/error logs and do not block transactional request creation. |
 | Mock ERP endpoint | `https://hellox.ca/api/esi-service-requests` returns a deterministic external `id`/`externalId` from POST. | Keeps the demo self-contained on a controlled HelloX endpoint, avoids third-party API keys, and provides a deliberate failure mode for the Catch path. |
@@ -125,7 +136,7 @@ erDiagram
 The `Enterprise Service Intake` app uses solution-aware system forms and views for each included table:
 
 - Request operations: `Coordinator Queue`, `Pending Manager Approval`, `Critical Documentation Guardrails`, and `ERP Sync Monitor`.
-- Supporting documentation: Service Request files use the out-of-box Documents associated tab for SharePoint uploads, plus `Request Documents - Review` and redesigned default Active, Associated, and Lookup views for optional review metadata.
+- Supporting documentation: Service Request files use the out-of-box Documents associated tab for SharePoint uploads, plus `Service Request Evidence Reviews` and redesigned default Active, Associated, and Lookup views for accepted/rejected evidence metadata.
 - Configuration: `Active Routing Rules`, `Active Departments`, `Active SLA Policies`, and `Active Service Categories`; routing rule default Active, Associated, and Lookup views use the same operational columns.
 - Monitoring: `ERP Sync Attempts`, `Open Integration and Automation Errors`, and `All System Error Logs`; default Active, Associated, and Lookup views for sync/error logs show request, status, source, correlation, and timing fields.
 
@@ -212,7 +223,7 @@ Seed records include:
 - `Demo - Rejected research exception` -> rejected approval path.
 - `Demo - Approved funding ERP sync failure` -> failed sync path with System Error Log.
 - `Demo - Event support in progress` -> no-approval coordinator work item.
-- Service Request Documents, External Sync Logs, and System Error Logs are seeded so all model-driven tables and dashboards have demo rows.
+- Service Request Evidence Reviews, External Sync Logs, and System Error Logs are seeded so all model-driven tables and dashboards have demo rows.
 - Portal demo submissions with formatted confirmation numbers such as `SR-20260521-001004`.
 
 Routing rules include critical funding, high research support, standard technical support, standard event support, and a general fallback.
@@ -224,7 +235,7 @@ Validated locally and against the live environment:
 - Plugin build succeeds.
 - PCF build and `pac pcf push` succeed.
 - Provisioning utility builds and runs.
-- Closure guard smoke test blocks undocumented critical closure and allows documented closure.
+- Closure guard smoke test blocks undocumented critical closure and allows closure only after accepted resolution evidence is recorded.
 - Power Pages dynamic preview updates before submit.
 - Power Pages create path submits to Dataverse and routes to Finance for critical funding requests.
 - Model-driven app opens the coordinator queue and request form.

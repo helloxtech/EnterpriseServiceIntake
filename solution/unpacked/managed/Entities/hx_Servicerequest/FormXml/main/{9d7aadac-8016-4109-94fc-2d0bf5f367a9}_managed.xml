@@ -53,7 +53,7 @@
                     <row>
                       <cell id="{5a47e934-b41a-8061-a7b1-60d0a0ee916a}" showlabel="true">
                         <labels>
-                          <label description="Confirmation" languagecode="1033" />
+                          <label description="Confirmation Number" languagecode="1033" />
                         </labels>
                         <control id="hx_confirmationnumber" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_confirmationnumber" disabled="true" />
                       </cell>
@@ -139,7 +139,7 @@
                     <row>
                       <cell id="{53da007d-3aff-3ff7-6521-72662a06c040}" showlabel="true">
                         <labels>
-                          <label description="Department" languagecode="1033" />
+                          <label description="Assigned Department" languagecode="1033" />
                         </labels>
                         <control id="hx_assigneddepartment" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_assigneddepartment" disabled="true" />
                       </cell>
@@ -155,7 +155,7 @@
                     <row>
                       <cell id="{5ea83b13-5919-ac16-b290-1e677751bd13}" showlabel="true">
                         <labels>
-                          <label description="SLA Due" languagecode="1033" />
+                          <label description="SLA Due Date" languagecode="1033" />
                         </labels>
                         <control id="hx_duedate" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_duedate" disabled="true" />
                       </cell>
@@ -217,7 +217,7 @@
                     <row>
                       <cell id="{0b39e1a2-0a91-9b5a-692c-02f91937b685}" showlabel="true">
                         <labels>
-                          <label description="Lifecycle" languagecode="1033" />
+                          <label description="Lifecycle Status" languagecode="1033" />
                         </labels>
                         <control id="hx_lifecyclestatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_lifecyclestatus" />
                       </cell>
@@ -266,25 +266,25 @@
           <row>
             <cell id="{5a47e934-b41a-8061-a7b1-60d0a0ee916a}" showlabel="true">
               <labels>
-                <label description="Confirmation" languagecode="1033" />
+                <label description="Confirmation Number" languagecode="1033" />
               </labels>
               <control id="hx_confirmationnumber" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_confirmationnumber" disabled="true" />
             </cell>
             <cell id="{0b39e1a2-0a91-9b5a-692c-02f91937b685}" showlabel="true">
               <labels>
-                <label description="Lifecycle" languagecode="1033" />
+                <label description="Lifecycle Status" languagecode="1033" />
               </labels>
               <control id="hx_lifecyclestatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_lifecyclestatus" />
             </cell>
             <cell id="{53da007d-3aff-3ff7-6521-72662a06c040}" showlabel="true">
               <labels>
-                <label description="Department" languagecode="1033" />
+                <label description="Assigned Department" languagecode="1033" />
               </labels>
               <control id="hx_assigneddepartment" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_assigneddepartment" disabled="true" />
             </cell>
             <cell id="{5ea83b13-5919-ac16-b290-1e677751bd13}" showlabel="true">
               <labels>
-                <label description="SLA Due" languagecode="1033" />
+                <label description="SLA Due Date" languagecode="1033" />
               </labels>
               <control id="hx_duedate" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_duedate" disabled="true" />
             </cell>

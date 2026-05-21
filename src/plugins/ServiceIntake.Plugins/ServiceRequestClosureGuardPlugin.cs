@@ -5,7 +5,7 @@ using System;
 namespace ServiceIntake.Plugins
 {
     /// <summary>
-    /// Blocks closure of critical requests unless resolution notes and resolution documentation are present.
+    /// Blocks closure of critical requests unless resolution notes and accepted resolution evidence are present.
     /// Register synchronously on hx_servicerequest Update PreOperation with a PreImage.
     /// </summary>
     public class ServiceRequestClosureGuardPlugin : PluginBase
@@ -49,8 +49,7 @@ namespace ServiceIntake.Plugins
             }
 
             var resolutionNotes = current.GetAttributeValue<string>("hx_internalresolutionnotes");
-            var docsProvidedFlag = current.GetAttributeValue<bool?>("hx_resolutiondocumentationprovided") ?? false;
-            var hasResolutionDocument = docsProvidedFlag || HasResolutionDocument(service, target.Id);
+            var hasResolutionDocument = HasAcceptedResolutionEvidence(service, target.Id);
 
             if (string.IsNullOrWhiteSpace(resolutionNotes) || !hasResolutionDocument)
             {
@@ -65,7 +64,7 @@ namespace ServiceIntake.Plugins
                 ? context.PreEntityImages["PreImage"]
                 : service.Retrieve(target.LogicalName, target.Id,
                     new ColumnSet("hx_severity", "hx_resolutiondocumentationrequired",
-                        "hx_resolutiondocumentationprovided", "hx_internalresolutionnotes"));
+                        "hx_internalresolutionnotes"));
 
             var copy = new Entity(target.LogicalName, target.Id);
             foreach (var attribute in merged.Attributes)
@@ -81,7 +80,7 @@ namespace ServiceIntake.Plugins
             return copy;
         }
 
-        private static bool HasResolutionDocument(IOrganizationService service, Guid serviceRequestId)
+        private static bool HasAcceptedResolutionEvidence(IOrganizationService service, Guid serviceRequestId)
         {
             var query = new QueryExpression(Constants.ServiceDocument)
             {
@@ -90,6 +89,9 @@ namespace ServiceIntake.Plugins
             };
             query.Criteria.AddCondition("hx_servicerequest", ConditionOperator.Equal, serviceRequestId);
             query.Criteria.AddCondition("hx_documenttype", ConditionOperator.Equal, Constants.DocumentTypeResolution);
+            query.Criteria.AddCondition("hx_reviewstatus", ConditionOperator.Equal, Constants.EvidenceReviewAccepted);
+            query.Criteria.AddCondition("hx_verified", ConditionOperator.Equal, true);
+            query.Criteria.AddCondition("hx_sharepointfileurl", ConditionOperator.NotNull);
             return service.RetrieveMultiple(query).Entities.Count > 0;
         }
     }

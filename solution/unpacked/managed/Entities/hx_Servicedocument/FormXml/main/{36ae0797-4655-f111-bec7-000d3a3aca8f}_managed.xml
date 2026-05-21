@@ -1,28 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <systemform>
-    <formid>{464472b3-2499-40b5-ac36-f379b9826133}</formid>
+    <formid>{36ae0797-4655-f111-bec7-000d3a3aca8f}</formid>
     <IntroducedVersion>1.0.0.0</IntroducedVersion>
-    <FormPresentation>1</FormPresentation>
+    <FormPresentation>0</FormPresentation>
     <FormActivationState>1</FormActivationState>
     <form headerdensity="HighWithControls">
       <tabs>
         <tab verticallayout="true" id="{3596d45e-9c7e-ec2b-046a-e5476b9f3ec5}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
-            <label description="Summary" languagecode="1033" />
+            <label description="" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
               <sections>
-                <section id="{3dc73ac0-2403-25ed-567e-d3e9b268313a}" name="document" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                <section id="{2a729f24-8e6d-4ca1-2084-c335d1e3bbe5}" name="evidence_file" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
-                    <label description="Document" languagecode="1033" />
+                    <label description="Evidence File" languagecode="1033" />
                   </labels>
                   <rows>
                     <row>
                       <cell id="{29959a83-c1c9-0d85-283c-0a88edd33898}" showlabel="true">
                         <labels>
-                          <label description="Name" languagecode="1033" />
+                          <label description="" languagecode="1033" />
                         </labels>
                         <control id="hx_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_name" />
                       </cell>
@@ -30,7 +30,7 @@
                     <row>
                       <cell id="{f627d8bd-a2d4-d8c0-9c07-0abd090adbf9}" showlabel="true">
                         <labels>
-                          <label description="Service Request" languagecode="1033" />
+                          <label description="" languagecode="1033" />
                         </labels>
                         <control id="hx_servicerequest" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_servicerequest" />
                       </cell>
@@ -38,7 +38,7 @@
                     <row>
                       <cell id="{12b31eca-d629-471e-c6eb-baf1be873d77}" showlabel="true">
                         <labels>
-                          <label description="Type" languagecode="1033" />
+                          <label description="" languagecode="1033" />
                         </labels>
                         <control id="hx_documenttype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_documenttype" />
                       </cell>
@@ -46,30 +46,70 @@
                     <row>
                       <cell id="{b29485c5-ab1c-4a47-4ca6-0651a45fbf1a}" showlabel="true">
                         <labels>
-                          <label description="File Name" languagecode="1033" />
+                          <label description="" languagecode="1033" />
                         </labels>
                         <control id="hx_filename" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_filename" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{9751e573-66f9-10f2-7b93-b10c578bfded}" showlabel="true">
+                        <labels>
+                          <label description="SharePoint File URL" languagecode="1033" />
+                        </labels>
+                        <control id="hx_sharepointfileurl" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_sharepointfileurl" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{8957405e-2a2e-702f-8e7e-352bb34c7683}" showlabel="true">
+                        <labels>
+                          <label description="SharePoint Document ID" languagecode="1033" />
+                        </labels>
+                        <control id="hx_sharepointdocumentid" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_sharepointdocumentid" />
                       </cell>
                     </row>
                   </rows>
                 </section>
                 <section id="{72eabad8-349a-e2c5-d971-26081c28ec94}" name="review" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
-                    <label description="Review" languagecode="1033" />
+                    <label description="" languagecode="1033" />
                   </labels>
                   <rows>
                     <row>
+                      <cell id="{c46f5f39-c843-4df2-c138-6d5a4307d03c}" showlabel="true">
+                        <labels>
+                          <label description="Review" languagecode="1033" />
+                        </labels>
+                        <control id="hx_reviewstatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_reviewstatus" />
+                      </cell>
+                    </row>
+                    <row>
                       <cell id="{0edc75c4-23fa-35ff-a947-87c20c7dae08}" showlabel="true">
                         <labels>
-                          <label description="Verified" languagecode="1033" />
+                          <label description="" languagecode="1033" />
                         </labels>
                         <control id="hx_verified" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_verified" />
                       </cell>
                     </row>
                     <row>
+                      <cell id="{9f28317d-5e45-f2e8-17bc-7262aebe6e6d}" showlabel="true">
+                        <labels>
+                          <label description="Verified By" languagecode="1033" />
+                        </labels>
+                        <control id="hx_verifiedby" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_verifiedby" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{bc68259b-40d8-2afa-d0ae-2fe4364b828b}" showlabel="true">
+                        <labels>
+                          <label description="Verified On" languagecode="1033" />
+                        </labels>
+                        <control id="hx_verifiedon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_verifiedon" />
+                      </cell>
+                    </row>
+                    <row>
                       <cell id="{885ef756-d533-a09d-6d21-66495af5efef}" showlabel="true">
                         <labels>
-                          <label description="Notes" languagecode="1033" />
+                          <label description="" languagecode="1033" />
                         </labels>
                         <control id="hx_notes" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="hx_notes" />
                       </cell>
@@ -77,7 +117,7 @@
                     <row>
                       <cell id="{9a04207b-de63-393a-30bf-17125c459807}" showlabel="true">
                         <labels>
-                          <label description="Owner" languagecode="1033" />
+                          <label description="" languagecode="1033" />
                         </labels>
                         <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
                       </cell>
@@ -89,24 +129,30 @@
           </columns>
         </tab>
       </tabs>
-      <header id="{df0def8e-8020-c5e9-8b88-865393d0b5d1}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+      <header id="{df0def8e-8020-c5e9-8b88-865393d0b5d1}" celllabelposition="Top" columns="1111" labelwidth="115" celllabelalignment="Left">
         <rows>
           <row>
             <cell id="{12b31eca-d629-471e-c6eb-baf1be873d77}" showlabel="true">
               <labels>
-                <label description="Type" languagecode="1033" />
+                <label description="" languagecode="1033" />
               </labels>
               <control id="hx_documenttype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_documenttype" />
             </cell>
+            <cell id="{c46f5f39-c843-4df2-c138-6d5a4307d03c}" showlabel="true">
+              <labels>
+                <label description="Review" languagecode="1033" />
+              </labels>
+              <control id="hx_reviewstatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_reviewstatus" />
+            </cell>
             <cell id="{0edc75c4-23fa-35ff-a947-87c20c7dae08}" showlabel="true">
               <labels>
-                <label description="Verified" languagecode="1033" />
+                <label description="" languagecode="1033" />
               </labels>
               <control id="hx_verified" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_verified" />
             </cell>
             <cell id="{9a04207b-de63-393a-30bf-17125c459807}" showlabel="true">
               <labels>
-                <label description="Owner" languagecode="1033" />
+                <label description="" languagecode="1033" />
               </labels>
               <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
             </cell>
@@ -125,10 +171,7 @@
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>
     <LocalizedNames>
-      <LocalizedName description="Service Document - Review" languagecode="1033" />
+      <LocalizedName description="Evidence Review - Information" languagecode="1033" />
     </LocalizedNames>
-    <Descriptions>
-      <Description description="A form for this entity." languagecode="1033" />
-    </Descriptions>
   </systemform>
 </forms>

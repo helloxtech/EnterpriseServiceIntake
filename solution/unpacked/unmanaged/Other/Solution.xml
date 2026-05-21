@@ -90,6 +90,7 @@
       <RootComponent type="1" schemaName="hx_servicedocument" behavior="0" />
       <RootComponent type="1" schemaName="hx_servicerequest" behavior="0" />
       <RootComponent type="1" schemaName="hx_slapolicy" behavior="0" />
+      <RootComponent type="1" schemaName="systemuser" behavior="1" />
       <RootComponent type="29" id="{ab021e8c-bb54-f111-bec7-000d3a3acaff}" behavior="0" />
       <RootComponent type="29" id="{c97dbafe-d854-f111-bec7-000d3a3aca8f}" behavior="0" />
       <RootComponent type="60" id="{2141bfc2-e554-f111-bec7-000d3a3aca8f}" behavior="0" />
@@ -112,6 +113,10 @@
       <MissingDependency>
         <Required type="1" schemaName="contact" displayName="Contact" parentSchemaName="" solution="msdynce_PortalPrivacyExtensions (9.2.10.0)" />
         <Dependent type="1" schemaName="contact" displayName="Contact" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="1" schemaName="systemuser" displayName="SystemUser" parentSchemaName="" solution="msdyn_PowerAdminSettingsEmail (2.2.3377.2)" />
+        <Dependent type="1" schemaName="systemuser" displayName="SystemUser" />
       </MissingDependency>
       <MissingDependency>
         <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.16)" id.uniquename="AppChannel">

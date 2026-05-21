@@ -19,6 +19,7 @@
   <EntityRelationship Name="hx_ServicerequestHxServicedocumentHxServicerequest" />
   <EntityRelationship Name="hx_SlapolicyHxRoutingruleHxSlapolicy" />
   <EntityRelationship Name="hx_SlapolicyHxServicerequestHxAppliedslapolicy" />
+  <EntityRelationship Name="hx_SystemuserHxServicedocumentHxVerifiedby" />
   <EntityRelationship Name="lk_hx_department_createdby" />
   <EntityRelationship Name="lk_hx_department_modifiedby" />
   <EntityRelationship Name="lk_hx_errorlog_createdby" />

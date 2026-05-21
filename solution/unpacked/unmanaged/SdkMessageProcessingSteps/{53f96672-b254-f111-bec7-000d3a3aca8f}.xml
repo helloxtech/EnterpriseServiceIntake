@@ -5,7 +5,7 @@
   <PluginTypeId>46f1bb24-b254-f111-bec7-000d3a3aca8f</PluginTypeId>
   <PrimaryEntity>hx_servicerequest</PrimaryEntity>
   <AsyncAutoDelete>0</AsyncAutoDelete>
-  <FilteringAttributes>hx_lifecyclestatus,hx_internalresolutionnotes,hx_resolutiondocumentationprovided</FilteringAttributes>
+  <FilteringAttributes>hx_lifecyclestatus,hx_internalresolutionnotes</FilteringAttributes>
   <InvocationSource>1</InvocationSource>
   <Mode>0</Mode>
   <Rank>1</Rank>
@@ -17,8 +17,8 @@
   <IntroducedVersion>1.0</IntroducedVersion>
   <SdkMessageProcessingStepImages>
     <SdkMessageProcessingStepImage Name="PreImage">
-      <SdkMessageProcessingStepImageId>{8dc4f796-e654-f111-bec7-000d3a3aca8f}</SdkMessageProcessingStepImageId>
-      <Attributes>hx_severity,hx_resolutiondocumentationrequired,hx_resolutiondocumentationprovided,hx_internalresolutionnotes</Attributes>
+      <SdkMessageProcessingStepImageId>{f10873d9-4855-f111-bec7-000d3a3aca8f}</SdkMessageProcessingStepImageId>
+      <Attributes>hx_severity,hx_resolutiondocumentationrequired,hx_internalresolutionnotes</Attributes>
       <EntityAlias>PreImage</EntityAlias>
       <ImageType>0</ImageType>
       <MessagePropertyName>Target</MessagePropertyName>

@@ -1,25 +1,72 @@
+adx_entitypermission:
+- RecordId: dfd59887-b948-4fe6-b3a7-6a017dfa6f1c
+  DisplayName: Service Document - Create - Global
+  CheckSum:
+  IsDeleted: true
+adx_entitypermission_webrole:
+- RecordId: 074793e4-f9a3-4031-b22a-fae4fdd37b05
+  DisplayName: $RELATIONSHIP$adx_entitypermission:dfd59887-b948-4fe6-b3a7-6a017dfa6f1c:adx_webrole
+  CheckSum:
+  IsDeleted: true
+adx_sitesetting:
+- RecordId: 99a3061a-ea4e-4529-87ee-7cb39be211e8
+  DisplayName: Webapi/hx_servicedocument/enabled
+  CheckSum:
+  IsDeleted: true
+- RecordId: b8e8f467-656c-43f6-be61-d86f560fcd37
+  DisplayName: Webapi/hx_servicedocument/fields
+  CheckSum:
+  IsDeleted: true
 annotation:
+- RecordId: 503da809-d654-f111-bec7-000d3a3aca8f
+  DisplayName: theme.css
+  CheckSum:
+  IsDeleted: true
+- RecordId: 513da809-d654-f111-bec7-000d3a3aca8f
+  DisplayName: Logo_Mitacs-scaled.webp
+  CheckSum:
+  IsDeleted: true
+- RecordId: 523da809-d654-f111-bec7-000d3a3aca8f
+  DisplayName: Logo-sm-64.png
+  CheckSum:
+  IsDeleted: true
+- RecordId: d8a7da83-d554-f111-bec7-000d3a3aca8f
+  DisplayName: robots.txt
+  CheckSum:
+  IsDeleted: true
+- RecordId: d9a7da83-d554-f111-bec7-000d3a3aca8f
+  DisplayName: Cat-PC.png
+  CheckSum:
+  IsDeleted: true
+- RecordId: daa7da83-d554-f111-bec7-000d3a3aca8f
+  DisplayName: portalbasictheme.css
+  CheckSum:
+  IsDeleted: true
 - RecordId: dafd3f97-b354-f111-bec7-000d3a3aca8f
   DisplayName: Cat-PC.png
-  CheckSum: 
+  CheckSum:
   IsDeleted: true
 - RecordId: dbfd3f97-b354-f111-bec7-000d3a3aca8f
   DisplayName: Logo-sm-64.png
-  CheckSum: 
+  CheckSum:
   IsDeleted: true
 - RecordId: dcfd3f97-b354-f111-bec7-000d3a3aca8f
   DisplayName: portalbasictheme.css
-  CheckSum: 
+  CheckSum:
   IsDeleted: true
 - RecordId: ddfd3f97-b354-f111-bec7-000d3a3aca8f
   DisplayName: theme.css
-  CheckSum: 
+  CheckSum:
+  IsDeleted: true
+- RecordId: dea7da83-d554-f111-bec7-000d3a3aca8f
+  DisplayName: bootstrap.min.css
+  CheckSum:
   IsDeleted: true
 - RecordId: dffd3f97-b354-f111-bec7-000d3a3aca8f
   DisplayName: robots.txt
-  CheckSum: 
+  CheckSum:
   IsDeleted: true
 - RecordId: e5fd3f97-b354-f111-bec7-000d3a3aca8f
   DisplayName: bootstrap.min.css
-  CheckSum: 
+  CheckSum:
   IsDeleted: true

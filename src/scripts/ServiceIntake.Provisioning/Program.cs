@@ -55,6 +55,8 @@ if (string.Equals(Environment.GetEnvironmentVariable("ENSURE_CONFIRMATION_EMAIL_
 EnsurePublisher(service);
 EnsureSolution(service);
 EnsureMetadata(service);
+RemovePortalEvidenceReviewWriteAccess(service);
+RemoveLegacyEvidenceReviewRows(service);
 EnsureModelDrivenExperience(service);
 RegisterPlugins(service);
 Publish(service);
@@ -125,6 +127,34 @@ static Entity? FindByAttribute(IOrganizationService service, string entityName, 
     };
     query.Criteria.AddCondition(attributeName, ConditionOperator.Equal, value);
     return service.RetrieveMultiple(query).Entities.FirstOrDefault();
+}
+
+static void DeleteByAttribute(IOrganizationService service, string entityName, string attributeName, object value)
+{
+    if (!EntityExists(service, entityName))
+    {
+        Console.WriteLine($"Skipped cleanup for {entityName}; table is not available through this Dataverse API.");
+        return;
+    }
+
+    try
+    {
+        var query = new QueryExpression(entityName)
+        {
+            ColumnSet = new ColumnSet($"{entityName}id")
+        };
+        query.Criteria.AddCondition(attributeName, ConditionOperator.Equal, value);
+
+        foreach (var row in service.RetrieveMultiple(query).Entities)
+        {
+            service.Delete(entityName, row.Id);
+            Console.WriteLine($"Deleted {entityName} row where {attributeName}={value}.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Warning: skipped cleanup for {entityName}.{attributeName}={value}: {ex.Message}");
+    }
 }
 
 static bool EntityExists(IOrganizationService service, string logicalName)
@@ -217,12 +247,24 @@ static void EnsureMetadata(IOrganizationService service)
     EnsureLookup(service, "hx_servicerequest", "hx_department", "hx_assigneddepartment", "Assigned Department");
     EnsureLookup(service, "hx_servicerequest", "hx_slapolicy", "hx_appliedslapolicy", "Applied SLA Policy");
 
-    EnsureEntity(service, "hx_servicedocument", "Service Request Document", "Service Request Documents", "hx_name", "Name");
-    EnsureChoice(service, "hx_servicedocument", "hx_documenttype", "Document Type", DocumentTypeOptions());
+    EnsureEntity(service, "hx_servicedocument", "Service Request Evidence Review", "Service Request Evidence Reviews", "hx_name", "Name");
+    EnsureEntityLabels(
+        service,
+        "hx_servicedocument",
+        "Service Request Evidence Review",
+        "Service Request Evidence Reviews",
+        "Dataverse-owned review metadata for SharePoint files used as service request evidence.");
+    EnsureChoice(service, "hx_servicedocument", "hx_documenttype", "Evidence Type", DocumentTypeOptions());
+    EnsureAttributeLabel(service, "hx_servicedocument", "hx_documenttype", "Evidence Type");
+    EnsureChoice(service, "hx_servicedocument", "hx_reviewstatus", "Review Status", EvidenceReviewStatusOptions());
     EnsureString(service, "hx_servicedocument", "hx_filename", "File Name", 255);
+    EnsureUrlString(service, "hx_servicedocument", "hx_sharepointfileurl", "SharePoint File URL", 1000);
+    EnsureString(service, "hx_servicedocument", "hx_sharepointdocumentid", "SharePoint Document ID", 200);
     EnsureBoolean(service, "hx_servicedocument", "hx_verified", "Verified", false);
+    EnsureDateTime(service, "hx_servicedocument", "hx_verifiedon", "Verified On");
     EnsureMemo(service, "hx_servicedocument", "hx_notes", "Notes");
     EnsureLookup(service, "hx_servicedocument", "hx_servicerequest", "hx_servicerequest", "Service Request");
+    EnsureLookup(service, "hx_servicedocument", "systemuser", "hx_verifiedby", "Verified By");
 
     EnsureEntity(service, "hx_externalsynclog", "External Sync Log", "External Sync Logs", "hx_name", "Name");
     EnsureChoice(service, "hx_externalsynclog", "hx_syncstatus", "Sync Status", SyncStatusOptions());
@@ -261,6 +303,33 @@ static void DumpPortalMetadata(IOrganizationService service)
             Console.WriteLine(
                 $"  Lookup {relationship.ReferencingAttribute} -> {relationship.ReferencedEntity}; Schema={relationship.SchemaName}; ReferencedNav={relationship.ReferencedEntityNavigationPropertyName}; ReferencingNav={relationship.ReferencingEntityNavigationPropertyName}");
         }
+    }
+}
+
+static void RemovePortalEvidenceReviewWriteAccess(IOrganizationService service)
+{
+    // Evidence reviews are an internal Dataverse review artifact. Portal users upload files through
+    // native document management and should not create or update evidence-review rows directly.
+    DeleteByAttribute(service, "adx_sitesetting", "adx_name", "Webapi/hx_servicedocument/enabled");
+    DeleteByAttribute(service, "adx_sitesetting", "adx_name", "Webapi/hx_servicedocument/fields");
+    DeleteByAttribute(service, "adx_entitypermission", "adx_entitylogicalname", "hx_servicedocument");
+}
+
+static void RemoveLegacyEvidenceReviewRows(IOrganizationService service)
+{
+    var query = new QueryExpression("hx_servicedocument")
+    {
+        ColumnSet = new ColumnSet("hx_name")
+    };
+    query.Criteria.FilterOperator = LogicalOperator.Or;
+    query.Criteria.AddCondition("hx_reviewstatus", ConditionOperator.Null);
+    query.Criteria.AddCondition("hx_sharepointfileurl", ConditionOperator.Null);
+
+    foreach (var row in service.RetrieveMultiple(query).Entities)
+    {
+        var name = row.GetAttributeValue<string>("hx_name") ?? row.Id.ToString();
+        service.Delete("hx_servicedocument", row.Id);
+        Console.WriteLine($"Deleted legacy evidence-review row without file metadata: {name}");
     }
 }
 
@@ -304,6 +373,44 @@ static void EnsureEntity(
     Console.WriteLine($"Created table {logicalName}.");
 }
 
+static void EnsureEntityLabels(
+    IOrganizationService service,
+    string logicalName,
+    string displayName,
+    string pluralName,
+    string description)
+{
+    var response = (RetrieveEntityResponse)service.Execute(new RetrieveEntityRequest
+    {
+        LogicalName = logicalName,
+        EntityFilters = EntityFilters.Entity,
+        RetrieveAsIfPublished = true
+    });
+
+    var metadata = response.EntityMetadata;
+    var currentDisplayName = metadata.DisplayName?.UserLocalizedLabel?.Label;
+    var currentPluralName = metadata.DisplayCollectionName?.UserLocalizedLabel?.Label;
+    var currentDescription = metadata.Description?.UserLocalizedLabel?.Label;
+
+    if (string.Equals(currentDisplayName, displayName, StringComparison.Ordinal) &&
+        string.Equals(currentPluralName, pluralName, StringComparison.Ordinal) &&
+        string.Equals(currentDescription, description, StringComparison.Ordinal))
+    {
+        return;
+    }
+
+    metadata.DisplayName = Label(displayName);
+    metadata.DisplayCollectionName = Label(pluralName);
+    metadata.Description = Label(description);
+
+    service.Execute(new UpdateEntityRequest
+    {
+        Entity = metadata,
+        MergeLabels = true
+    });
+    Console.WriteLine($"Updated table labels for {logicalName}.");
+}
+
 static string ToSchema(string logicalName)
 {
     var normalized = logicalName.StartsWith($"{Prefix}_", StringComparison.Ordinal)
@@ -329,6 +436,49 @@ static void EnsureString(IOrganizationService service, string entity, string log
         }
     });
     Console.WriteLine($"Created {entity}.{logicalName}.");
+}
+
+static void EnsureUrlString(IOrganizationService service, string entity, string logicalName, string displayName, int maxLength)
+{
+    if (AttributeExists(service, entity, logicalName)) return;
+    service.Execute(new CreateAttributeRequest
+    {
+        SolutionUniqueName = SolutionUniqueName,
+        EntityName = entity,
+        Attribute = new StringAttributeMetadata
+        {
+            SchemaName = ToSchema(logicalName),
+            DisplayName = Label(displayName),
+            MaxLength = maxLength,
+            FormatName = StringFormatName.Url
+        }
+    });
+    Console.WriteLine($"Created URL column {entity}.{logicalName}.");
+}
+
+static void EnsureAttributeLabel(IOrganizationService service, string entity, string logicalName, string displayName)
+{
+    var response = (RetrieveAttributeResponse)service.Execute(new RetrieveAttributeRequest
+    {
+        EntityLogicalName = entity,
+        LogicalName = logicalName,
+        RetrieveAsIfPublished = true
+    });
+
+    var metadata = response.AttributeMetadata;
+    if (string.Equals(metadata.DisplayName?.UserLocalizedLabel?.Label, displayName, StringComparison.Ordinal))
+    {
+        return;
+    }
+
+    metadata.DisplayName = Label(displayName);
+    service.Execute(new UpdateAttributeRequest
+    {
+        EntityName = entity,
+        Attribute = metadata,
+        MergeLabels = true
+    });
+    Console.WriteLine($"Updated label for {entity}.{logicalName}.");
 }
 
 static void EnsureAutoNumber(
@@ -563,6 +713,13 @@ static IReadOnlyList<(int Value, string Label)> DocumentTypeOptions() => new[]
     (752630003, "Other")
 };
 
+static IReadOnlyList<(int Value, string Label)> EvidenceReviewStatusOptions() => new[]
+{
+    (752630000, "Pending"),
+    (752630001, "Accepted"),
+    (752630002, "Rejected")
+};
+
 static IReadOnlyList<(int Value, string Label)> ErrorSourceOptions() => new[]
 {
     (752630000, "Plugin"),
@@ -643,26 +800,32 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         service,
         "hx_servicedocument",
         "Information",
-        "Service Document - Review",
+        "Evidence Review - Information",
         new[]
         {
-            new FormSection("Document", new[]
+            new FormSection("Evidence File", new[]
             {
                 Field("hx_name", "Name", FormControlClass.Text),
                 Field("hx_servicerequest", "Service Request", FormControlClass.Lookup),
-                Field("hx_documenttype", "Document Type", FormControlClass.OptionSet),
-                Field("hx_filename", "File Name", FormControlClass.Text)
+                Field("hx_documenttype", "Evidence Type", FormControlClass.OptionSet),
+                Field("hx_filename", "File Name", FormControlClass.Text),
+                Field("hx_sharepointfileurl", "SharePoint File URL", FormControlClass.Text),
+                Field("hx_sharepointdocumentid", "SharePoint Document ID", FormControlClass.Text)
             }),
             new FormSection("Review", new[]
             {
+                Field("hx_reviewstatus", "Review Status", FormControlClass.OptionSet),
                 Field("hx_verified", "Verified", FormControlClass.Boolean),
+                Field("hx_verifiedby", "Verified By", FormControlClass.Lookup),
+                Field("hx_verifiedon", "Verified On", FormControlClass.DateTime),
                 Field("hx_notes", "Notes", FormControlClass.Memo),
                 Field("ownerid", "Owner", FormControlClass.Lookup)
             })
         },
         new[]
         {
-            Field("hx_documenttype", "Type", FormControlClass.OptionSet),
+            Field("hx_documenttype", "Evidence Type", FormControlClass.OptionSet),
+            Field("hx_reviewstatus", "Review", FormControlClass.OptionSet),
             Field("hx_verified", "Verified", FormControlClass.Boolean),
             Field("ownerid", "Owner", FormControlClass.Lookup)
         });
@@ -837,6 +1000,7 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
             Field("hx_resolved", "Resolved", FormControlClass.Boolean)
         });
 
+    DeleteObsoleteMainForms(service);
     DeleteObsoleteMainViewDuplicates(service);
 
     EnsureSystemView(
@@ -940,14 +1104,17 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
     EnsureSystemView(
         service,
         "hx_servicedocument",
-        "Request Documents - Review",
+        "Service Request Evidence Reviews",
         new[]
         {
             "hx_name",
             "hx_servicerequest",
             "hx_documenttype",
+            "hx_reviewstatus",
             "hx_filename",
+            "hx_sharepointfileurl",
             "hx_verified",
+            "hx_verifiedon",
             "createdon",
             "ownerid"
         },
@@ -958,14 +1125,17 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
     EnsureSystemView(
         service,
         "hx_servicedocument",
-        "Active Service Request Documents",
+        "Active Service Request Evidence Reviews",
         new[]
         {
             "hx_name",
             "hx_servicerequest",
             "hx_documenttype",
+            "hx_reviewstatus",
             "hx_filename",
+            "hx_sharepointfileurl",
             "hx_verified",
+            "hx_verifiedon",
             "createdon",
             "ownerid"
         },
@@ -976,14 +1146,17 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
     EnsureSystemView(
         service,
         "hx_servicedocument",
-        "Service Request Document Associated View",
+        "Service Request Evidence Review Associated View",
         new[]
         {
             "hx_name",
             "hx_servicerequest",
             "hx_documenttype",
+            "hx_reviewstatus",
             "hx_filename",
+            "hx_sharepointfileurl",
             "hx_verified",
+            "hx_verifiedon",
             "createdon",
             "ownerid"
         },
@@ -995,12 +1168,13 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
     EnsureSystemView(
         service,
         "hx_servicedocument",
-        "Service Request Document Lookup View",
+        "Service Request Evidence Review Lookup View",
         new[]
         {
             "hx_name",
             "hx_servicerequest",
             "hx_documenttype",
+            "hx_reviewstatus",
             "hx_filename",
             "createdon"
         },
@@ -1332,7 +1506,17 @@ static void EnsureMainForm(
     var form = FindMainForm(service, objectTypeCode, existingFormName) ?? FindMainForm(service, objectTypeCode, targetFormName);
     if (form == null)
     {
-        Console.WriteLine($"Skipped form configuration for {entityLogicalName}; no main form found.");
+        var createdForm = new Entity("systemform")
+        {
+            ["name"] = targetFormName,
+            ["objecttypecode"] = objectTypeCode,
+            ["type"] = new OptionSetValue(2),
+            ["formactivationstate"] = new OptionSetValue(1),
+            ["formxml"] = BuildMainFormXml(entityLogicalName, targetFormName, sections, headerFields)
+        };
+        var createdFormId = service.Create(createdForm);
+        AddToSolution(service, createdFormId, 60);
+        Console.WriteLine($"Created main form {targetFormName} for {entityLogicalName}.");
         return;
     }
 
@@ -1368,6 +1552,39 @@ static Entity? FindMainForm(IOrganizationService service, int objectTypeCode, st
     query.Criteria.AddCondition("type", ConditionOperator.Equal, 2);
     query.Criteria.AddCondition("name", ConditionOperator.Equal, name);
     return service.RetrieveMultiple(query).Entities.FirstOrDefault();
+}
+
+static void DeleteObsoleteMainForms(IOrganizationService service)
+{
+    var obsoleteForms = new (string EntityLogicalName, string FormName)[]
+    {
+        ("hx_servicedocument", "Service Document - Review")
+    };
+
+    foreach (var obsolete in obsoleteForms)
+    {
+        var objectTypeCode = GetObjectTypeCode(service, obsolete.EntityLogicalName);
+        var query = new QueryExpression("systemform")
+        {
+            ColumnSet = new ColumnSet("formid")
+        };
+        query.Criteria.AddCondition("objecttypecode", ConditionOperator.Equal, objectTypeCode);
+        query.Criteria.AddCondition("type", ConditionOperator.Equal, 2);
+        query.Criteria.AddCondition("name", ConditionOperator.Equal, obsolete.FormName);
+
+        foreach (var form in service.RetrieveMultiple(query).Entities)
+        {
+            try
+            {
+                service.Delete("systemform", form.Id);
+                Console.WriteLine($"Deleted obsolete main form: {obsolete.FormName}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Warning: skipped deleting form {obsolete.FormName}: {ex.Message}");
+            }
+        }
+    }
 }
 
 static string BuildMainFormXml(
@@ -1511,6 +1728,8 @@ static void DeleteObsoleteMainViewDuplicates(IOrganizationService service)
 {
     var duplicateNames = new (string EntityLogicalName, string ViewName)[]
     {
+        ("hx_servicedocument", "Request Documents - Review"),
+        ("hx_servicedocument", "Active Service Request Documents"),
         ("hx_servicedocument", "Service Request Document Associated View"),
         ("hx_servicedocument", "Service Request Document Lookup View"),
         ("hx_routingrule", "Routing / SLA Rule Associated View"),
@@ -1529,13 +1748,19 @@ static void DeleteObsoleteMainViewDuplicates(IOrganizationService service)
             ColumnSet = new ColumnSet("savedqueryid")
         };
         query.Criteria.AddCondition("returnedtypecode", ConditionOperator.Equal, objectTypeCode);
-        query.Criteria.AddCondition("querytype", ConditionOperator.Equal, 0);
         query.Criteria.AddCondition("name", ConditionOperator.Equal, duplicate.ViewName);
 
         foreach (var view in service.RetrieveMultiple(query).Entities)
         {
-            service.Delete("savedquery", view.Id);
-            Console.WriteLine($"Deleted duplicate main view: {duplicate.ViewName}");
+            try
+            {
+                service.Delete("savedquery", view.Id);
+                Console.WriteLine($"Deleted duplicate main view: {duplicate.ViewName}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Warning: skipped deleting view {duplicate.ViewName}: {ex.Message}");
+            }
         }
     }
 }
@@ -1972,8 +2197,8 @@ static void RegisterPlugins(IOrganizationService service)
         messageName: "Update",
         primaryEntity: "hx_servicerequest",
         pluginTypeId: closureTypeId,
-        filteringAttributes: "hx_lifecyclestatus,hx_internalresolutionnotes,hx_resolutiondocumentationprovided",
-        imageAttributes: "hx_severity,hx_resolutiondocumentationrequired,hx_resolutiondocumentationprovided,hx_internalresolutionnotes");
+        filteringAttributes: "hx_lifecyclestatus,hx_internalresolutionnotes",
+        imageAttributes: "hx_severity,hx_resolutiondocumentationrequired,hx_internalresolutionnotes");
 
     Console.WriteLine("Registered plugins and steps.");
 }
@@ -2041,6 +2266,15 @@ static void EnsurePluginStep(
     var existing = FindByAttribute(service, "sdkmessageprocessingstep", "name", name);
     if (existing != null)
     {
+        var update = new Entity("sdkmessageprocessingstep", existing.Id)
+        {
+            ["plugintypeid"] = new EntityReference("plugintype", pluginTypeId)
+        };
+        if (!string.IsNullOrWhiteSpace(filteringAttributes))
+        {
+            update["filteringattributes"] = filteringAttributes;
+        }
+        service.Update(update);
         AddToSolution(service, existing.Id, 92);
         EnsurePreImage(service, existing.Id, imageAttributes);
         return;
@@ -2353,20 +2587,27 @@ static void SeedSampleData(IOrganizationService service)
             entity["hx_slaindicatorstatus"] = "Coordinator working request";
         });
 
-    UpsertDemoDocument(service, "Demo Doc - Critical funding support evidence", criticalPendingId, 752630000,
-        "funding-agreement-blocker.pdf", verified: true, notes: "Customer uploaded the supporting contract excerpt through the portal.");
-    UpsertDemoDocument(service, "Demo Doc - Technical support screenshot", technicalSupportId, 752630000,
-        "portal-access-error.png", verified: false, notes: "Screenshot supplied by the customer.");
-    UpsertDemoDocument(service, "Demo Doc - Research manager approval", syncedResearchId, 752630002,
-        "manager-approval-note.txt", verified: true, notes: "Approval captured by Power Automate.");
-    UpsertDemoDocument(service, "Demo Doc - Research resolution package", syncedResearchId, 752630001,
-        "erp-sync-resolution.pdf", verified: true, notes: "Resolution documentation required for critical closure guard evidence.");
-    UpsertDemoDocument(service, "Demo Doc - Rejection evidence", rejectedResearchId, 752630002,
-        "eligibility-review.txt", verified: true, notes: "Manager rejection note retained for audit.");
-    UpsertDemoDocument(service, "Demo Doc - Failed ERP resolution evidence", failedSyncId, 752630001,
-        "erp-sync-failure-resolution.txt", verified: true, notes: "Resolution documentation exists; integration error remains open.");
-    UpsertDemoDocument(service, "Demo Doc - Event support brief", eventSupportId, 752630003,
-        "event-support-brief.docx", verified: false, notes: "Coordinator will validate after triage.");
+    UpsertDemoDocument(service, "Demo Evidence - Critical funding support", criticalPendingId, 752630000,
+        "funding-agreement-blocker.pdf", DemoEvidenceUrl("funding-agreement-blocker.pdf"), 752630001,
+        verified: true, notes: "Customer uploaded the supporting contract excerpt through the portal.");
+    UpsertDemoDocument(service, "Demo Evidence - Technical support screenshot", technicalSupportId, 752630000,
+        "portal-access-error.png", DemoEvidenceUrl("portal-access-error.png"), 752630000,
+        verified: false, notes: "Screenshot supplied by the customer; pending coordinator review.");
+    UpsertDemoDocument(service, "Demo Evidence - Research manager approval", syncedResearchId, 752630002,
+        "manager-approval-note.txt", DemoEvidenceUrl("manager-approval-note.txt"), 752630001,
+        verified: true, notes: "Approval captured by Power Automate.");
+    UpsertDemoDocument(service, "Demo Evidence - Research resolution package", syncedResearchId, 752630001,
+        "erp-sync-resolution.pdf", DemoEvidenceUrl("erp-sync-resolution.pdf"), 752630001,
+        verified: true, notes: "Accepted resolution evidence for the closure guardrail.");
+    UpsertDemoDocument(service, "Demo Evidence - Rejection note", rejectedResearchId, 752630002,
+        "eligibility-review.txt", DemoEvidenceUrl("eligibility-review.txt"), 752630001,
+        verified: true, notes: "Manager rejection note retained for audit.");
+    UpsertDemoDocument(service, "Demo Evidence - Failed ERP resolution", failedSyncId, 752630001,
+        "erp-sync-failure-resolution.txt", DemoEvidenceUrl("erp-sync-failure-resolution.txt"), 752630001,
+        verified: true, notes: "Resolution evidence exists; integration error remains open.");
+    UpsertDemoDocument(service, "Demo Evidence - Event support brief", eventSupportId, 752630003,
+        "event-support-brief.docx", DemoEvidenceUrl("event-support-brief.docx"), 752630000,
+        verified: false, notes: "Coordinator will validate after triage.");
 
     UpsertDemoSyncLog(service, "Demo Sync - Research accepted by HelloX ERP", syncedResearchId, 752630002,
         "HelloX mock ERP", "HX-ERP-DEMO-1001", DateTime.UtcNow.AddHours(-5),
@@ -2498,19 +2739,36 @@ static void UpsertDemoDocument(
     IOrganizationService service,
     string name,
     Guid serviceRequestId,
-    int documentType,
+    int evidenceType,
     string filename,
+    string sharePointFileUrl,
+    int reviewStatus,
     bool verified,
     string notes)
 {
     UpsertNamed(service, "hx_servicedocument", name, entity =>
     {
         entity["hx_servicerequest"] = new EntityReference("hx_servicerequest", serviceRequestId);
-        entity["hx_documenttype"] = new OptionSetValue(documentType);
+        entity["hx_documenttype"] = new OptionSetValue(evidenceType);
+        entity["hx_reviewstatus"] = new OptionSetValue(reviewStatus);
         entity["hx_filename"] = filename;
+        entity["hx_sharepointfileurl"] = sharePointFileUrl;
+        entity["hx_sharepointdocumentid"] = DeterministicGuid($"demo-file:{serviceRequestId}:{filename}");
         entity["hx_verified"] = verified;
+        if (verified)
+        {
+            var currentUserId = ((WhoAmIResponse)service.Execute(new WhoAmIRequest())).UserId;
+            entity["hx_verifiedby"] = new EntityReference("systemuser", currentUserId);
+            entity["hx_verifiedon"] = DateTime.UtcNow;
+        }
         entity["hx_notes"] = notes;
     });
+}
+
+static string DemoEvidenceUrl(string filename)
+{
+    var escapedFileName = Uri.EscapeDataString(filename);
+    return $"https://mitacs.sharepoint.com/sites/EnterpriseServiceIntake/Shared%20Documents/Demo%20Evidence/{escapedFileName}";
 }
 
 static void UpsertDemoSyncLog(
@@ -2593,14 +2851,29 @@ static void RunValidationSmokeTests(IOrganizationService service)
         Console.WriteLine("Closure guard smoke test passed: undocumented critical close was blocked.");
     }
 
+    var currentUserId = ((WhoAmIResponse)service.Execute(new WhoAmIRequest())).UserId;
+    service.Create(new Entity("hx_servicedocument")
+    {
+        ["hx_name"] = "Smoke Test - Accepted resolution evidence",
+        ["hx_servicerequest"] = new EntityReference("hx_servicerequest", id),
+        ["hx_documenttype"] = new OptionSetValue(752630001),
+        ["hx_reviewstatus"] = new OptionSetValue(752630001),
+        ["hx_filename"] = "smoke-resolution-evidence.txt",
+        ["hx_sharepointfileurl"] = DemoEvidenceUrl("smoke-resolution-evidence.txt"),
+        ["hx_sharepointdocumentid"] = DeterministicGuid($"smoke-file:{id}"),
+        ["hx_verified"] = true,
+        ["hx_verifiedby"] = new EntityReference("systemuser", currentUserId),
+        ["hx_verifiedon"] = DateTime.UtcNow,
+        ["hx_notes"] = "Smoke test evidence row used to prove the closure guard accepts only reviewed file evidence."
+    });
+
     service.Update(new Entity("hx_servicerequest", id)
     {
         ["hx_internalresolutionnotes"] = "Validated the blocker and attached resolution evidence.",
-        ["hx_resolutiondocumentationprovided"] = true,
         ["hx_lifecyclestatus"] = new OptionSetValue(752630008)
     });
 
-    Console.WriteLine("Closure guard smoke test passed: documented critical close succeeded.");
+    Console.WriteLine("Closure guard smoke test passed: accepted resolution evidence allowed critical close.");
 }
 
 static void EnsureConfirmationEmailFlow(IOrganizationService service)

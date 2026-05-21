@@ -18,5 +18,6 @@ namespace ServiceIntake.Plugins
         internal const int ApprovalPending = 752630001;
         internal const int SyncNotStarted = 752630000;
         internal const int DocumentTypeResolution = 752630001;
+        internal const int EvidenceReviewAccepted = 752630001;
     }
 }
