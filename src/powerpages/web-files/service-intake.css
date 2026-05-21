@@ -9,7 +9,7 @@
   --esi-page: #f6f8fb;
   --esi-surface: #ffffff;
   --esi-surface-soft: #f8fafc;
-  --esi-hint: #8a97a6;
+  --esi-hint: #a6b0bd;
   --esi-green: #0f7b45;
   --esi-green-soft: #e7f6ee;
   --esi-amber: #9a5b00;
@@ -51,16 +51,17 @@ body {
   align-items: center;
   color: var(--esi-ink);
   display: inline-flex;
-  gap: 12px;
+  gap: 0;
   text-decoration: none;
 }
 
 .esi-site-logo {
   display: block;
   flex: 0 0 auto;
-  height: 42px;
+  height: auto;
+  max-height: 58px;
   object-fit: contain;
-  width: 42px;
+  width: min(280px, 54vw);
 }
 
 .esi-site-title {
@@ -800,7 +801,8 @@ body {
     align-items: stretch;
   }
 
-  .esi-site-title {
-    font-size: 19px;
+  .esi-site-logo {
+    max-height: 44px;
+    width: min(220px, 60vw);
   }
 }
