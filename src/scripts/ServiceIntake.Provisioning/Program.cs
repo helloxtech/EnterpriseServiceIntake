@@ -18,6 +18,11 @@ const string HelloXMockErpEndpoint = "https://hellox.ca/api/mock/enterprise-serv
 const string HelloXMockOAuthTokenEndpoint = "https://hellox.ca/api/mock/oauth/token";
 const string HelloXMockOAuthTokenActionName = "HTTP_-_get_HelloX_OAuth_token";
 const string HelloXMockErpActionName = "HTTP";
+const string ProtectedServiceRequestUpdateAttributes =
+    "hx_lifecyclestatus,hx_approvalstatus,hx_integrationsyncstatus,hx_externalerpid,hx_assigneddepartment," +
+    "hx_appliedslapolicy,hx_duedate,hx_requiresapproval,hx_resolutiondocumentationrequired," +
+    "hx_resolutiondocumentationprovided,hx_internalresolutionnotes,hx_customervisibleupdates," +
+    "hx_routingpreviewsummary,hx_slaindicatorstatus,hx_visualseverity";
 
 var url = Required("POWERPLATFORM_ENVIRONMENT_URL");
 var username = Required("POWERPLATFORM_ADMIN_USERNAME");
@@ -52,6 +57,21 @@ if (string.Equals(Environment.GetEnvironmentVariable("PATCH_FLOW_DEFINITION"), "
 if (string.Equals(Environment.GetEnvironmentVariable("ENSURE_CONFIRMATION_EMAIL_FLOW"), "true", StringComparison.OrdinalIgnoreCase))
 {
     EnsureConfirmationEmailFlow(service);
+    return;
+}
+
+if (string.Equals(Environment.GetEnvironmentVariable("REGISTER_PLUGINS_ONLY"), "true", StringComparison.OrdinalIgnoreCase))
+{
+    EnsurePublisher(service);
+    EnsureSolution(service);
+    RegisterPlugins(service);
+    Publish(service);
+    return;
+}
+
+if (string.Equals(Environment.GetEnvironmentVariable("VERIFY_SECURITY_HARDENING"), "true", StringComparison.OrdinalIgnoreCase))
+{
+    VerifySecurityHardening(service);
     return;
 }
 
@@ -313,6 +333,64 @@ static void DumpPortalMetadata(IOrganizationService service)
                 $"  Lookup {relationship.ReferencingAttribute} -> {relationship.ReferencedEntity}; Schema={relationship.SchemaName}; ReferencedNav={relationship.ReferencedEntityNavigationPropertyName}; ReferencingNav={relationship.ReferencingEntityNavigationPropertyName}");
         }
     }
+}
+
+static void VerifySecurityHardening(IOrganizationService service)
+{
+    if (EntityExists(service, "adx_sitesetting"))
+    {
+        Console.WriteLine("Portal Web API field allowlists:");
+        foreach (var name in new[]
+                 {
+                     "Webapi/error/innererror",
+                     "Webapi/hx_slapolicy/fields",
+                     "Webapi/hx_department/fields",
+                     "Webapi/hx_routingrule/fields",
+                     "Webapi/hx_servicecategory/fields",
+                     "Webapi/hx_servicerequest/fields"
+                 })
+        {
+            var setting = FindByAttribute(service, "adx_sitesetting", "adx_name", name);
+            Console.WriteLine($"  {name}: {setting?.GetAttributeValue<string>("adx_value") ?? "<missing>"}");
+        }
+    }
+    else
+    {
+        Console.WriteLine("Portal Web API field allowlists: skipped because this site uses the enhanced Power Pages data model.");
+    }
+
+    if (EntityExists(service, "adx_entitypermission"))
+    {
+        var permissionQuery = new QueryExpression("adx_entitypermission")
+        {
+            ColumnSet = new ColumnSet("adx_entityname", "adx_entitylogicalname", "adx_create", "adx_read", "adx_write", "adx_delete"),
+            TopCount = 10
+        };
+        permissionQuery.Criteria.AddCondition("adx_entitylogicalname", ConditionOperator.Equal, "hx_servicerequest");
+        Console.WriteLine("Service Request table permissions:");
+        foreach (var permission in service.RetrieveMultiple(permissionQuery).Entities)
+        {
+            Console.WriteLine(
+                $"  {permission.GetAttributeValue<string>("adx_entityname")}: create={permission.GetAttributeValue<bool?>("adx_create")}, read={permission.GetAttributeValue<bool?>("adx_read")}, write={permission.GetAttributeValue<bool?>("adx_write")}, delete={permission.GetAttributeValue<bool?>("adx_delete")}");
+        }
+    }
+    else
+    {
+        Console.WriteLine("Service Request table permissions: skipped because this site uses the enhanced Power Pages data model.");
+    }
+
+    var step = FindByAttribute(service, "sdkmessageprocessingstep", "name", "ESI - Guard critical request closure");
+    Console.WriteLine("Protected update plugin step:");
+    if (step == null)
+    {
+        Console.WriteLine("  <missing>");
+        return;
+    }
+
+    var fullStep = service.Retrieve("sdkmessageprocessingstep", step.Id,
+        new ColumnSet("filteringattributes", "configuration"));
+    Console.WriteLine($"  filteringAttributes={fullStep.GetAttributeValue<string>("filteringattributes")}");
+    Console.WriteLine($"  configuration={fullStep.GetAttributeValue<string>("configuration")}");
 }
 
 static void RemovePortalEvidenceReviewWriteAccess(IOrganizationService service)
@@ -2299,6 +2377,7 @@ static void RegisterPlugins(IOrganizationService service)
         "ServiceIntake.Plugins.ServiceRequestRoutingPlugin", "Service Request Routing Plugin");
     var closureTypeId = EnsurePluginType(service, assemblyId,
         "ServiceIntake.Plugins.ServiceRequestClosureGuardPlugin", "Service Request Closure Guard Plugin");
+    var internalUserConfiguration = BuildInternalUpdateUserConfiguration(service);
 
     EnsurePluginStep(service,
         name: "ESI - Route service request on create",
@@ -2321,10 +2400,60 @@ static void RegisterPlugins(IOrganizationService service)
         messageName: "Update",
         primaryEntity: "hx_servicerequest",
         pluginTypeId: closureTypeId,
-        filteringAttributes: "hx_lifecyclestatus,hx_internalresolutionnotes",
-        imageAttributes: "hx_severity,hx_resolutiondocumentationrequired,hx_internalresolutionnotes");
+        filteringAttributes: ProtectedServiceRequestUpdateAttributes,
+        imageAttributes: "hx_severity,hx_resolutiondocumentationrequired,hx_internalresolutionnotes",
+        unsecureConfiguration: internalUserConfiguration);
 
     Console.WriteLine("Registered plugins and steps.");
+}
+
+static string BuildInternalUpdateUserConfiguration(IOrganizationService service)
+{
+    var configuredUsers = Optional("SERVICE_INTAKE_INTERNAL_UPDATE_USERS",
+        "agent@hellosmart.ca,manager@hellosmart.ca,forrest@hellosmart.ca");
+    var adminUser = Optional("POWERPLATFORM_ADMIN_USERNAME", string.Empty);
+    var emails = configuredUsers
+        .Split(new[] { ',', ';', '|', '\n', '\r', '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+        .Append(adminUser)
+        .Where(email => !string.IsNullOrWhiteSpace(email))
+        .Select(email => email.Trim())
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+
+    var userIds = new List<Guid>();
+    foreach (var email in emails)
+    {
+        var userId = FindSystemUserIdByEmail(service, email);
+        if (userId.HasValue)
+        {
+            userIds.Add(userId.Value);
+        }
+        else
+        {
+            Console.WriteLine($"Warning: internal update user was not found in Dataverse: {email}");
+        }
+    }
+
+    if (userIds.Count == 0)
+    {
+        Console.WriteLine("Warning: no internal update users were resolved. Protected service request updates will be blocked for all callers.");
+    }
+
+    return $"allowedUserIds={string.Join(";", userIds.Distinct())}\nallowedEmails={string.Join(",", emails)}";
+}
+
+static Guid? FindSystemUserIdByEmail(IOrganizationService service, string email)
+{
+    var query = new QueryExpression("systemuser")
+    {
+        ColumnSet = new ColumnSet("systemuserid"),
+        TopCount = 1
+    };
+    query.Criteria.FilterOperator = LogicalOperator.Or;
+    query.Criteria.AddCondition("internalemailaddress", ConditionOperator.Equal, email);
+    query.Criteria.AddCondition("domainname", ConditionOperator.Equal, email);
+    var match = service.RetrieveMultiple(query).Entities.FirstOrDefault();
+    return match?.Id;
 }
 
 static Guid UpsertPluginAssembly(IOrganizationService service, string assemblyPath)
@@ -2385,7 +2514,8 @@ static void EnsurePluginStep(
     string primaryEntity,
     Guid pluginTypeId,
     string? filteringAttributes,
-    string? imageAttributes)
+    string? imageAttributes,
+    string? unsecureConfiguration = null)
 {
     var existing = FindByAttribute(service, "sdkmessageprocessingstep", "name", name);
     if (existing != null)
@@ -2397,6 +2527,10 @@ static void EnsurePluginStep(
         if (!string.IsNullOrWhiteSpace(filteringAttributes))
         {
             update["filteringattributes"] = filteringAttributes;
+        }
+        if (unsecureConfiguration != null)
+        {
+            update["configuration"] = unsecureConfiguration;
         }
         service.Update(update);
         AddToSolution(service, existing.Id, 92);
@@ -2425,6 +2559,10 @@ static void EnsurePluginStep(
     if (!string.IsNullOrWhiteSpace(filteringAttributes))
     {
         step["filteringattributes"] = filteringAttributes;
+    }
+    if (unsecureConfiguration != null)
+    {
+        step["configuration"] = unsecureConfiguration;
     }
 
     var stepId = service.Create(step);

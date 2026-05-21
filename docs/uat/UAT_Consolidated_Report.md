@@ -15,19 +15,17 @@ Date: 2026-05-21
 
 The solution is functionally coherent and interview-demo ready from a source/static review perspective. The strongest implementation areas are Dataverse-first architecture, server-side routing/SLA, plugin-based closure guardrail, multi-step Power Pages intake, OAuth-protected HelloX ERP sync, model-driven dashboards, and seeded demo data.
 
-The primary risks before final submission are security hardening and live evidence capture:
+The P0 portal security hardening has been implemented and live-verified after the initial QA pass. The primary remaining risks before final submission are:
 
-1. Power Pages Web API field allowlists are too broad (`fields: '*'`) and should be narrowed.
-2. Service Request contact-scoped write access may allow authenticated portal users to PATCH internal fields unless blocked by Dataverse roles/field security or a plugin.
-3. Power Automate HTTP retry/timeout behavior is not explicit in source.
-4. Authenticated live UAT still needs final evidence capture for portal submit, SharePoint upload, manager approval, ERP ID writeback, and email/run history.
+1. Power Automate HTTP retry/timeout behavior is not explicit in source.
+2. Authenticated live UAT still needs final evidence capture for portal submit, SharePoint upload, manager approval, ERP ID writeback, and email/run history.
 
 ## Cross-QA Findings
 
 | ID | Severity | Area | Finding | Source QA | Recommended Developer Action | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| UAT-F01 | Critical | Portal data integrity | Authenticated own-record write plus `Webapi/hx_servicerequest/fields: '*'` may allow portal users to PATCH internal request state fields. | QA 3 | Narrow Web API fields, reduce write permissions, and add plugin guard for portal/external updates to internal fields. | Open |
-| UAT-F02 | High | Portal Web API | Multiple Web API field settings use `'*'`; `Webapi/error/innererror=true` is enabled. | QA 1, QA 3 | Replace with explicit allowlists and disable inner error output. | Open |
+| UAT-F01 | Critical | Portal data integrity | Authenticated own-record write plus `Webapi/hx_servicerequest/fields: '*'` may allow portal users to PATCH internal request state fields. | QA 3 | Narrow Web API fields, reduce write permissions, and add plugin guard for portal/external updates to internal fields. | Closed - live verified 2026-05-21 |
+| UAT-F02 | High | Portal Web API | Multiple Web API field settings use `'*'`; `Webapi/error/innererror=true` is enabled. | QA 1, QA 3 | Replace with explicit allowlists and disable inner error output. | Closed - live verified 2026-05-21 |
 | UAT-F03 | High | Integration resilience | Flow has Try/Catch, OAuth, and Bearer POST, but no explicit retry/timeout policy in source. | QA 4 | Add documented retry/timeout policy and handling notes for 401/429/5xx. | Open |
 | UAT-F04 | Medium | Portal UX | No customer request dashboard/list despite earlier UX plan. | QA 1 | Add simple "My requests" list or document portal as intake-only. | Open |
 | UAT-F05 | Medium | Document UX | File type/size limits are not shown before upload handoff. | QA 1 | Add concise pre-submit upload guidance. | Open |
@@ -69,11 +67,10 @@ Run this once before sending the package:
 
 | Priority | Work Item |
 | --- | --- |
-| P0 | Lock down Power Pages Web API fields and Service Request portal write scope. |
-| P0 | Add guardrail for external/portal updates to internal fields if write access remains. |
-| P1 | Disable `Webapi/error/innererror`. |
+| P0 | Lock down Power Pages Web API fields and Service Request portal write scope. Completed 2026-05-21. |
+| P0 | Add guardrail for external/portal updates to internal fields if write access remains. Completed 2026-05-21. |
+| P1 | Disable `Webapi/error/innererror`. Completed 2026-05-21. |
 | P1 | Add explicit Power Automate retry/timeout settings or document the deliberate defaults. |
 | P1 | Replace default branding snippets. |
 | P2 | Add file type/size copy and optional customer request dashboard/list. |
 | P2 | Add filtered preview/routing endpoint and recent-date dashboard variants for production scale. |
-

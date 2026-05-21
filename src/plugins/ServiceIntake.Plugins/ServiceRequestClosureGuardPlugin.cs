@@ -1,6 +1,8 @@
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ServiceIntake.Plugins
 {
@@ -10,9 +12,14 @@ namespace ServiceIntake.Plugins
     /// </summary>
     public class ServiceRequestClosureGuardPlugin : PluginBase
     {
+        private readonly IReadOnlyCollection<Guid> allowedInternalUserIds;
+        private readonly IReadOnlyCollection<string> allowedInternalEmails;
+
         public ServiceRequestClosureGuardPlugin(string unsecureConfiguration, string secureConfiguration)
             : base(typeof(ServiceRequestClosureGuardPlugin))
         {
+            allowedInternalUserIds = ServiceRequestExternalUpdatePolicy.ParseAllowedUserIds(unsecureConfiguration);
+            allowedInternalEmails = ServiceRequestExternalUpdatePolicy.ParseAllowedEmails(unsecureConfiguration);
         }
 
         protected override void ExecuteDataversePlugin(ILocalPluginContext localPluginContext)
@@ -30,6 +37,8 @@ namespace ServiceIntake.Plugins
             {
                 return;
             }
+
+            GuardProtectedInternalFields(context, localPluginContext.PluginUserService, target);
 
             var requestedStatus = target.GetAttributeValue<OptionSetValue>("hx_lifecyclestatus");
             if (requestedStatus == null ||
@@ -55,6 +64,59 @@ namespace ServiceIntake.Plugins
             {
                 throw new InvalidPluginExecutionException(
                     "Critical requests cannot be resolved or closed until internal resolution notes and resolution documentation are provided.");
+            }
+        }
+
+        private void GuardProtectedInternalFields(IPluginExecutionContext context, IOrganizationService service, Entity target)
+        {
+            var protectedFields = ServiceRequestExternalUpdatePolicy.FindProtectedFields(target.Attributes.Keys);
+            if (protectedFields.Length == 0)
+            {
+                return;
+            }
+
+            var callerEmails = ResolveCallerEmails(service, context.UserId, context.InitiatingUserId);
+            if (!ServiceRequestExternalUpdatePolicy.ShouldBlock(
+                    target.Attributes.Keys,
+                    context.UserId,
+                    context.InitiatingUserId,
+                    allowedInternalUserIds,
+                    callerEmails,
+                    allowedInternalEmails))
+            {
+                return;
+            }
+
+            throw new InvalidPluginExecutionException(
+                $"Only internal service users can update protected service request fields: {string.Join(", ", protectedFields)}.");
+        }
+
+        private static IEnumerable<string> ResolveCallerEmails(IOrganizationService service, params Guid[] userIds)
+        {
+            foreach (var userId in userIds.Where(id => id != Guid.Empty).Distinct())
+            {
+                Entity user;
+                try
+                {
+                    user = service.Retrieve("systemuser", userId,
+                        new ColumnSet("internalemailaddress", "domainname"));
+                }
+                catch
+                {
+                    continue;
+                }
+
+                var internalEmail = user.GetAttributeValue<string>("internalemailaddress");
+                if (!string.IsNullOrWhiteSpace(internalEmail))
+                {
+                    yield return internalEmail;
+                }
+
+                var domainName = user.GetAttributeValue<string>("domainname");
+                if (!string.IsNullOrWhiteSpace(domainName))
+                {
+                    yield return domainName;
+                }
             }
         }
 

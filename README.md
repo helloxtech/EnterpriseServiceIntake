@@ -125,7 +125,7 @@ erDiagram
 | --- | --- | --- |
 | Dynamic routing/SLA | Dataverse routing rules evaluated by `ServiceRequestRoutingPlugin` on create/update. | Routing must be transactional and consistent for portal, app, and automation creates. |
 | Confirmation number | Dataverse autonumber `SR-{yyyyMMdd}-{SEQNUM}` on Service Request. | Server-generated and tamper-resistant. |
-| Critical close guardrail | PreOperation C# plugin blocks resolved/closed critical requests unless internal resolution notes exist and an accepted `Service Request Evidence Review` row references a SharePoint file. | A plugin is the right layer because agents cannot bypass it from forms, imports, flows, or API calls. The guardrail does not rely on a user-editable documentation checkbox. |
+| Critical close and protected-field guardrail | PreOperation C# plugin blocks resolved/closed critical requests unless internal resolution notes exist and an accepted `Service Request Evidence Review` row references a SharePoint file. The same plugin step also blocks non-internal callers from updating approval, ERP sync, routing, SLA, lifecycle, and internal documentation fields. | A plugin is the right layer because agents and API callers cannot bypass it from forms, imports, flows, or portal/Web API calls. The guardrail does not rely on a user-editable documentation checkbox. |
 | Supporting documents | After request creation, the portal sends the applicant to a secure SharePoint upload page backed by Power Pages Basic Form/document management. Uploaded files are stored against the request's native document location and are viewed from the out-of-box model-driven Documents associated tab. `Service Request Evidence Review` stores Dataverse-owned review metadata and file links only for documents that become official evidence. | The applicant must have a saved request ID before SharePoint can associate files to the correct Dataverse record; this keeps the custom intake fast while using the supported document-management path for files and Dataverse for request, routing, approval, and review state. |
 | Approval + ERP sync | Cloud flow `ESI - Approval and ERP Sync` with Try scope, approval, OAuth client-credentials token request, protected HTTP POST, Dataverse writeback, sync log, reject branch, and Catch error-log scope. | Flow is appropriate for human approvals, connector-based integration, retries, and run history evidence. The mock ERP token step demonstrates app-to-app authentication without a human refresh token. |
 | Applicant confirmation email | Cloud flow `ESI - Send Confirmation Email` triggers on Service Request create, sends the generated confirmation number to the applicant, and logs email failures to System Error Logs. | Email delivery belongs in automation so failures are visible in flow history/error logs and do not block transactional request creation. |
@@ -155,9 +155,10 @@ There are two Service Request main forms by design. `Service Request - Coordinat
 ## Security Strategy
 
 - External users authenticate to Power Pages and are associated to Contact rows.
-- Power Pages table permissions allow create for intake tables and contact-scoped access for request ownership.
+- Power Pages table permissions allow authenticated global create for Service Request intake and contact-scoped read access for request ownership. Contact-scoped Service Request write is disabled.
+- Power Pages Web API site settings use explicit field allowlists for Service Request, Service Category, Routing Rule, Department, and SLA Policy; `Webapi/error/innererror` is disabled.
 - Public read access is limited to reference/routing data required for SLA preview.
-- Internal-only fields such as `hx_internalresolutionnotes` are not exposed on portal pages and the column is configured as secured metadata.
+- Internal-only fields such as `hx_internalresolutionnotes` are not exposed on portal pages, the column is configured as secured metadata, and the plugin rejects protected-field updates from callers outside the configured internal allowlist.
 - Internal users work from the model-driven app with Dataverse security roles and views; sensitive audit/error tables are intended for managers/admins.
 - Secrets and reviewer passwords are stored outside Git. The HelloX mock ERP OAuth client secret is injected from the private provisioning environment file, and the token action uses secure inputs/outputs in Power Automate run history. See the administrator handoff for credential sharing.
 
@@ -214,7 +215,8 @@ Catch/skip path:
 | Component | Location | Purpose |
 | --- | --- | --- |
 | `ServiceRequestRoutingPlugin` | `src/plugins/ServiceIntake.Plugins/ServiceRequestRoutingPlugin.cs` | Applies routing rule, SLA due date, approval requirement, documentation requirement, and lifecycle defaults. |
-| `ServiceRequestClosureGuardPlugin` | `src/plugins/ServiceIntake.Plugins/ServiceRequestClosureGuardPlugin.cs` | Blocks critical request closure without resolution documentation. |
+| `ServiceRequestClosureGuardPlugin` | `src/plugins/ServiceIntake.Plugins/ServiceRequestClosureGuardPlugin.cs` | Blocks critical request closure without resolution documentation and rejects external updates to protected internal Service Request fields. |
+| `ServiceRequestExternalUpdatePolicy` | `src/plugins/ServiceIntake.Plugins/ServiceRequestExternalUpdatePolicy.cs` | Testable policy for protected-field detection and internal caller allowlists. |
 | `SlaStatusIndicator` PCF | `src/pcf/SlaStatusIndicator/` | Visual severity/SLA/approval status indicator for internal coordinators. |
 | Provisioning utility | `src/scripts/ServiceIntake.Provisioning/` | Reproducible environment setup, metadata creation, plugin registration, app/forms/views, sample data, and flow definition patching. |
 
@@ -258,7 +260,10 @@ export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"
 
 dotnet build src/plugins/ServiceIntake.Plugins/ServiceIntake.Plugins.csproj
 dotnet build src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+dotnet run --project src/tests/ServiceIntake.PluginPolicy.Tests/ServiceIntake.PluginPolicy.Tests.csproj
 
+REGISTER_PLUGINS_ONLY=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+VERIFY_SECURITY_HARDENING=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
 PATCH_FLOW_DEFINITION=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
 
 pac solution publish

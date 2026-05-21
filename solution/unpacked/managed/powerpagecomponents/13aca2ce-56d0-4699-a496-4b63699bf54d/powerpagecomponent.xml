@@ -1,6 +1,6 @@
 <powerpagecomponent powerpagecomponentid="13aca2ce-56d0-4699-a496-4b63699bf54d">
   <content>{
-  "value": "true"
+  "value": "false"
 }</content>
   <iscustomizable>1</iscustomizable>
   <name>Webapi/error/innererror</name>

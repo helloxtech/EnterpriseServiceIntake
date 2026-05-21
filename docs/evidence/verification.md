@@ -54,6 +54,9 @@
 | Model-driven documents | SharePoint uploads use the out-of-box Service Request Documents associated tab for the file list; `Service Request Evidence Review` stores accepted/rejected review metadata and SharePoint file links for official evidence. |
 | Model-driven Service Request UX | Live metadata shows `Service Request - Coordinator` and the Power Pages upload support form active; the coordinator form uses two-column sections, and `Active Service Requests` includes confirmation, customer, category, severity, priority, lifecycle, department, SLA due date, approval, ERP sync, and created-on columns. |
 | Portal evidence-review security | Power Pages live source no longer exposes `hx_servicedocument` through Web API settings or a global create table permission; Evidence Review is internal-only. |
+| Power Pages Web API hardening | Fresh PAC download from live site confirms explicit field allowlists for Service Request, Service Category, Routing Rule, Department, and SLA Policy; `Webapi/error/innererror=false`. |
+| Service Request portal write scope | Fresh PAC download confirms `Service Request - Read - Contact` has `create=false`, `read=true`, `write=false`; separate `Service Request - Create - Global` keeps authenticated intake creation enabled. |
+| Protected internal field guard | Live Dataverse verification confirms `ESI - Guard critical request closure` filters lifecycle, approval, ERP, routing, SLA, documentation, status, and internal-note fields; plugin config includes internal user IDs plus `agent@hellosmart.ca`, `manager@hellosmart.ca`, and `forrest@hellosmart.ca` email fallback. |
 | Plugin routing | Critical funding request routed to Finance with 4 hour SLA. |
 | Closure guard | Smoke test blocked undocumented critical closure and allowed closure only after an accepted resolution evidence-review row with a SharePoint file URL was created. |
 | Model-driven app | Coordinator queue and Service Request form open in the app. |
@@ -67,14 +70,18 @@
 ```bash
 dotnet build src/plugins/ServiceIntake.Plugins/ServiceIntake.Plugins.csproj
 dotnet build src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+dotnet run --project src/tests/ServiceIntake.PluginPolicy.Tests/ServiceIntake.PluginPolicy.Tests.csproj
 dotnet list src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj package --vulnerable --include-transitive
 RUN_VALIDATION_TESTS=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+REGISTER_PLUGINS_ONLY=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+VERIFY_SECURITY_HARDENING=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
 node --check /Volumes/Forrest/Users/Forrest/Github/HelloXTech-Official-Website/functions/api/esi-service-requests.js
 node scripts/check-site.mjs
 
 pac pages download --webSiteId 8c12ac01-467a-4fa8-8034-50b8028de647 --path /tmp/esi-powerpages-live-20260520223111 --modelVersion Enhanced --overwrite
 pac pages upload --path /tmp/esi-powerpages-live-20260520223111/enterprise-service-intake---enterprise-service-intake-hellox --modelVersion Enhanced
 pac pages upload --path powerpages-live/enterprise-service-intake---enterprise-service-intake-hellox --modelVersion Enhanced --forceUploadAll
+pac pages download --path /tmp/esi-portal-verify --webSiteId 8c12ac01-467a-4fa8-8034-50b8028de647 --modelVersion Enhanced --overwrite
 pac pages download --path /tmp/esi-pages-verify.<id> --webSiteId 8c12ac01-467a-4fa8-8034-50b8028de647 --overwrite --modelVersion Enhanced
 node --check src/powerpages/web-files/service-intake.js
 pac pcf push --solution-unique-name EnterpriseServiceIntake --verbosity minimal

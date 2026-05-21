@@ -8,10 +8,10 @@
   adx_value: true
 - adx_name: Webapi/error/innererror
   adx_sitesettingid: 13aca2ce-56d0-4699-a496-4b63699bf54d
-  adx_value: true
+  adx_value: false
 - adx_name: Webapi/hx_slapolicy/fields
   adx_sitesettingid: 155b9b8c-9da6-4bee-8657-dc406673e9a6
-  adx_value: '*'
+  adx_value: hx_responsehours
 - adx_name: Search/Enabled
   adx_sitesettingid: 1dc8ffc4-03f0-4ab8-b915-65cfdd7b4fe8
   adx_value: true
@@ -108,13 +108,13 @@
   adx_sitesettingid: 81dfb861-037f-44da-87f5-89b57b5c0869
 - adx_name: Webapi/hx_department/fields
   adx_sitesettingid: 87511c1d-936b-4ea4-a22b-6cfdc141a893
-  adx_value: '*'
+  adx_value: hx_name
 - adx_name: Authentication/Registration/ExternalLoginEnabled
   adx_sitesettingid: 88a3a1e2-e275-41d1-b6ac-05a9d0ba4f3d
   adx_value: true
 - adx_name: Webapi/hx_routingrule/fields
   adx_sitesettingid: 8e69b012-927f-4eaf-bc5f-1d92ce0e8a27
-  adx_value: '*'
+  adx_value: hx_name,hx_matchseverity,hx_matchpriority,hx_requiresapproval,hx_resolutiondocumentationrequired,hx_sortorder,hx_active,hx_servicecategory,hx_department,hx_slapolicy
 - adx_description: Site setting that determines if the language code is included in the portal URL.
   adx_name: MultiLanguage/DisplayLanguageCodeInURL
   adx_sitesettingid: 8ee974a9-e541-47fd-8445-e4f024031dbc
@@ -183,7 +183,7 @@
   adx_value: True
 - adx_name: Webapi/hx_servicecategory/fields
   adx_sitesettingid: cf5b8776-f84d-4b79-a18c-772ed6692ee0
-  adx_value: '*'
+  adx_value: hx_servicecategoryid,hx_name,hx_active
 - adx_name: Authentication/OpenAuth/Twitter/ConsumerSecret
   adx_sitesettingid: d08366cf-0652-40a2-ad70-0b82acb535ab
 - adx_name: HTTP/X-Frame-Options
@@ -194,7 +194,7 @@
   adx_value: Portal Search
 - adx_name: Webapi/hx_servicerequest/fields
   adx_sitesettingid: e3dda9db-06cf-41e7-9eaf-f57d1600ae22
-  adx_value: '*'
+  adx_value: hx_title,hx_description,hx_severity,hx_priority,hx_submittedon,hx_servicecategory,hx_customercontact,hx_confirmationnumber,hx_routingpreviewsummary
 - adx_name: Webapi/hx_department/enabled
   adx_sitesettingid: f545a0ed-3812-464e-9a1e-646eba8bfec8
   adx_value: true

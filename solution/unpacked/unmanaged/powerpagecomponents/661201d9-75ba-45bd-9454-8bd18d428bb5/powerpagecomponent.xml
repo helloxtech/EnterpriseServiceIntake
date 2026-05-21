@@ -3,19 +3,19 @@
   "append": true,
   "appendto": true,
   "contactrelationship": "hx_ContactHxServicerequestHxCustomercontact",
-  "create": true,
+  "create": false,
   "delete": false,
   "entitylogicalname": "hx_servicerequest",
-  "entityname": "Service Request - Full Control - Contact",
+  "entityname": "Service Request - Read - Contact",
   "read": true,
   "scope": 756150001,
-  "write": true,
+  "write": false,
   "adx_entitypermission_webrole": [
     "074793e4-f9a3-4031-b22a-fae4fdd37b05"
   ]
 }</content>
   <iscustomizable>1</iscustomizable>
-  <name>Service Request - Full Control - Contact</name>
+  <name>Service Request - Read - Contact</name>
   <powerpagecomponenttype>18</powerpagecomponenttype>
   <powerpagesiteid>
     <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>

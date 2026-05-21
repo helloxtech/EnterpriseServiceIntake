@@ -5,7 +5,9 @@
   <PluginTypeId>46f1bb24-b254-f111-bec7-000d3a3aca8f</PluginTypeId>
   <PrimaryEntity>hx_servicerequest</PrimaryEntity>
   <AsyncAutoDelete>0</AsyncAutoDelete>
-  <FilteringAttributes>hx_lifecyclestatus,hx_internalresolutionnotes</FilteringAttributes>
+  <Configuration>allowedUserIds=54f4d042-bd54-f111-bec7-000d3a3ac54a;0330878c-f050-f111-bec6-7ced8d3b362e
+allowedEmails=agent@hellosmart.ca,manager@hellosmart.ca,forrest@hellosmart.ca</Configuration>
+  <FilteringAttributes>hx_lifecyclestatus,hx_approvalstatus,hx_integrationsyncstatus,hx_externalerpid,hx_assigneddepartment,hx_appliedslapolicy,hx_duedate,hx_requiresapproval,hx_resolutiondocumentationrequired,hx_resolutiondocumentationprovided,hx_internalresolutionnotes,hx_customervisibleupdates,hx_routingpreviewsummary,hx_slaindicatorstatus,hx_visualseverity</FilteringAttributes>
   <InvocationSource>1</InvocationSource>
   <Mode>0</Mode>
   <Rank>1</Rank>
@@ -17,7 +19,7 @@
   <IntroducedVersion>1.0</IntroducedVersion>
   <SdkMessageProcessingStepImages>
     <SdkMessageProcessingStepImage Name="PreImage">
-      <SdkMessageProcessingStepImageId>{48cf7472-4c55-f111-bec7-000d3a3aca8f}</SdkMessageProcessingStepImageId>
+      <SdkMessageProcessingStepImageId>{11c9c43f-5f55-f111-bec7-000d3a3aca8f}</SdkMessageProcessingStepImageId>
       <Attributes>hx_severity,hx_resolutiondocumentationrequired,hx_internalresolutionnotes</Attributes>
       <EntityAlias>PreImage</EntityAlias>
       <ImageType>0</ImageType>

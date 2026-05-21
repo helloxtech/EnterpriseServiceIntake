@@ -1,6 +1,6 @@
 <powerpagecomponent powerpagecomponentid="87511c1d-936b-4ea4-a22b-6cfdc141a893">
   <content>{
-  "value": "*"
+  "value": "hx_name"
 }</content>
   <iscustomizable>1</iscustomizable>
   <name>Webapi/hx_department/fields</name>

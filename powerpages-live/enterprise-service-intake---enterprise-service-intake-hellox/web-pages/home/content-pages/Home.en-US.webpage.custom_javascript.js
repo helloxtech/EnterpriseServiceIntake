@@ -530,7 +530,6 @@
       hx_description: descriptionParts.join("\n\n"),
       hx_severity: Number(field("severity").value),
       hx_priority: Number(field("priority").value),
-      hx_lifecyclestatus: 752630001,
       hx_submittedon: new Date().toISOString(),
       "hx_Servicecategory@odata.bind": `/hx_servicecategories(${categoryId})`
     };

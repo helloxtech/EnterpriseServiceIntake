@@ -1,6 +1,6 @@
 <powerpagecomponent powerpagecomponentid="8e69b012-927f-4eaf-bc5f-1d92ce0e8a27">
   <content>{
-  "value": "*"
+  "value": "hx_name,hx_matchseverity,hx_matchpriority,hx_requiresapproval,hx_resolutiondocumentationrequired,hx_sortorder,hx_active,hx_servicecategory,hx_department,hx_slapolicy"
 }</content>
   <iscustomizable>1</iscustomizable>
   <name>Webapi/hx_routingrule/fields</name>
