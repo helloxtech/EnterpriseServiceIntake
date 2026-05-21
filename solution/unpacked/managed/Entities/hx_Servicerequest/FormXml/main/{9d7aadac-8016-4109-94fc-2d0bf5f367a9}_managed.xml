@@ -14,13 +14,13 @@
           <columns>
             <column width="100%">
               <sections>
-                <section id="{4459c799-20bc-c302-9763-d66ad57352d5}" name="coordinator_status" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                <section id="{4459c799-20bc-c302-9763-d66ad57352d5}" name="coordinator_status" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="11" labelwidth="160">
                   <labels>
                     <label description="Coordinator Status" languagecode="1033" />
                   </labels>
                   <rows>
                     <row>
-                      <cell id="{3109532c-7386-ff95-a1c1-d2849a627b1d}" showlabel="true">
+                      <cell id="{3109532c-7386-ff95-a1c1-d2849a627b1d}" showlabel="true" colspan="2">
                         <labels>
                           <label description="SLA Status" languagecode="1033" />
                         </labels>
@@ -37,7 +37,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{be797c0d-ca8c-4825-24ba-b1d7af52281c}" name="customer_and_request" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                <section id="{be797c0d-ca8c-4825-24ba-b1d7af52281c}" name="customer_and_request" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="11" labelwidth="160">
                   <labels>
                     <label description="Customer and Request" languagecode="1033" />
                   </labels>
@@ -49,8 +49,6 @@
                         </labels>
                         <control id="hx_title" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_title" />
                       </cell>
-                    </row>
-                    <row>
                       <cell id="{5a47e934-b41a-8061-a7b1-60d0a0ee916a}" showlabel="true">
                         <labels>
                           <label description="Confirmation Number" languagecode="1033" />
@@ -65,8 +63,6 @@
                         </labels>
                         <control id="hx_customercontact" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_customercontact" />
                       </cell>
-                    </row>
-                    <row>
                       <cell id="{9bb668ae-8a75-56e1-ea30-27158253374c}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
@@ -83,7 +79,7 @@
                       </cell>
                     </row>
                     <row>
-                      <cell id="{2359d3d7-de80-b1cb-d676-5a1d9706d28c}" showlabel="true">
+                      <cell id="{2359d3d7-de80-b1cb-d676-5a1d9706d28c}" showlabel="true" colspan="2">
                         <labels>
                           <label description="" languagecode="1033" />
                         </labels>
@@ -92,7 +88,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{3773ac87-14f9-2f35-6d10-321b466ba3cf}" name="triage_inputs" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                <section id="{3773ac87-14f9-2f35-6d10-321b466ba3cf}" name="triage_inputs" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="11" labelwidth="160">
                   <labels>
                     <label description="Triage Inputs" languagecode="1033" />
                   </labels>
@@ -104,8 +100,6 @@
                         </labels>
                         <control id="hx_severity" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_severity" />
                       </cell>
-                    </row>
-                    <row>
                       <cell id="{345e24f3-1eaf-11eb-52be-5035ad9ce7a9}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
@@ -120,8 +114,6 @@
                         </labels>
                         <control id="hx_submittedon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_submittedon" disabled="true" />
                       </cell>
-                    </row>
-                    <row>
                       <cell id="{05cbafb0-2339-2374-5ae5-7d95af7e2e90}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
@@ -131,7 +123,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{3ad172a7-4367-0a04-0faa-14e3cfe25d2c}" name="routing_and_sla" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                <section id="{3ad172a7-4367-0a04-0faa-14e3cfe25d2c}" name="routing_and_sla" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="11" labelwidth="160">
                   <labels>
                     <label description="Routing and SLA" languagecode="1033" />
                   </labels>
@@ -143,8 +135,6 @@
                         </labels>
                         <control id="hx_assigneddepartment" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_assigneddepartment" disabled="true" />
                       </cell>
-                    </row>
-                    <row>
                       <cell id="{17f0511c-1e37-62bd-ce90-df2f05d31d97}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
@@ -159,8 +149,6 @@
                         </labels>
                         <control id="hx_duedate" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_duedate" disabled="true" />
                       </cell>
-                    </row>
-                    <row>
                       <cell id="{929d8e2d-1fea-c419-39d4-3eca52eb610f}" showlabel="true">
                         <labels>
                           <label description="Routing / SLA Summary" languagecode="1033" />
@@ -170,7 +158,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{f1ad6b10-e943-060e-14c9-c89874effdcf}" name="approval_and_erp_sync" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                <section id="{f1ad6b10-e943-060e-14c9-c89874effdcf}" name="approval_and_erp_sync" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="11" labelwidth="160">
                   <labels>
                     <label description="Approval and ERP Sync" languagecode="1033" />
                   </labels>
@@ -182,8 +170,6 @@
                         </labels>
                         <control id="hx_requiresapproval" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_requiresapproval" disabled="true" />
                       </cell>
-                    </row>
-                    <row>
                       <cell id="{e8dea66c-9c4a-8d89-6d29-4d29b502a5f1}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
@@ -198,8 +184,6 @@
                         </labels>
                         <control id="hx_integrationsyncstatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_integrationsyncstatus" />
                       </cell>
-                    </row>
-                    <row>
                       <cell id="{4681a726-b206-6814-162a-af9829bd5e2e}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
@@ -209,7 +193,7 @@
                     </row>
                   </rows>
                 </section>
-                <section id="{dd198253-b04f-4949-af54-82723c82b9ee}" name="resolution_guardrail" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                <section id="{dd198253-b04f-4949-af54-82723c82b9ee}" name="resolution_guardrail" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="11" labelwidth="160">
                   <labels>
                     <label description="Resolution Guardrail" languagecode="1033" />
                   </labels>
@@ -221,8 +205,6 @@
                         </labels>
                         <control id="hx_lifecyclestatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_lifecyclestatus" />
                       </cell>
-                    </row>
-                    <row>
                       <cell id="{c3ab3b9f-0a49-e3e4-0ac9-7315e423a56e}" showlabel="true">
                         <labels>
                           <label description="" languagecode="1033" />
@@ -231,15 +213,7 @@
                       </cell>
                     </row>
                     <row>
-                      <cell id="{f9e372a9-d1bc-9fea-67fd-c3fd20b68d86}" showlabel="true">
-                        <labels>
-                          <label description="" languagecode="1033" />
-                        </labels>
-                        <control id="hx_resolutiondocumentationprovided" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_resolutiondocumentationprovided" />
-                      </cell>
-                    </row>
-                    <row>
-                      <cell id="{1935f792-11b6-6c99-b0d4-16413534a1a9}" showlabel="true">
+                      <cell id="{1935f792-11b6-6c99-b0d4-16413534a1a9}" showlabel="true" colspan="2">
                         <labels>
                           <label description="" languagecode="1033" />
                         </labels>
@@ -247,7 +221,7 @@
                       </cell>
                     </row>
                     <row>
-                      <cell id="{8a992c7c-9a3a-e695-74c0-cf821435485f}" showlabel="true">
+                      <cell id="{8a992c7c-9a3a-e695-74c0-cf821435485f}" showlabel="true" colspan="2">
                         <labels>
                           <label description="" languagecode="1033" />
                         </labels>

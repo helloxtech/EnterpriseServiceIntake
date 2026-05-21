@@ -22,9 +22,9 @@
 | Provisioning utility build | Passed |
 | Provisioning utility NuGet audit | Passed; no vulnerable packages reported by `dotnet list package --vulnerable --include-transitive` |
 | HelloX mock ERP function syntax | Passed |
-| HelloX mock ERP function behavior | Passed; POST returned `201` with `HX-ERP-*`, failure mode returned `503`, GET returned service status |
+| HelloX mock ERP function behavior | Passed; OAuth token call returned `200`, protected POST returned `201` with `HX-ERP-*`, and refresh token was not returned for the interview scenario |
 | Hidden HelloX `/esi/` page smoke test | Passed; local browser check rendered the page title, endpoint, and submit action |
-| Public HelloX deployment | Passed; `https://hellox.ca/api/esi-service-requests` returns GET/POST responses and `https://hellox.ca/esi/` returns HTTP 200 |
+| Public HelloX deployment | Passed; `https://hellox.ca/api/mock/enterprise-service-intake/erp` accepts Bearer-token POSTs and `https://hellox.ca/esi/` returns HTTP 200 |
 | PCF build/push | Passed |
 | Power Pages upload | Passed |
 | Power Pages live download-first update | Passed |
@@ -52,11 +52,12 @@
 | SharePoint upload smoke test | `Portal smoke file upload 2026-05-21T07-24-18-212Z` created confirmation `SR-20260521-001025`; `esi-upload-smoke.txt` uploaded through the document grid and appeared on the page. |
 | SharePoint document location | Dataverse returned `sharepointdocumentlocationid` `4c2b05a7-e654-f111-89e7-0022488fbd9b` for request `df11b114-e654-f111-bec7-000d3a3aca8f`. |
 | Model-driven documents | SharePoint uploads use the out-of-box Service Request Documents associated tab for the file list; `Service Request Evidence Review` stores accepted/rejected review metadata and SharePoint file links for official evidence. |
+| Model-driven Service Request UX | Live metadata shows `Service Request - Coordinator` and the Power Pages upload support form active; the coordinator form uses two-column sections, and `Active Service Requests` includes confirmation, customer, category, severity, priority, lifecycle, department, SLA due date, approval, ERP sync, and created-on columns. |
 | Portal evidence-review security | Power Pages live source no longer exposes `hx_servicedocument` through Web API settings or a global create table permission; Evidence Review is internal-only. |
 | Plugin routing | Critical funding request routed to Finance with 4 hour SLA. |
 | Closure guard | Smoke test blocked undocumented critical closure and allowed closure only after an accepted resolution evidence-review row with a SharePoint file URL was created. |
 | Model-driven app | Coordinator queue and Service Request form open in the app. |
-| Approval/ERP flow | Active, solution-aware, includes approval, HTTP sync to HelloX mock ERP, sync log, reject branch, and catch error-log scope. |
+| Approval/ERP flow | Active, solution-aware, includes approval, HelloX OAuth token request, Bearer-token HTTP sync to HelloX mock ERP, sync log, reject branch, and catch error-log scope. |
 | Confirmation email flow | Active, solution-aware, sends generated confirmation number to applicant and logs missing/failed email cases to System Error Logs. |
 | Model-driven dashboards | Exported solution contains `ESI - Coordinator Operations Dashboard`, `ESI - Manager Approval Dashboard`, and `ESI - Integration Monitoring Dashboard`; app module includes all three dashboard components. |
 | Hidden HelloX ERP console | Source created under `static-site/esi/`; endpoint function created under `functions/api/esi-service-requests.js`. |
@@ -90,5 +91,5 @@ pac solution unpack --zipfile solution/export/Enterprise_ServiceIntake_ForrestZh
 
 - Email delivery can be restricted in trial tenants. Use the Office 365 Outlook action output, Approval records, and Flow run history if emails do not arrive externally.
 - DOCX visual rendering could not be completed in this local shell because LibreOffice/`soffice` is not installed. The generated PDF is 9 pages and the first-page Quick Look thumbnail was inspected.
-- The mock ERP endpoint is hosted at `https://hellox.ca/api/esi-service-requests`; the hidden demo console is `https://hellox.ca/esi/` after the HelloX site is deployed.
+- The protected mock ERP endpoint is hosted at `https://hellox.ca/api/mock/enterprise-service-intake/erp`; the OAuth token endpoint is `https://hellox.ca/api/mock/oauth/token`; the hidden demo console is `https://hellox.ca/esi/`.
 - The PCF control is included in the solution and bound on the Service Request coordinator form through exported form XML.

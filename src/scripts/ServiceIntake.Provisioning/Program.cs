@@ -14,7 +14,10 @@ const string SolutionUniqueName = "EnterpriseServiceIntake";
 const string PublisherUniqueName = "HelloXTech";
 const string Office365ConnectionReferenceLogicalName = "new_sharedoffice365_confirmation";
 const string Office365ConnectorId = "/providers/Microsoft.PowerApps/apis/shared_office365";
-const string HelloXMockErpEndpoint = "https://hellox.ca/api/esi-service-requests";
+const string HelloXMockErpEndpoint = "https://hellox.ca/api/mock/enterprise-service-intake/erp";
+const string HelloXMockOAuthTokenEndpoint = "https://hellox.ca/api/mock/oauth/token";
+const string HelloXMockOAuthTokenActionName = "HTTP_-_get_HelloX_OAuth_token";
+const string HelloXMockErpActionName = "HTTP";
 
 var url = Required("POWERPLATFORM_ENVIRONMENT_URL");
 var username = Required("POWERPLATFORM_ADMIN_USERNAME");
@@ -74,6 +77,12 @@ static string Required(string name)
     return string.IsNullOrWhiteSpace(value)
         ? throw new InvalidOperationException($"Missing environment variable: {name}")
         : value;
+}
+
+static string Optional(string name, string fallback)
+{
+    var value = Environment.GetEnvironmentVariable(name);
+    return string.IsNullOrWhiteSpace(value) ? fallback : value;
 }
 
 static Label Label(string text) => new(text, 1033);
@@ -746,9 +755,9 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         {
             new FormSection("Coordinator Status", new[]
             {
-                SlaPcfField("hx_slaindicatorstatus", "SLA Status", FormControlClass.Text),
+                SlaPcfField("hx_slaindicatorstatus", "SLA Status", FormControlClass.Text, fullWidth: true),
                 Field("hx_visualseverity", "Visual Severity", FormControlClass.Text, disabled: true)
-            }),
+            }, Columns: 2),
             new FormSection("Customer and Request", new[]
             {
                 Field("hx_title", "Title", FormControlClass.Text),
@@ -756,37 +765,36 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
                 Field("hx_customercontact", "Customer Contact", FormControlClass.Lookup),
                 Field("hx_customeraccount", "Customer Account", FormControlClass.Lookup),
                 Field("hx_servicecategory", "Service Category", FormControlClass.Lookup),
-                Field("hx_description", "Description", FormControlClass.Memo)
-            }),
+                Field("hx_description", "Description", FormControlClass.Memo, fullWidth: true)
+            }, Columns: 2),
             new FormSection("Triage Inputs", new[]
             {
                 Field("hx_severity", "Severity", FormControlClass.OptionSet),
                 Field("hx_priority", "Priority", FormControlClass.OptionSet),
                 Field("hx_submittedon", "Submitted On", FormControlClass.DateTime, disabled: true),
                 Field("ownerid", "Owner", FormControlClass.Lookup)
-            }),
+            }, Columns: 2),
             new FormSection("Routing and SLA", new[]
             {
                 Field("hx_assigneddepartment", "Assigned Department", FormControlClass.Lookup, disabled: true),
                 Field("hx_appliedslapolicy", "Applied SLA Policy", FormControlClass.Lookup, disabled: true),
                 Field("hx_duedate", "SLA Due Date", FormControlClass.DateTime, disabled: true),
                 Field("hx_routingpreviewsummary", "Routing / SLA Summary", FormControlClass.Text, disabled: true)
-            }),
+            }, Columns: 2),
             new FormSection("Approval and ERP Sync", new[]
             {
                 Field("hx_requiresapproval", "Requires Approval", FormControlClass.Boolean, disabled: true),
                 Field("hx_approvalstatus", "Approval Status", FormControlClass.OptionSet),
                 Field("hx_integrationsyncstatus", "Integration Sync Status", FormControlClass.OptionSet),
                 Field("hx_externalerpid", "External ERP ID", FormControlClass.Text, disabled: true)
-            }),
+            }, Columns: 2),
             new FormSection("Resolution Guardrail", new[]
             {
                 Field("hx_lifecyclestatus", "Lifecycle Status", FormControlClass.OptionSet),
                 Field("hx_resolutiondocumentationrequired", "Resolution Documentation Required", FormControlClass.Boolean, disabled: true),
-                Field("hx_resolutiondocumentationprovided", "Resolution Documentation Provided", FormControlClass.Boolean),
-                Field("hx_internalresolutionnotes", "Internal Resolution Notes", FormControlClass.Memo),
-                Field("hx_customervisibleupdates", "Customer Visible Updates", FormControlClass.Memo)
-            })
+                Field("hx_internalresolutionnotes", "Internal Resolution Notes", FormControlClass.Memo, fullWidth: true),
+                Field("hx_customervisibleupdates", "Customer Visible Updates", FormControlClass.Memo, fullWidth: true)
+            }, Columns: 2)
         },
         new[]
         {
@@ -1006,11 +1014,35 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
     EnsureSystemView(
         service,
         "hx_servicerequest",
+        "Active Service Requests",
+        new[]
+        {
+            "hx_confirmationnumber",
+            "hx_title",
+            "hx_customercontact",
+            "hx_servicecategory",
+            "hx_severity",
+            "hx_priority",
+            "hx_lifecyclestatus",
+            "hx_assigneddepartment",
+            "hx_duedate",
+            "hx_approvalstatus",
+            "hx_integrationsyncstatus",
+            "createdon"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "createdon",
+        descending: true);
+
+    EnsureSystemView(
+        service,
+        "hx_servicerequest",
         "Coordinator Queue",
         new[]
         {
             "hx_confirmationnumber",
             "hx_title",
+            "hx_customercontact",
             "hx_servicecategory",
             "hx_severity",
             "hx_priority",
@@ -1062,15 +1094,13 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
             "hx_priority",
             "hx_lifecyclestatus",
             "hx_resolutiondocumentationrequired",
-            "hx_resolutiondocumentationprovided",
             "hx_assigneddepartment",
             "modifiedon"
         },
         string.Join(Environment.NewLine + "      ", new[]
         {
             "<condition attribute='statecode' operator='eq' value='0' />",
-            "<condition attribute='hx_resolutiondocumentationrequired' operator='eq' value='1' />",
-            "<condition attribute='hx_resolutiondocumentationprovided' operator='eq' value='0' />"
+            "<condition attribute='hx_resolutiondocumentationrequired' operator='eq' value='1' />"
         }),
         "modifiedon",
         descending: true);
@@ -1100,6 +1130,44 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         }),
         "modifiedon",
         descending: true);
+
+    EnsureSystemView(
+        service,
+        "hx_servicerequest",
+        "Service Request Associated View",
+        new[]
+        {
+            "hx_confirmationnumber",
+            "hx_title",
+            "hx_lifecyclestatus",
+            "hx_assigneddepartment",
+            "hx_duedate",
+            "hx_approvalstatus",
+            "hx_integrationsyncstatus",
+            "createdon"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "createdon",
+        descending: true,
+        queryType: 2);
+
+    EnsureSystemView(
+        service,
+        "hx_servicerequest",
+        "Service Request Lookup View",
+        new[]
+        {
+            "hx_confirmationnumber",
+            "hx_title",
+            "hx_customercontact",
+            "hx_servicecategory",
+            "hx_lifecyclestatus",
+            "createdon"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "hx_title",
+        descending: false,
+        queryType: 64);
 
     EnsureSystemView(
         service,
@@ -1486,13 +1554,15 @@ static FormField Field(
     string logicalName,
     string label,
     FormControlClass controlClass,
-    bool disabled = false) => new(logicalName, label, controlClass, disabled, false);
+    bool disabled = false,
+    bool fullWidth = false) => new(logicalName, label, controlClass, disabled, false, fullWidth);
 
 static FormField SlaPcfField(
     string logicalName,
     string label,
     FormControlClass controlClass,
-    bool disabled = true) => new(logicalName, label, controlClass, disabled, true);
+    bool disabled = true,
+    bool fullWidth = false) => new(logicalName, label, controlClass, disabled, true, fullWidth);
 
 static void EnsureMainForm(
     IOrganizationService service,
@@ -1582,8 +1652,25 @@ static void DeleteObsoleteMainForms(IOrganizationService service)
             catch (Exception ex)
             {
                 Console.WriteLine($"Warning: skipped deleting form {obsolete.FormName}: {ex.Message}");
+                DeactivateMainForm(service, form.Id, obsolete.FormName);
             }
         }
+    }
+}
+
+static void DeactivateMainForm(IOrganizationService service, Guid formId, string formName)
+{
+    try
+    {
+        service.Update(new Entity("systemform", formId)
+        {
+            ["formactivationstate"] = new OptionSetValue(0)
+        });
+        Console.WriteLine($"Deactivated obsolete main form: {formName}");
+    }
+    catch (Exception deactivateEx)
+    {
+        Console.WriteLine($"Warning: skipped deactivating form {formName}: {deactivateEx.Message}");
     }
 }
 
@@ -1603,13 +1690,11 @@ static string BuildMainFormXml(
 
     foreach (var section in sections)
     {
-        builder.AppendLine($"        <section id=\"{{{DeterministicGuid($"{entityLogicalName}:{section.Name}")}}}\" name=\"{XmlName(section.Name)}\" IsUserDefined=\"1\" showlabel=\"true\" showbar=\"false\" layout=\"varwidth\" columns=\"1\" labelwidth=\"160\">");
+        var sectionColumns = Math.Max(1, Math.Min(3, section.Columns));
+        builder.AppendLine($"        <section id=\"{{{DeterministicGuid($"{entityLogicalName}:{section.Name}")}}}\" name=\"{XmlName(section.Name)}\" IsUserDefined=\"1\" showlabel=\"true\" showbar=\"false\" layout=\"varwidth\" columns=\"{new string('1', sectionColumns)}\" labelwidth=\"160\">");
         builder.AppendLine($"          <labels><label description=\"{Xml(section.Name)}\" languagecode=\"1033\" /></labels>");
         builder.AppendLine("          <rows>");
-        foreach (var field in section.Fields)
-        {
-            AppendCell(builder, entityLogicalName, field, indent: "            ");
-        }
+        AppendSectionRows(builder, entityLogicalName, section, sectionColumns);
         builder.AppendLine("          </rows>");
         builder.AppendLine("        </section>");
     }
@@ -1634,12 +1719,50 @@ static string BuildMainFormXml(
     return builder.ToString();
 }
 
+static void AppendSectionRows(StringBuilder builder, string entityLogicalName, FormSection section, int sectionColumns)
+{
+    if (sectionColumns == 1)
+    {
+        foreach (var field in section.Fields)
+        {
+            AppendCell(builder, entityLogicalName, field, indent: "            ");
+        }
+        return;
+    }
+
+    for (var index = 0; index < section.Fields.Count;)
+    {
+        var field = section.Fields[index];
+        if (field.FullWidth)
+        {
+            AppendCell(builder, entityLogicalName, field, indent: "            ", colspan: sectionColumns);
+            index++;
+            continue;
+        }
+
+        builder.AppendLine("            <row>");
+        AppendCell(builder, entityLogicalName, field, indent: "              ", includeRow: false);
+        index++;
+
+        var cellsInRow = 1;
+        while (cellsInRow < sectionColumns && index < section.Fields.Count && !section.Fields[index].FullWidth)
+        {
+            AppendCell(builder, entityLogicalName, section.Fields[index], indent: "              ", includeRow: false);
+            index++;
+            cellsInRow++;
+        }
+
+        builder.AppendLine("            </row>");
+    }
+}
+
 static void AppendCell(
     StringBuilder builder,
     string entityLogicalName,
     FormField field,
     string indent,
-    bool includeRow = true)
+    bool includeRow = true,
+    int? colspan = null)
 {
     if (includeRow)
     {
@@ -1651,7 +1774,8 @@ static void AppendCell(
     var uniqueId = field.UseSlaPcf
         ? $" uniqueid=\"{{{DeterministicGuid($"{entityLogicalName}:{field.LogicalName}:sla-pcf")}}}\""
         : string.Empty;
-    builder.AppendLine($"{indent}<cell id=\"{{{DeterministicGuid($"{entityLogicalName}:{field.LogicalName}:cell")}}}\" showlabel=\"true\">");
+    var colspanAttribute = colspan is > 1 ? $" colspan=\"{colspan.Value}\"" : string.Empty;
+    builder.AppendLine($"{indent}<cell id=\"{{{DeterministicGuid($"{entityLogicalName}:{field.LogicalName}:cell")}}}\" showlabel=\"true\"{colspanAttribute}>");
     builder.AppendLine($"{indent}  <labels><label description=\"{Xml(field.Label)}\" languagecode=\"1033\" /></labels>");
     builder.AppendLine($"{indent}  <control id=\"{Xml(field.LogicalName)}\" classid=\"{field.ControlClass.Id}\" datafieldname=\"{Xml(field.LogicalName)}\"{disabled}{uniqueId} />");
     builder.AppendLine($"{indent}</cell>");
@@ -2610,21 +2734,21 @@ static void SeedSampleData(IOrganizationService service)
         verified: false, notes: "Coordinator will validate after triage.");
 
     UpsertDemoSyncLog(service, "Demo Sync - Research accepted by HelloX ERP", syncedResearchId, 752630002,
-        "HelloX mock ERP", "HX-ERP-DEMO-1001", DateTime.UtcNow.AddHours(-5),
+        "HelloX mock ERP (OAuth 2.0)", "HX-ERP-DEMO-1001", DateTime.UtcNow.AddHours(-5),
         "{\"confirmationNumber\":\"SR-20260520-00031\",\"title\":\"Approved research partnership synced\"}",
         "{\"ok\":true,\"externalId\":\"HX-ERP-DEMO-1001\",\"status\":\"accepted\"}");
     UpsertDemoSyncLog(service, "Demo Sync - Funding rejected by HelloX ERP", failedSyncId, 752630003,
-        "HelloX mock ERP", string.Empty, DateTime.UtcNow.AddHours(-1),
+        "HelloX mock ERP (OAuth 2.0)", string.Empty, DateTime.UtcNow.AddHours(-1),
         "{\"confirmationNumber\":\"SR-20260520-00044\",\"simulateFailure\":true}",
         "{\"ok\":false,\"error\":{\"code\":\"ERP_DEMO_REJECTION\"},\"retryable\":true}");
     UpsertDemoSyncLog(service, "Demo Sync - Pending approval not sent", criticalPendingId, 752630000,
-        "HelloX mock ERP", string.Empty, DateTime.UtcNow.AddMinutes(-45),
+        "HelloX mock ERP (OAuth 2.0)", string.Empty, DateTime.UtcNow.AddMinutes(-45),
         "{\"status\":\"held until approval\"}",
         "No API call made because manager approval is still pending.");
 
     UpsertDemoErrorLog(service, "Demo Error - ERP sync failure captured", failedSyncId, 752630003,
         "ERP Sync", "FLOW-DEMO-ERP-FAIL", "HelloX mock ERP returned the demo failure response.",
-        "HTTP 503 from /api/esi-service-requests?fail=true", "{\"simulateFailure\":true}", resolved: false);
+        "HTTP 503 from /api/mock/enterprise-service-intake/erp?fail=true", "{\"simulateFailure\":true}", resolved: false);
     UpsertDemoErrorLog(service, "Demo Error - Approval notification retry resolved", rejectedResearchId, 752630001,
         "Approval", "FLOW-DEMO-APPROVAL-RETRY", "Approval notification was delayed and then retried successfully.",
         "Approval connector transient timeout on first attempt.", "{\"approvalStatus\":\"Rejected\"}", resolved: true);
@@ -3253,8 +3377,43 @@ static JsonObject? CloneJson(JsonNode? node)
         : JsonNode.Parse(node.ToJsonString())?.AsObject();
 }
 
+static JsonObject BuildHelloXOAuthTokenAction(string tokenEndpoint, string clientId, string clientSecret)
+{
+    return new JsonObject
+    {
+        ["type"] = "Http",
+        ["inputs"] = new JsonObject
+        {
+            ["uri"] = tokenEndpoint,
+            ["method"] = "POST",
+            ["headers"] = new JsonObject
+            {
+                ["Content-Type"] = "application/x-www-form-urlencoded"
+            },
+            ["body"] =
+                $"grant_type=client_credentials&client_id={Uri.EscapeDataString(clientId)}&client_secret={Uri.EscapeDataString(clientSecret)}"
+        },
+        ["runtimeConfiguration"] = new JsonObject
+        {
+            ["contentTransfer"] = new JsonObject
+            {
+                ["transferMode"] = "Chunked"
+            },
+            ["secureData"] = new JsonObject
+            {
+                ["properties"] = new JsonArray("inputs", "outputs")
+            }
+        }
+    };
+}
+
 static void PatchApprovalFlowDefinition(IOrganizationService service)
 {
+    var tokenEndpoint = Optional("HELLOX_MOCK_ERP_OAUTH_TOKEN_URL", HelloXMockOAuthTokenEndpoint);
+    var erpEndpoint = Optional("HELLOX_MOCK_ERP_ENDPOINT", HelloXMockErpEndpoint);
+    var clientId = Required("HELLOX_MOCK_ERP_CLIENT_ID");
+    var clientSecret = Required("HELLOX_MOCK_ERP_CLIENT_SECRET");
+
     var query = new QueryExpression("workflow")
     {
         ColumnSet = new ColumnSet("workflowid", "name", "clientdata", "statecode", "statuscode"),
@@ -3283,18 +3442,25 @@ static void PatchApprovalFlowDefinition(IOrganizationService service)
     var approvedActions = condition["actions"]?.AsObject()
         ?? throw new InvalidOperationException("Approval condition true branch was not found.");
 
-    if (approvedActions["HTTP"] is JsonObject httpAction)
-    {
-        var inputs = httpAction["inputs"]?.AsObject()
-            ?? throw new InvalidOperationException("HTTP action inputs were not found.");
-        inputs["uri"] = HelloXMockErpEndpoint;
-    }
+    approvedActions[HelloXMockOAuthTokenActionName] = BuildHelloXOAuthTokenAction(tokenEndpoint, clientId, clientSecret);
+
+    var httpAction = approvedActions[HelloXMockErpActionName]?.AsObject()
+        ?? throw new InvalidOperationException("ERP HTTP action was not found.");
+    var inputs = httpAction["inputs"]?.AsObject()
+        ?? throw new InvalidOperationException("ERP HTTP action inputs were not found.");
+    var headers = inputs["headers"]?.AsObject() ?? new JsonObject();
+    inputs["uri"] = erpEndpoint;
+    headers["Content-Type"] = "application/json";
+    headers["Authorization"] = $"@{{concat('Bearer ', body('{HelloXMockOAuthTokenActionName}')?['access_token'])}}";
+    inputs["headers"] = headers;
+    httpAction["runAfter"] = RunAfterSucceeded(HelloXMockOAuthTokenActionName);
 
     if (approvedActions["Add_a_new_row"] is JsonObject syncLogAction)
     {
         var parameters = syncLogAction["inputs"]?["parameters"]?.AsObject()
             ?? throw new InvalidOperationException("External Sync Log action parameters were not found.");
-        parameters["item/hx_endpointname"] = "HelloX mock ERP";
+        parameters["item/hx_endpointname"] = "HelloX mock ERP (OAuth 2.0)";
+        parameters["item/hx_requestpayload"] = "Service request @{triggerOutputs()?['body/hx_confirmationnumber']} posted to OAuth-protected HelloX mock ERP endpoint.";
     }
 
     if (!elseActions.ContainsKey("Update_request_as_rejected"))
@@ -3354,7 +3520,26 @@ static void PatchApprovalFlowDefinition(IOrganizationService service)
     };
 
     TryUpdateFlowDefinition(service, flow, updated);
-    Console.WriteLine("Patched cloud flow endpoint, false branch, and Catch error-log scope.");
+    var saved = service.Retrieve("workflow", flow.Id, new ColumnSet("clientdata"));
+    var savedRoot = JsonNode.Parse(saved.GetAttributeValue<string>("clientdata"))?.AsObject()
+        ?? throw new InvalidOperationException("Saved cloud flow clientdata is not valid JSON.");
+    var savedApprovedActions = savedRoot["properties"]?["definition"]?["actions"]?["Try_-_approval_and_ERP_sync"]?["actions"]?["Condition"]?["actions"]?.AsObject()
+        ?? throw new InvalidOperationException("Saved approval branch was not found.");
+    _ = savedApprovedActions[HelloXMockOAuthTokenActionName]?.AsObject()
+        ?? throw new InvalidOperationException("Saved HelloX OAuth token action was not found.");
+    var savedHttpInputs = savedApprovedActions[HelloXMockErpActionName]?["inputs"]?.AsObject()
+        ?? throw new InvalidOperationException("Saved ERP HTTP action inputs were not found.");
+    if (!string.Equals(savedHttpInputs["uri"]?.GetValue<string>(), erpEndpoint, StringComparison.Ordinal))
+    {
+        throw new InvalidOperationException("Saved ERP HTTP endpoint does not match the expected protected HelloX endpoint.");
+    }
+    var savedAuthorizationHeader = savedHttpInputs["headers"]?["Authorization"]?.GetValue<string>();
+    if (string.IsNullOrWhiteSpace(savedAuthorizationHeader) ||
+        !savedAuthorizationHeader.Contains(HelloXMockOAuthTokenActionName, StringComparison.Ordinal))
+    {
+        throw new InvalidOperationException("Saved ERP HTTP action does not use the HelloX OAuth token action.");
+    }
+    Console.WriteLine($"Patched cloud flow OAuth token action and ERP endpoint: {erpEndpoint}");
 }
 
 static JsonObject DataverseCreateAction(JsonObject parameters, JsonObject? runAfter = null)
@@ -3483,9 +3668,15 @@ static void TryUpdateFlowDefinition(IOrganizationService service, Entity flow, E
     });
 }
 
-internal sealed record FormSection(string Name, IReadOnlyList<FormField> Fields);
+internal sealed record FormSection(string Name, IReadOnlyList<FormField> Fields, int Columns = 1);
 
-internal sealed record FormField(string LogicalName, string Label, FormControlClass ControlClass, bool Disabled, bool UseSlaPcf);
+internal sealed record FormField(
+    string LogicalName,
+    string Label,
+    FormControlClass ControlClass,
+    bool Disabled,
+    bool UseSlaPcf,
+    bool FullWidth);
 
 internal sealed record DashboardComponent(
     string Id,

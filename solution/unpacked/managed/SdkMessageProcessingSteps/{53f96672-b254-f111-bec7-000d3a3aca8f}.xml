@@ -17,7 +17,7 @@
   <IntroducedVersion>1.0</IntroducedVersion>
   <SdkMessageProcessingStepImages>
     <SdkMessageProcessingStepImage Name="PreImage">
-      <SdkMessageProcessingStepImageId>{f10873d9-4855-f111-bec7-000d3a3aca8f}</SdkMessageProcessingStepImageId>
+      <SdkMessageProcessingStepImageId>{48cf7472-4c55-f111-bec7-000d3a3aca8f}</SdkMessageProcessingStepImageId>
       <Attributes>hx_severity,hx_resolutiondocumentationrequired,hx_internalresolutionnotes</Attributes>
       <EntityAlias>PreImage</EntityAlias>
       <ImageType>0</ImageType>

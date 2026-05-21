@@ -24,7 +24,8 @@ Live review links:
 - Power Platform environment: https://mitacs.crm.dynamics.com/
 - Model-driven app: https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f
 - Power Pages site: https://enterprise-service-intake-hellox.powerappsportals.com
-- Mock ERP endpoint: https://hellox.ca/api/esi-service-requests
+- OAuth-protected mock ERP endpoint: https://hellox.ca/api/mock/enterprise-service-intake/erp
+- OAuth token endpoint: https://hellox.ca/api/mock/oauth/token
 - Hidden mock ERP console: https://hellox.ca/esi/
 
 Reviewer accounts available in the tenant:
@@ -35,7 +36,7 @@ Reviewer accounts available in the tenant:
 
 Passwords will be shared separately by the environment administrator and rotated after the interview.
 
-One implementation note: the assignment mentioned `reqres.in` as an example mock endpoint. Its POST endpoint currently requires an API key, so I used a HelloX-hosted mock ERP endpoint. It returns a mock external ID without requiring a third-party secret and includes a failure mode for demonstrating the Power Automate Catch path.
+One implementation note: the assignment mentioned `reqres.in` as an example mock endpoint. Its POST endpoint currently requires an API key, so I used a HelloX-hosted mock ERP endpoint protected by OAuth 2.0 client credentials. It returns a mock external ID, avoids a third-party dependency, and includes a failure mode for demonstrating the Power Automate Catch path.
 
 I also included reviewer-ready live evidence for the post-submit SharePoint document upload path, applicant confirmation email flow, model-driven dashboards, and seeded demo data across all custom tables.
 

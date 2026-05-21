@@ -8,10 +8,16 @@
     <isdefault>1</isdefault>
     <savedqueryid>{cd210618-8f67-4c61-b57d-231a9062f8bf}</savedqueryid>
     <layoutxml>
-      <grid name="hx_servicerequests" jump="hx_title" select="1" icon="1" preview="1">
-        <row name="hx_servicerequest" id="hx_servicerequestid">
-          <cell name="hx_title" width="300" />
-          <cell name="createdon" width="125" />
+      <grid name="resultset" jump="hx_confirmationnumber" select="1" icon="1" preview="1">
+        <row name="result" id="hx_servicerequestid">
+          <cell name="hx_confirmationnumber" width="160" />
+          <cell name="hx_title" width="160" />
+          <cell name="hx_lifecyclestatus" width="160" />
+          <cell name="hx_assigneddepartment" width="160" />
+          <cell name="hx_duedate" width="160" />
+          <cell name="hx_approvalstatus" width="160" />
+          <cell name="hx_integrationsyncstatus" width="160" />
+          <cell name="createdon" width="160" />
         </row>
       </grid>
     </layoutxml>
@@ -19,10 +25,15 @@
     <fetchxml>
       <fetch version="1.0" mapping="logical">
         <entity name="hx_servicerequest">
-          <attribute name="hx_servicerequestid" />
+          <attribute name="hx_confirmationnumber" />
           <attribute name="hx_title" />
+          <attribute name="hx_lifecyclestatus" />
+          <attribute name="hx_assigneddepartment" />
+          <attribute name="hx_duedate" />
+          <attribute name="hx_approvalstatus" />
+          <attribute name="hx_integrationsyncstatus" />
           <attribute name="createdon" />
-          <order attribute="hx_title" descending="false" />
+          <order attribute="createdon" descending="true" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>

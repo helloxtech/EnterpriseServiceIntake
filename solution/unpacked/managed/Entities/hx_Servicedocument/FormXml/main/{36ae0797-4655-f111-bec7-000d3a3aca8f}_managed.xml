@@ -9,7 +9,7 @@
       <tabs>
         <tab verticallayout="true" id="{3596d45e-9c7e-ec2b-046a-e5476b9f3ec5}" name="tab_summary" IsUserDefined="1" showlabel="true">
           <labels>
-            <label description="" languagecode="1033" />
+            <label description="Summary" languagecode="1033" />
           </labels>
           <columns>
             <column width="100%">
@@ -71,7 +71,7 @@
                 </section>
                 <section id="{72eabad8-349a-e2c5-d971-26081c28ec94}" name="review" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
                   <labels>
-                    <label description="" languagecode="1033" />
+                    <label description="Review" languagecode="1033" />
                   </labels>
                   <rows>
                     <row>

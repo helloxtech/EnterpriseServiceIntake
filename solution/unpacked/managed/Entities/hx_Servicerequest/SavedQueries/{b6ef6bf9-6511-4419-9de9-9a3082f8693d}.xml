@@ -8,10 +8,20 @@
     <isdefault>1</isdefault>
     <savedqueryid>{b6ef6bf9-6511-4419-9de9-9a3082f8693d}</savedqueryid>
     <layoutxml>
-      <grid name="resultset" jump="hx_title" select="1" icon="1" preview="1">
+      <grid name="resultset" jump="hx_confirmationnumber" select="1" icon="1" preview="1">
         <row name="result" id="hx_servicerequestid">
-          <cell name="hx_title" width="300" />
-          <cell name="createdon" width="125" />
+          <cell name="hx_confirmationnumber" width="160" />
+          <cell name="hx_title" width="160" />
+          <cell name="hx_customercontact" width="160" />
+          <cell name="hx_servicecategory" width="160" />
+          <cell name="hx_severity" width="160" />
+          <cell name="hx_priority" width="160" />
+          <cell name="hx_lifecyclestatus" width="160" />
+          <cell name="hx_assigneddepartment" width="160" />
+          <cell name="hx_duedate" width="160" />
+          <cell name="hx_approvalstatus" width="160" />
+          <cell name="hx_integrationsyncstatus" width="160" />
+          <cell name="createdon" width="160" />
         </row>
       </grid>
     </layoutxml>
@@ -19,10 +29,19 @@
     <fetchxml>
       <fetch version="1.0" mapping="logical">
         <entity name="hx_servicerequest">
-          <attribute name="hx_servicerequestid" />
+          <attribute name="hx_confirmationnumber" />
           <attribute name="hx_title" />
+          <attribute name="hx_customercontact" />
+          <attribute name="hx_servicecategory" />
+          <attribute name="hx_severity" />
+          <attribute name="hx_priority" />
+          <attribute name="hx_lifecyclestatus" />
+          <attribute name="hx_assigneddepartment" />
+          <attribute name="hx_duedate" />
+          <attribute name="hx_approvalstatus" />
+          <attribute name="hx_integrationsyncstatus" />
           <attribute name="createdon" />
-          <order attribute="hx_title" descending="false" />
+          <order attribute="createdon" descending="true" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>

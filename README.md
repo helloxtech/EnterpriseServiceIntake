@@ -16,7 +16,8 @@ End to end: an external user submits a multi-step service request in Power Pages
 | Maker solution | https://make.powerapps.com/environments/99dd50ed-a753-e37f-912c-78a022b12b09/solutions |
 | Model-driven app | https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f |
 | Power Pages site | https://enterprise-service-intake-hellox.powerappsportals.com |
-| HelloX mock ERP API | https://hellox.ca/api/esi-service-requests |
+| HelloX mock ERP API | https://hellox.ca/api/mock/enterprise-service-intake/erp |
+| HelloX OAuth token endpoint | https://hellox.ca/api/mock/oauth/token |
 | Hidden HelloX ERP console | https://hellox.ca/esi/ |
 | Power Automate flow | `ESI - Approval and ERP Sync` |
 
@@ -49,7 +50,8 @@ flowchart LR
     Dataverse --> App["Model-driven app\ncoordinator queue"]
     Dataverse --> Flow["Power Automate\napproval + ERP sync"]
     Flow --> Manager["Manager approval"]
-    Flow --> Api["HelloX mock ERP API\nhellox.ca/api/esi-service-requests"]
+    Flow --> Token["HelloX OAuth token\nclient credentials"]
+    Token --> Api["HelloX mock ERP API\nhellox.ca/api/mock/enterprise-service-intake/erp"]
     Api --> Flow
     Flow --> Logs["External Sync Log\nSystem Error Log"]
     App --> PCF["PCF SLA Status Indicator"]
@@ -125,9 +127,9 @@ erDiagram
 | Confirmation number | Dataverse autonumber `SR-{yyyyMMdd}-{SEQNUM}` on Service Request. | Server-generated and tamper-resistant. |
 | Critical close guardrail | PreOperation C# plugin blocks resolved/closed critical requests unless internal resolution notes exist and an accepted `Service Request Evidence Review` row references a SharePoint file. | A plugin is the right layer because agents cannot bypass it from forms, imports, flows, or API calls. The guardrail does not rely on a user-editable documentation checkbox. |
 | Supporting documents | After request creation, the portal sends the applicant to a secure SharePoint upload page backed by Power Pages Basic Form/document management. Uploaded files are stored against the request's native document location and are viewed from the out-of-box model-driven Documents associated tab. `Service Request Evidence Review` stores Dataverse-owned review metadata and file links only for documents that become official evidence. | The applicant must have a saved request ID before SharePoint can associate files to the correct Dataverse record; this keeps the custom intake fast while using the supported document-management path for files and Dataverse for request, routing, approval, and review state. |
-| Approval + ERP sync | Cloud flow `ESI - Approval and ERP Sync` with Try scope, approval, HTTP POST, Dataverse writeback, sync log, reject branch, and Catch error-log scope. | Flow is appropriate for human approvals, connector-based integration, retries, and run history evidence. |
+| Approval + ERP sync | Cloud flow `ESI - Approval and ERP Sync` with Try scope, approval, OAuth client-credentials token request, protected HTTP POST, Dataverse writeback, sync log, reject branch, and Catch error-log scope. | Flow is appropriate for human approvals, connector-based integration, retries, and run history evidence. The mock ERP token step demonstrates app-to-app authentication without a human refresh token. |
 | Applicant confirmation email | Cloud flow `ESI - Send Confirmation Email` triggers on Service Request create, sends the generated confirmation number to the applicant, and logs email failures to System Error Logs. | Email delivery belongs in automation so failures are visible in flow history/error logs and do not block transactional request creation. |
-| Mock ERP endpoint | `https://hellox.ca/api/esi-service-requests` returns a deterministic external `id`/`externalId` from POST. | Keeps the demo self-contained on a controlled HelloX endpoint, avoids third-party API keys, and provides a deliberate failure mode for the Catch path. |
+| Mock ERP endpoint | `https://hellox.ca/api/mock/enterprise-service-intake/erp` is protected by HelloX OAuth 2.0 client credentials and returns a deterministic external `id`/`externalId` from POST. | Keeps the demo self-contained on a controlled HelloX endpoint, avoids third-party API keys, and provides a deliberate failure mode for the Catch path. The client secret is stored outside Git and injected into the live flow through the provisioning utility. |
 | Internal UX | Model-driven coordinator app plus PCF SLA/status indicator. | Keeps operational work in Dataverse while using PCF for richer visual status. |
 | External UX | Power Pages private site with multi-step intake, dynamic SLA/routing preview, and post-submit SharePoint upload step. | External users get a clean customer-facing experience without internal fields. |
 
@@ -148,6 +150,8 @@ Dashboards are also provisioned for the live review:
 
 The forms are role-focused instead of generic Dataverse layouts: service requests separate intake, triage, routing/SLA, approval/ERP sync, and resolution guardrails; configuration tables surface active rule inputs; log tables prioritize triage fields and payload details.
 
+There are two Service Request main forms by design. `Service Request - Coordinator` is the internal working form. `Service Request - SharePoint Documents` is a minimal Power Pages support form used by the `ESI - Service Request SharePoint Documents` Basic Form to render Dataverse document management after a portal submission. It is not the coordinator work surface.
+
 ## Security Strategy
 
 - External users authenticate to Power Pages and are associated to Contact rows.
@@ -155,7 +159,7 @@ The forms are role-focused instead of generic Dataverse layouts: service request
 - Public read access is limited to reference/routing data required for SLA preview.
 - Internal-only fields such as `hx_internalresolutionnotes` are not exposed on portal pages and the column is configured as secured metadata.
 - Internal users work from the model-driven app with Dataverse security roles and views; sensitive audit/error tables are intended for managers/admins.
-- Secrets and reviewer passwords are stored outside Git. See the administrator handoff for credential sharing.
+- Secrets and reviewer passwords are stored outside Git. The HelloX mock ERP OAuth client secret is injected from the private provisioning environment file, and the token action uses secure inputs/outputs in Power Automate run history. See the administrator handoff for credential sharing.
 
 ## Automation Design
 
@@ -172,10 +176,11 @@ Main path:
 
 1. `Try - approval and ERP sync` scope.
 2. Start and wait for approval assigned to `manager@hellosmart.ca`.
-3. If approved, POST to mock ERP endpoint.
-4. Update Service Request with approval status, lifecycle, integration status, customer-visible update, and external ERP ID.
-5. Create External Sync Log.
-6. If rejected, update the request to rejected and skip ERP sync.
+3. If approved, request a short-lived HelloX OAuth access token with the client-credentials grant.
+4. POST to the OAuth-protected mock ERP endpoint with `Authorization: Bearer <access_token>`.
+5. Update Service Request with approval status, lifecycle, integration status, customer-visible update, and external ERP ID.
+6. Create External Sync Log.
+7. If rejected, update the request to rejected and skip ERP sync.
 
 Catch path:
 
@@ -240,7 +245,7 @@ Validated locally and against the live environment:
 - Power Pages create path submits to Dataverse and routes to Finance for critical funding requests.
 - Model-driven app opens the coordinator queue and request form.
 - Managed/unmanaged solution export and unpack succeed.
-- Cloud flow is active, solution-aware, and includes approval, HTTP sync to HelloX mock ERP, reject branch, External Sync Log, and Catch error-log scope.
+- Cloud flow is active, solution-aware, and includes approval, HelloX OAuth token request, Bearer-token sync to HelloX mock ERP, reject branch, External Sync Log, and Catch error-log scope.
 - Confirmation email flow is active and solution-aware; email delivery issues are captured in System Error Logs.
 - Provisioning utility pins `System.Security.Cryptography.Xml` directly to avoid the vulnerable transitive SDK version reported by NuGet audit.
 - PCF control is included in the solution and bound on the Service Request coordinator form.
@@ -254,6 +259,8 @@ export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"
 dotnet build src/plugins/ServiceIntake.Plugins/ServiceIntake.Plugins.csproj
 dotnet build src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
 
+PATCH_FLOW_DEFINITION=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+
 pac solution publish
 pac solution export --name EnterpriseServiceIntake --path solution/export/Enterprise_ServiceIntake_ForrestZhang_unmanaged.zip --overwrite
 pac solution export --name EnterpriseServiceIntake --path solution/export/Enterprise_ServiceIntake_ForrestZhang_managed.zip --managed --overwrite
@@ -261,6 +268,8 @@ pac solution export --name EnterpriseServiceIntake --path solution/export/Enterp
 pac solution unpack --zipfile solution/export/Enterprise_ServiceIntake_ForrestZhang_managed.zip --folder solution/unpacked/managed --packagetype Managed --clobber --allowWrite
 pac solution unpack --zipfile solution/export/Enterprise_ServiceIntake_ForrestZhang_unmanaged.zip --folder solution/unpacked/unmanaged --packagetype Unmanaged --clobber --allowWrite
 ```
+
+The flow patch command expects `HELLOX_MOCK_ERP_CLIENT_ID` and `HELLOX_MOCK_ERP_CLIENT_SECRET` in the private local environment file. Do not commit exported flow definitions that contain the live client secret; the unpacked workflow source uses parameter placeholders for review.
 
 When `dotnet`/`pac` is not available, the model-driven app design can be applied and exported through Dataverse Web API:
 

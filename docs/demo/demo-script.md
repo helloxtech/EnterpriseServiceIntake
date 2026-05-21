@@ -88,7 +88,8 @@ Show:
 - Dataverse trigger filtered to approval-required, pending, unsynced requests.
 - `Try - approval and ERP sync` scope.
 - Approval assigned to `manager@hellosmart.ca`.
-- HTTP POST to `https://hellox.ca/api/esi-service-requests`.
+- `HTTP - get HelloX OAuth token` using the client-credentials grant.
+- HTTP POST to `https://hellox.ca/api/mock/enterprise-service-intake/erp` with the Bearer token.
 - Dataverse update that stores external ERP ID.
 - External Sync Log creation.
 - Reject branch.

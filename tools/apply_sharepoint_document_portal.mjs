@@ -71,6 +71,7 @@ async function ensurePortalDocumentSystemForm() {
     name: portalFormName,
     objecttypecode: "hx_servicerequest",
     type: 2,
+    formactivationstate: 1,
     description: "Power Pages edit form used to expose SharePoint document management for submitted service requests.",
     formxml: buildPortalDocumentFormXml()
   };
@@ -385,7 +386,10 @@ async function patchOrReuse(relativePath, payload, updatedMessage, reusedMessage
     await dataverse("PATCH", relativePath, payload);
     console.log(updatedMessage);
   } catch (error) {
-    if (!String(error.message).includes("0x80040333")) throw error;
+    const message = String(error.message);
+    if (!message.includes("0x80040333") && !message.includes("Web page with same partial url and parent page already exists")) {
+      throw error;
+    }
     console.log(reusedMessage);
   }
 }

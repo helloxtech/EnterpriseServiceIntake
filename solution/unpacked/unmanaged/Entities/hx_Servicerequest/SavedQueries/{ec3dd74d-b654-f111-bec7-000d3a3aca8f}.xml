@@ -12,6 +12,7 @@
         <row name="result" id="hx_servicerequestid">
           <cell name="hx_confirmationnumber" width="160" />
           <cell name="hx_title" width="160" />
+          <cell name="hx_customercontact" width="160" />
           <cell name="hx_servicecategory" width="160" />
           <cell name="hx_severity" width="160" />
           <cell name="hx_priority" width="160" />
@@ -30,6 +31,7 @@
         <entity name="hx_servicerequest">
           <attribute name="hx_confirmationnumber" />
           <attribute name="hx_title" />
+          <attribute name="hx_customercontact" />
           <attribute name="hx_servicecategory" />
           <attribute name="hx_severity" />
           <attribute name="hx_priority" />

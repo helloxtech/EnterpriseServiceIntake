@@ -40,6 +40,14 @@
         "$connections": {
           "defaultValue": {},
           "type": "Object"
+        },
+        "HelloXMockOAuthClientId": {
+          "defaultValue": "set-by-private-provisioning",
+          "type": "String"
+        },
+        "HelloXMockOAuthClientSecret": {
+          "defaultValue": "",
+          "type": "SecureString"
         }
       },
       "triggers": {
@@ -89,10 +97,11 @@
                 "HTTP": {
                   "type": "Http",
                   "inputs": {
-                    "uri": "https://hellox.ca/api/esi-service-requests",
+                    "uri": "https://hellox.ca/api/mock/enterprise-service-intake/erp",
                     "method": "POST",
                     "headers": {
-                      "Content-Type": "application/json"
+                      "Content-Type": "application/json",
+                      "Authorization": "@{concat('Bearer ', body('HTTP_-_get_HelloX_OAuth_token')?['access_token'])}"
                     },
                     "body": {
                       "name": "@{triggerOutputs()?['body/hx_confirmationnumber']}",
@@ -108,6 +117,11 @@
                     "contentTransfer": {
                       "transferMode": "Chunked"
                     }
+                  },
+                  "runAfter": {
+                    "HTTP_-_get_HelloX_OAuth_token": [
+                      "Succeeded"
+                    ]
                   }
                 },
                 "Update_a_row": {
@@ -146,9 +160,9 @@
                       "entityName": "hx_externalsynclogs",
                       "item/hx_name": "ERP sync - @{triggerOutputs()?['body/hx_confirmationnumber']}",
                       "item/hx_attemptedon": "@utcNow()",
-                      "item/hx_endpointname": "HelloX mock ERP",
+                      "item/hx_endpointname": "HelloX mock ERP (OAuth 2.0)",
                       "item/hx_externalid": "@body('HTTP')?['id']",
-                      "item/hx_requestpayload": "Service request @{triggerOutputs()?['body/hx_confirmationnumber']} posted to mock ERP endpoint.",
+                      "item/hx_requestpayload": "Service request @{triggerOutputs()?['body/hx_confirmationnumber']} posted to OAuth-protected HelloX mock ERP endpoint.",
                       "item/hx_responsesummary": "@string(body('HTTP'))",
                       "item/hx_Servicerequest@odata.bind": "@triggerOutputs()?['body/hx_servicerequestid']",
                       "item/hx_syncstatus": 752630002
@@ -157,6 +171,28 @@
                       "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
                       "operationId": "CreateRecord",
                       "connectionName": "shared_commondataserviceforapps-1"
+                    }
+                  }
+                },
+                "HTTP_-_get_HelloX_OAuth_token": {
+                  "type": "Http",
+                  "inputs": {
+                    "uri": "https://hellox.ca/api/mock/oauth/token",
+                    "method": "POST",
+                    "headers": {
+                      "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    "body": "grant_type=client_credentials&client_id=@{parameters('HelloXMockOAuthClientId')}&client_secret=@{parameters('HelloXMockOAuthClientSecret')}"
+                  },
+                  "runtimeConfiguration": {
+                    "contentTransfer": {
+                      "transferMode": "Chunked"
+                    },
+                    "secureData": {
+                      "properties": [
+                        "inputs",
+                        "outputs"
+                      ]
                     }
                   }
                 }

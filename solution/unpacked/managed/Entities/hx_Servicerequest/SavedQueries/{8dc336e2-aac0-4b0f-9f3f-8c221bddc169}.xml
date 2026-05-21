@@ -8,10 +8,14 @@
     <isdefault>1</isdefault>
     <savedqueryid>{8dc336e2-aac0-4b0f-9f3f-8c221bddc169}</savedqueryid>
     <layoutxml>
-      <grid name="hx_servicerequests" jump="hx_title" select="1" icon="1" preview="0">
-        <row name="hx_servicerequest" id="hx_servicerequestid">
-          <cell name="hx_title" width="300" />
-          <cell name="createdon" width="125" />
+      <grid name="resultset" jump="hx_confirmationnumber" select="1" icon="1" preview="1">
+        <row name="result" id="hx_servicerequestid">
+          <cell name="hx_confirmationnumber" width="160" />
+          <cell name="hx_title" width="160" />
+          <cell name="hx_customercontact" width="160" />
+          <cell name="hx_servicecategory" width="160" />
+          <cell name="hx_lifecyclestatus" width="160" />
+          <cell name="createdon" width="160" />
         </row>
       </grid>
     </layoutxml>
@@ -19,9 +23,13 @@
     <fetchxml>
       <fetch version="1.0" mapping="logical">
         <entity name="hx_servicerequest">
-          <attribute name="hx_servicerequestid" />
+          <attribute name="hx_confirmationnumber" />
           <attribute name="hx_title" />
+          <attribute name="hx_customercontact" />
+          <attribute name="hx_servicecategory" />
+          <attribute name="hx_lifecyclestatus" />
           <attribute name="createdon" />
+          <order attribute="hx_title" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
