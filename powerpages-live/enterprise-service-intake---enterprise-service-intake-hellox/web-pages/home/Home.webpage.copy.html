@@ -10,16 +10,7 @@
   <p>Tell us what you need, validate each step, and preview the expected response path before you submit.</p>
 </section>
 
-{% unless user %}
-<main class="esi-shell" id="mainContent">
-  <section class="esi-auth-gate">
-    <span class="esi-preview-label">Secure intake</span>
-    <h2>Sign in to submit a service request</h2>
-    <p>Service requests are tied to your customer profile so you can track your own submissions and internal staff can protect customer-specific information.</p>
-    <a class="esi-primary esi-link-button" href="{% if homeurl%}/{{ homeurl }}{% endif %}{{ website.sign_in_url_substitution }}">Sign in to continue</a>
-  </section>
-</main>
-{% else %}
+{% if user %}
 <main class="esi-shell" data-esi-intake>
   <div class="esi-security-note">
     <strong>Signed in as {{ user.fullname | default: user.emailaddress1 | escape }}</strong>
@@ -135,4 +126,13 @@
     name: "{{ user.fullname | escape }}"
   };
 </script>
+{% else %}
+<main class="esi-shell" id="mainContent">
+  <section class="esi-auth-gate">
+    <span class="esi-preview-label">Secure intake</span>
+    <h2>Sign in to submit a service request</h2>
+    <p>Service requests are tied to your customer profile so you can track your own submissions and internal staff can protect customer-specific information.</p>
+    <a class="esi-primary esi-link-button" href="{% if homeurl %}/{{ homeurl }}{% endif %}{{ website.sign_in_url_substitution }}">Sign in to continue</a>
+  </section>
+</main>
 {% endif %}
