@@ -1,0 +1,12 @@
+adx_append: true
+adx_appendto: true
+adx_create: false
+adx_delete: false
+adx_entitylogicalname: contact
+adx_entityname: Contact - Self - Append To
+adx_entitypermission_webrole:
+- 074793e4-f9a3-4031-b22a-fae4fdd37b05
+adx_entitypermissionid: 544ef00a-9506-4b0d-be14-8be80b23feb3
+adx_read: true
+adx_scope: 756150004
+adx_write: false

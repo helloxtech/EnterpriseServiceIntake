@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{f03dd74d-b654-f111-bec7-000d3a3aca8f}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="hx_name" select="1" icon="1" preview="1">
+        <row name="result" id="hx_externalsynclogid">
+          <cell name="hx_name" width="160" />
+          <cell name="hx_servicerequest" width="160" />
+          <cell name="hx_syncstatus" width="160" />
+          <cell name="hx_endpointname" width="160" />
+          <cell name="hx_externalid" width="160" />
+          <cell name="hx_attemptedon" width="160" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="hx_externalsynclog">
+          <attribute name="hx_name" />
+          <attribute name="hx_servicerequest" />
+          <attribute name="hx_syncstatus" />
+          <attribute name="hx_endpointname" />
+          <attribute name="hx_externalid" />
+          <attribute name="hx_attemptedon" />
+          <order attribute="hx_attemptedon" descending="true" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="ERP Sync Attempts" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

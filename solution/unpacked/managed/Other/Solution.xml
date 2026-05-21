@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml version="9.2.26042.168" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26042.168" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26042.00168">
+  <SolutionManifest>
+    <UniqueName>EnterpriseServiceIntake</UniqueName>
+    <LocalizedNames>
+      <LocalizedName description="Enterprise Service Intake" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="Senior Power Platform Developer take-home assignment solution." languagecode="1033" />
+    </Descriptions>
+    <Version>1.0.0.0</Version>
+    <Managed>1</Managed>
+    <Publisher>
+      <UniqueName>HelloXTech</UniqueName>
+      <LocalizedNames>
+        <LocalizedName description="HelloX Tech" languagecode="1033" />
+      </LocalizedNames>
+      <Descriptions />
+      <EMailAddress xsi:nil="true"></EMailAddress>
+      <SupportingWebsiteUrl xsi:nil="true"></SupportingWebsiteUrl>
+      <CustomizationPrefix>hx</CustomizationPrefix>
+      <CustomizationOptionValuePrefix>75263</CustomizationOptionValuePrefix>
+      <Addresses>
+        <Address>
+          <AddressNumber>1</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <City xsi:nil="true"></City>
+          <County xsi:nil="true"></County>
+          <Country xsi:nil="true"></Country>
+          <Fax xsi:nil="true"></Fax>
+          <FreightTermsCode xsi:nil="true"></FreightTermsCode>
+          <ImportSequenceNumber xsi:nil="true"></ImportSequenceNumber>
+          <Latitude xsi:nil="true"></Latitude>
+          <Line1 xsi:nil="true"></Line1>
+          <Line2 xsi:nil="true"></Line2>
+          <Line3 xsi:nil="true"></Line3>
+          <Longitude xsi:nil="true"></Longitude>
+          <Name xsi:nil="true"></Name>
+          <PostalCode xsi:nil="true"></PostalCode>
+          <PostOfficeBox xsi:nil="true"></PostOfficeBox>
+          <PrimaryContactName xsi:nil="true"></PrimaryContactName>
+          <ShippingMethodCode>1</ShippingMethodCode>
+          <StateOrProvince xsi:nil="true"></StateOrProvince>
+          <Telephone1 xsi:nil="true"></Telephone1>
+          <Telephone2 xsi:nil="true"></Telephone2>
+          <Telephone3 xsi:nil="true"></Telephone3>
+          <TimeZoneRuleVersionNumber xsi:nil="true"></TimeZoneRuleVersionNumber>
+          <UPSZone xsi:nil="true"></UPSZone>
+          <UTCOffset xsi:nil="true"></UTCOffset>
+          <UTCConversionTimeZoneCode xsi:nil="true"></UTCConversionTimeZoneCode>
+        </Address>
+        <Address>
+          <AddressNumber>2</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <City xsi:nil="true"></City>
+          <County xsi:nil="true"></County>
+          <Country xsi:nil="true"></Country>
+          <Fax xsi:nil="true"></Fax>
+          <FreightTermsCode xsi:nil="true"></FreightTermsCode>
+          <ImportSequenceNumber xsi:nil="true"></ImportSequenceNumber>
+          <Latitude xsi:nil="true"></Latitude>
+          <Line1 xsi:nil="true"></Line1>
+          <Line2 xsi:nil="true"></Line2>
+          <Line3 xsi:nil="true"></Line3>
+          <Longitude xsi:nil="true"></Longitude>
+          <Name xsi:nil="true"></Name>
+          <PostalCode xsi:nil="true"></PostalCode>
+          <PostOfficeBox xsi:nil="true"></PostOfficeBox>
+          <PrimaryContactName xsi:nil="true"></PrimaryContactName>
+          <ShippingMethodCode>1</ShippingMethodCode>
+          <StateOrProvince xsi:nil="true"></StateOrProvince>
+          <Telephone1 xsi:nil="true"></Telephone1>
+          <Telephone2 xsi:nil="true"></Telephone2>
+          <Telephone3 xsi:nil="true"></Telephone3>
+          <TimeZoneRuleVersionNumber xsi:nil="true"></TimeZoneRuleVersionNumber>
+          <UPSZone xsi:nil="true"></UPSZone>
+          <UTCOffset xsi:nil="true"></UTCOffset>
+          <UTCConversionTimeZoneCode xsi:nil="true"></UTCConversionTimeZoneCode>
+        </Address>
+      </Addresses>
+    </Publisher>
+    <RootComponents>
+      <RootComponent type="1" schemaName="account" behavior="1" />
+      <RootComponent type="1" schemaName="contact" behavior="1" />
+      <RootComponent type="1" schemaName="hx_department" behavior="0" />
+      <RootComponent type="1" schemaName="hx_errorlog" behavior="0" />
+      <RootComponent type="1" schemaName="hx_externalsynclog" behavior="0" />
+      <RootComponent type="1" schemaName="hx_routingrule" behavior="0" />
+      <RootComponent type="1" schemaName="hx_servicecategory" behavior="0" />
+      <RootComponent type="1" schemaName="hx_servicedocument" behavior="0" />
+      <RootComponent type="1" schemaName="hx_servicerequest" behavior="0" />
+      <RootComponent type="1" schemaName="hx_slapolicy" behavior="0" />
+      <RootComponent type="29" id="{ab021e8c-bb54-f111-bec7-000d3a3acaff}" behavior="0" />
+      <RootComponent type="62" schemaName="hx_EnterpriseServiceIntake" behavior="0" />
+      <RootComponent type="66" schemaName="hx_HelloX.ServiceIntake.SlaStatusIndicator" behavior="0" />
+      <RootComponent type="80" schemaName="hx_EnterpriseServiceIntake" behavior="0" />
+      <RootComponent type="91" id="{42f1bb24-b254-f111-bec7-000d3a3aca8f}" schemaName="ServiceIntake.Plugins, Version=1.0.0.0, Culture=neutral, PublicKeyToken=29cecb4c3d247d71" behavior="0" />
+      <RootComponent type="92" id="{47f1bb24-b254-f111-bec7-000d3a3aca8f}" behavior="0" />
+      <RootComponent type="92" id="{4af1bb24-b254-f111-bec7-000d3a3aca8f}" behavior="0" />
+      <RootComponent type="92" id="{53f96672-b254-f111-bec7-000d3a3aca8f}" behavior="0" />
+    </RootComponents>
+    <MissingDependencies>
+      <MissingDependency>
+        <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)">
+          <package appName="AppModule Web Resources Package" version="2.5">AppModuleWebResources (2.5)</package>
+        </Required>
+        <Dependent type="80" schemaName="hx_EnterpriseServiceIntake" displayName="Enterprise Service Intake" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.16)" id.uniquename="AppChannel">
+          <package appName="PowerAppsAppFramework Package" version="1.0.0.25">PowerAppsAppFramework_Anchor (1.0.0.25)</package>
+        </Required>
+        <Dependent type="AppSetting" displayName="parentappmoduleid.uniquename=hx_EnterpriseServiceIntake,settingdefinitionid.uniquename=AppChannel" id.parentappmoduleid.uniquename="hx_EnterpriseServiceIntake" id.settingdefinitionid.uniquename="AppChannel" />
+      </MissingDependency>
+    </MissingDependencies>
+  </SolutionManifest>
+</ImportExportXml>

@@ -1,0 +1,30 @@
+# Local secrets and environment files
+.env
+*.env
+secrets/
+
+# Power Platform exports and build output
+artifacts/**/*.zip
+artifacts/**/*.log
+solution/export/*.cab
+
+# .NET
+bin/
+obj/
+*.user
+
+# Node / PCF
+node_modules/
+dist/
+out/
+generated/
+*.tsbuildinfo
+~/
+!tools/
+!tools/bin/
+!tools/bin/npm
+
+# OS/editor
+.DS_Store
+.vscode/*
+!.vscode/tasks.json

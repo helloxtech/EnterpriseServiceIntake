@@ -1,0 +1,104 @@
+{% assign page_title = "New service request" %}
+
+<section class="esi-hero">
+  <div class="esi-brand">
+    <div class="esi-brand-mark" aria-hidden="true"></div>
+    <span>Mitacs Service Intake</span>
+  </div>
+  <h1>Submit a service request</h1>
+  <p>Tell us what you need, add supporting context, and preview the expected response path before you submit.</p>
+</section>
+
+<main class="esi-shell" data-esi-intake>
+  <nav class="esi-steps" aria-label="Request steps">
+    <button type="button" class="is-active" data-step-target="details">1. Details</button>
+    <button type="button" data-step-target="impact">2. Impact</button>
+    <button type="button" data-step-target="documents">3. Documents</button>
+    <button type="button" data-step-target="review">4. Review</button>
+  </nav>
+
+  <div class="esi-layout">
+    <form class="esi-form">
+      <section class="esi-step is-active" data-step="details">
+        <h2>Request details</h2>
+        <label>
+          Request title
+          <input name="title" type="text" required maxlength="200" />
+        </label>
+        <label>
+          Service category
+          <select name="category" data-routing-input required>
+            <option value="">Loading categories...</option>
+          </select>
+        </label>
+        <label>
+          Description
+          <textarea name="description" rows="5" required></textarea>
+        </label>
+      </section>
+
+      <section class="esi-step" data-step="impact">
+        <h2>Impact and urgency</h2>
+        <label>
+          Severity
+          <select name="severity" data-routing-input required>
+            <option value="">Select severity</option>
+            <option value="752630000">Low</option>
+            <option value="752630001">Medium</option>
+            <option value="752630002">High</option>
+            <option value="752630003">Critical</option>
+          </select>
+        </label>
+        <label>
+          Priority
+          <select name="priority" data-routing-input required>
+            <option value="">Select priority</option>
+            <option value="752630000">Low</option>
+            <option value="752630001">Normal</option>
+            <option value="752630002">High</option>
+            <option value="752630003">Urgent</option>
+          </select>
+        </label>
+        <label>
+          Business impact
+          <textarea name="impact" rows="4"></textarea>
+        </label>
+      </section>
+
+      <section class="esi-step" data-step="documents">
+        <h2>Supporting documentation</h2>
+        <p class="esi-muted">Attach files that help explain the request. Critical items require resolution documentation before internal closure.</p>
+        <label class="esi-upload">
+          <span>Upload supporting files</span>
+          <input name="documents" type="file" multiple />
+        </label>
+      </section>
+
+      <section class="esi-step" data-step="review">
+        <h2>Review and submit</h2>
+        <div class="esi-review" data-review-summary></div>
+        <label class="esi-check">
+          <input type="checkbox" required />
+          I confirm the request details are accurate.
+        </label>
+        <button type="submit" class="esi-primary">Submit service request</button>
+        <div class="esi-result" data-submit-result role="status" aria-live="polite"></div>
+      </section>
+    </form>
+
+    <aside class="esi-preview" aria-live="polite" data-routing-preview>
+      <span class="esi-preview-label">Routing preview</span>
+      <h2>Complete category, severity, and priority to preview routing.</h2>
+      <p>The final department and SLA are assigned server-side after submission.</p>
+    </aside>
+  </div>
+</main>
+
+{% if user %}
+<script>
+  window.esiPortalUser = {
+    contactId: "{{ user.id }}",
+    name: "{{ user.fullname | escape }}"
+  };
+</script>
+{% endif %}

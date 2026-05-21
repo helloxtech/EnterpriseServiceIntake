@@ -1,0 +1,39 @@
+{% fetchxml rules %}
+<fetch>
+  <entity name="hx_routingrule">
+    <attribute name="hx_name" />
+    <attribute name="hx_matchseverity" />
+    <attribute name="hx_matchpriority" />
+    <attribute name="hx_requiresapproval" />
+    <attribute name="hx_resolutiondocumentationrequired" />
+    <attribute name="hx_sortorder" />
+    <filter>
+      <condition attribute="hx_active" operator="eq" value="1" />
+    </filter>
+    <order attribute="hx_sortorder" />
+    <link-entity name="hx_servicecategory" from="hx_servicecategoryid" to="hx_servicecategory" alias="category">
+      <attribute name="hx_name" />
+    </link-entity>
+    <link-entity name="hx_department" from="hx_departmentid" to="hx_department" alias="department">
+      <attribute name="hx_name" />
+    </link-entity>
+    <link-entity name="hx_slapolicy" from="hx_slapolicyid" to="hx_slapolicy" alias="sla">
+      <attribute name="hx_responsehours" />
+    </link-entity>
+  </entity>
+</fetch>
+{% endfetchxml %}
+[
+{% for rule in rules.results.entities %}
+  {
+    "name": {{ rule.hx_name | json }},
+    "category": {{ rule["category.hx_name"] | json }},
+    "severity": {{ rule.hx_matchseverity.value | json }},
+    "priority": {{ rule.hx_matchpriority.value | json }},
+    "department": {{ rule["department.hx_name"] | json }},
+    "responseHours": {{ rule["sla.hx_responsehours"] | json }},
+    "requiresApproval": {{ rule.hx_requiresapproval | json }},
+    "requiresDocumentation": {{ rule.hx_resolutiondocumentationrequired | json }}
+  }{% unless forloop.last %},{% endunless %}
+{% endfor %}
+]

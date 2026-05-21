@@ -1,0 +1,268 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedcommondataserviceforapps_30187"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_approvals": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedapprovals_43f38"
+        },
+        "api": {
+          "name": "shared_approvals"
+        }
+      },
+      "shared_commondataserviceforapps-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedcommondataserviceforapps_80dda"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "When_a_row_is_added,_modified_or_deleted": {
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "parameters": {
+              "subscriptionRequest/message": 4,
+              "subscriptionRequest/entityname": "hx_servicerequest",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filteringattributes": "hx_requiresapproval,hx_approvalstatus,hx_integrationsyncstatus",
+              "subscriptionRequest/filterexpression": "hx_requiresapproval eq true and hx_approvalstatus eq 752630001 and hx_integrationsyncstatus eq 752630000"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "connectionName": "shared_commondataserviceforapps"
+            }
+          }
+        }
+      },
+      "actions": {
+        "Try_-_approval_and_ERP_sync": {
+          "actions": {
+            "Start_and_wait_for_an_approval": {
+              "type": "OpenApiConnectionWebhook",
+              "inputs": {
+                "parameters": {
+                  "approvalType": "Basic",
+                  "WebhookApprovalCreationInput/title": "Service request approval required - @{triggerOutputs()?['body/hx_confirmationnumber']}",
+                  "WebhookApprovalCreationInput/assignedTo": "manager@hellosmart.ca",
+                  "WebhookApprovalCreationInput/details": "A high-priority service request requires manager approval before ERP synchronization.\n\nTitle: @{triggerOutputs()?['body/hx_title']}\nSeverity: @{triggerOutputs()?['body/hx_severity']}\nRouting/SLA: @{triggerOutputs()?['body/hx_routingpreviewsummary']}",
+                  "WebhookApprovalCreationInput/itemLink": "https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f&pagetype=entityrecord&etn=hx_servicerequest&id=@{triggerOutputs()?['body/hx_servicerequestid']}",
+                  "WebhookApprovalCreationInput/itemLinkDescription": "Open service request",
+                  "WebhookApprovalCreationInput/enableNotifications": true,
+                  "WebhookApprovalCreationInput/enableReassignment": true
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_approvals",
+                  "operationId": "StartAndWaitForAnApproval",
+                  "connectionName": "shared_approvals"
+                }
+              }
+            },
+            "Condition": {
+              "actions": {
+                "HTTP": {
+                  "type": "Http",
+                  "inputs": {
+                    "uri": "https://api.restful-api.dev/objects",
+                    "method": "POST",
+                    "headers": {
+                      "Content-Type": "application/json"
+                    },
+                    "body": {
+                      "name": "@{triggerOutputs()?['body/hx_confirmationnumber']}",
+                      "data": {
+                        "source": "Enterprise Service Intake",
+                        "requestId": "@{triggerOutputs()?['body/hx_servicerequestid']}",
+                        "title": "@{triggerOutputs()?['body/hx_title']}",
+                        "routing": "@{triggerOutputs()?['body/hx_routingpreviewsummary']}"
+                      }
+                    }
+                  },
+                  "runtimeConfiguration": {
+                    "contentTransfer": {
+                      "transferMode": "Chunked"
+                    }
+                  }
+                },
+                "Update_a_row": {
+                  "runAfter": {
+                    "HTTP": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "entityName": "hx_servicerequests",
+                      "recordId": "@triggerOutputs()?['body/hx_servicerequestid']",
+                      "item/hx_approvalstatus": 752630002,
+                      "item/hx_customervisibleupdates": "Approved by manager and synced to the mock ERP service.",
+                      "item/hx_externalerpid": "@body('HTTP')?['id']",
+                      "item/hx_integrationsyncstatus": 752630002,
+                      "item/hx_lifecyclestatus": 752630005
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                      "operationId": "UpdateOnlyRecord",
+                      "connectionName": "shared_commondataserviceforapps-1"
+                    }
+                  }
+                },
+                "Add_a_new_row": {
+                  "runAfter": {
+                    "Update_a_row": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "entityName": "hx_externalsynclogs",
+                      "item/hx_name": "ERP sync - @{triggerOutputs()?['body/hx_confirmationnumber']}",
+                      "item/hx_attemptedon": "@utcNow()",
+                      "item/hx_endpointname": "RESTful API mock ERP",
+                      "item/hx_externalid": "@body('HTTP')?['id']",
+                      "item/hx_requestpayload": "Service request @{triggerOutputs()?['body/hx_confirmationnumber']} posted to mock ERP endpoint.",
+                      "item/hx_responsesummary": "@string(body('HTTP'))",
+                      "item/hx_Servicerequest@odata.bind": "@triggerOutputs()?['body/hx_servicerequestid']",
+                      "item/hx_syncstatus": 752630002
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                      "operationId": "CreateRecord",
+                      "connectionName": "shared_commondataserviceforapps-1"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Start_and_wait_for_an_approval": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Update_request_as_rejected": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "entityName": "hx_servicerequests",
+                        "recordId": "@triggerOutputs()?['body/hx_servicerequestid']",
+                        "item/hx_approvalstatus": 752630003,
+                        "item/hx_lifecyclestatus": 752630009,
+                        "item/hx_customervisibleupdates": "Manager rejected the request. ERP synchronization was not attempted."
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                        "operationId": "UpdateOnlyRecord",
+                        "connectionName": "shared_commondataserviceforapps-1"
+                      }
+                    }
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@outputs('Start_and_wait_for_an_approval')?['body/outcome']",
+                      "Approve"
+                    ]
+                  }
+                ]
+              },
+              "type": "If"
+            }
+          },
+          "runAfter": {},
+          "type": "Scope"
+        },
+        "Catch_-_log_automation_error": {
+          "runAfter": {
+            "Try_-_approval_and_ERP_sync": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "type": "Scope",
+          "actions": {
+            "Create_system_error_log": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "hx_errorlogs",
+                  "item/hx_name": "Automation failure - @{triggerOutputs()?['body/hx_confirmationnumber']}",
+                  "item/hx_sourcecomponent": 752630001,
+                  "item/hx_stage": "Approval / ERP sync",
+                  "item/hx_correlationid": "@workflow()?['run']?['name']",
+                  "item/hx_message": "Power Automate approval or ERP sync failed. See technical detail for failed scope results.",
+                  "item/hx_technicaldetail": "@string(result('Try_-_approval_and_ERP_sync'))",
+                  "item/hx_payload": "@string(triggerOutputs()?['body'])",
+                  "item/hx_resolved": false,
+                  "item/hx_Servicerequest@odata.bind": "@triggerOutputs()?['body/hx_servicerequestid']"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "connectionName": "shared_commondataserviceforapps-1"
+                }
+              }
+            },
+            "Mark_request_sync_failed": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "hx_servicerequests",
+                  "recordId": "@triggerOutputs()?['body/hx_servicerequestid']",
+                  "item/hx_approvalstatus": 752630004,
+                  "item/hx_integrationsyncstatus": 752630003,
+                  "item/hx_customervisibleupdates": "Automation failed during approval or ERP synchronization. Internal teams have been notified through the error log."
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "operationId": "UpdateOnlyRecord",
+                  "connectionName": "shared_commondataserviceforapps-1"
+                }
+              },
+              "runAfter": {
+                "Create_system_error_log": [
+                  "Succeeded"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

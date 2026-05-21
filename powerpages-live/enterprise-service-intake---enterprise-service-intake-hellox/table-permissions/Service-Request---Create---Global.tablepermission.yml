@@ -1,0 +1,13 @@
+adx_append: true
+adx_appendto: true
+adx_create: true
+adx_delete: false
+adx_entitylogicalname: hx_servicerequest
+adx_entityname: Service Request - Create - Global
+adx_entitypermission_webrole:
+- 074793e4-f9a3-4031-b22a-fae4fdd37b05
+- 09180d6e-7448-4db2-88e2-841ee2ab5b9d
+adx_entitypermissionid: 1ba72f45-c962-4e22-8f34-f480ff4feeb0
+adx_read: false
+adx_scope: 756150000
+adx_write: false

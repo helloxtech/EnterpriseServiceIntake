@@ -1,0 +1,245 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{9d7aadac-8016-4109-94fc-2d0bf5f367a9}</formid>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{a6b259ad-8726-2a5b-d230-b6053cd01d7a}" name="tab_summary" IsUserDefined="1" showlabel="true">
+          <labels>
+            <label description="Summary" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section id="{08e79e46-7c79-1395-5276-0ad617e4f110}" name="request_intake" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                  <labels>
+                    <label description="Request Intake" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{6fe01459-508a-887d-95e5-1b886a3da370}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_title" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_title" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{5a47e934-b41a-8061-a7b1-60d0a0ee916a}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_confirmationnumber" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_confirmationnumber" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{96d5669c-fc9b-18b1-3939-6aed110f10dc}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_customercontact" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_customercontact" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{c44428e0-e992-c0f5-a1a9-630da3e1196a}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_servicecategory" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_servicecategory" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{1b05b4ab-608c-23fa-1204-21f4b7e859bd}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_severity" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_severity" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{345e24f3-1eaf-11eb-52be-5035ad9ce7a9}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_priority" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_priority" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{2359d3d7-de80-b1cb-d676-5a1d9706d28c}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_description" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="hx_description" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section id="{3ad172a7-4367-0a04-0faa-14e3cfe25d2c}" name="routing_and_sla" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                  <labels>
+                    <label description="Routing and SLA" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{53da007d-3aff-3ff7-6521-72662a06c040}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_assigneddepartment" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_assigneddepartment" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{17f0511c-1e37-62bd-ce90-df2f05d31d97}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_appliedslapolicy" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="hx_appliedslapolicy" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{5ea83b13-5919-ac16-b290-1e677751bd13}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_duedate" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="hx_duedate" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{4ac1720d-2765-1be5-da09-4d2298d9f618}" showlabel="true">
+                        <labels>
+                          <label description="Requires Approval" languagecode="1033" />
+                        </labels>
+                        <control id="hx_requiresapproval" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_requiresapproval" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e8dea66c-9c4a-8d89-6d29-4d29b502a5f1}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_approvalstatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_approvalstatus" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{929d8e2d-1fea-c419-39d4-3eca52eb610f}" showlabel="true">
+                        <labels>
+                          <label description="Routing / SLA Indicator" languagecode="1033" />
+                        </labels>
+                        <control id="hx_routingpreviewsummary" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_routingpreviewsummary" disabled="true" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section id="{8a1a0e70-a5a2-6aaa-a2e6-cc1ad559ba35}" name="resolution_and_integration" IsUserDefined="1" showlabel="true" showbar="false" layout="varwidth" columns="1" labelwidth="160">
+                  <labels>
+                    <label description="Resolution and Integration" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{0b39e1a2-0a91-9b5a-692c-02f91937b685}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_lifecyclestatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_lifecyclestatus" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{1935f792-11b6-6c99-b0d4-16413534a1a9}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_internalresolutionnotes" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="hx_internalresolutionnotes" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{c3ab3b9f-0a49-e3e4-0ac9-7315e423a56e}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_resolutiondocumentationrequired" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_resolutiondocumentationrequired" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{f9e372a9-d1bc-9fea-67fd-c3fd20b68d86}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_resolutiondocumentationprovided" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="hx_resolutiondocumentationprovided" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{19bbee8a-e857-14bd-2360-cfca1ccb6d2d}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_integrationsyncstatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_integrationsyncstatus" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{4681a726-b206-6814-162a-af9829bd5e2e}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_externalerpid" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_externalerpid" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{8a992c7c-9a3a-e695-74c0-cf821435485f}" showlabel="true">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="hx_customervisibleupdates" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="hx_customervisibleupdates" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <header id="{a9d08c45-7f0d-146a-bab5-85f4b4eb1724}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{5a47e934-b41a-8061-a7b1-60d0a0ee916a}" showlabel="true">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+              <control id="hx_confirmationnumber" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="hx_confirmationnumber" disabled="true" />
+            </cell>
+            <cell id="{0b39e1a2-0a91-9b5a-692c-02f91937b685}" showlabel="true">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+              <control id="hx_lifecyclestatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="hx_lifecyclestatus" />
+            </cell>
+            <cell id="{05cbafb0-2339-2374-5ae5-7d95af7e2e90}" showlabel="true">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+              <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{2b8b0847-62b2-0a4c-cfcd-8cbd3ce9dfb5}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row />
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Service Request - Coordinator" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

@@ -1,0 +1,13 @@
+adx_append: false
+adx_appendto: false
+adx_create: false
+adx_delete: false
+adx_entitylogicalname: hx_routingrule
+adx_entityname: Routing Rule - Read - Global
+adx_entitypermission_webrole:
+- 074793e4-f9a3-4031-b22a-fae4fdd37b05
+- 09180d6e-7448-4db2-88e2-841ee2ab5b9d
+adx_entitypermissionid: 0f248fa2-5c9e-4409-98a0-ab31574dfc94
+adx_read: true
+adx_scope: 756150000
+adx_write: false

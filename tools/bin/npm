@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${1:-}" == "install" ]]; then
+  if [[ -d node_modules ]]; then
+    exit 0
+  fi
+
+  echo "node_modules is required before this local npm wrapper can satisfy install." >&2
+  exit 2
+fi
+
+if [[ "${1:-}" != "run" || $# -lt 2 ]]; then
+  echo "This local wrapper only supports: npm run <script> [-- args]" >&2
+  exit 2
+fi
+
+script="$2"
+shift 2
+
+if [[ "${1:-}" == "--" ]]; then
+  shift
+fi
+
+case "$script" in
+  build|clean|lint|rebuild|start|refreshTypes)
+    exec /Applications/Codex.app/Contents/Resources/node \
+      ./node_modules/pcf-scripts/bin/pcf-scripts.js "$script" "$@"
+    ;;
+  lint:fix)
+    exec /Applications/Codex.app/Contents/Resources/node \
+      ./node_modules/pcf-scripts/bin/pcf-scripts.js lint fix "$@"
+    ;;
+  start:watch)
+    exec /Applications/Codex.app/Contents/Resources/node \
+      ./node_modules/pcf-scripts/bin/pcf-scripts.js start watch "$@"
+    ;;
+  *)
+    echo "Unsupported npm script for this project: $script" >&2
+    exit 2
+    ;;
+esac

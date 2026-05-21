@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PluginAssembly FullName="ServiceIntake.Plugins, Version=1.0.0.0, Culture=neutral, PublicKeyToken=29cecb4c3d247d71" PluginAssemblyId="42f1bb24-b254-f111-bec7-000d3a3aca8f" CustomizationLevel="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IsolationMode>2</IsolationMode>
+  <SourceType>0</SourceType>
+  <IntroducedVersion>1.0</IntroducedVersion>
+  <FileName>/PluginAssemblies/ServiceIntakePlugins-42F1BB24-B254-F111-BEC7-000D3A3ACA8F/ServiceIntakePlugins.dll</FileName>
+  <PluginTypes>
+    <PluginType AssemblyQualifiedName="ServiceIntake.Plugins.ServiceRequestClosureGuardPlugin, ServiceIntake.Plugins, Version=1.0.0.0, Culture=neutral, PublicKeyToken=29cecb4c3d247d71" PluginTypeId="46f1bb24-b254-f111-bec7-000d3a3aca8f" Name="Service Request Closure Guard Plugin">
+      <FriendlyName>Service Request Closure Guard Plugin</FriendlyName>
+    </PluginType>
+    <PluginType AssemblyQualifiedName="ServiceIntake.Plugins.ServiceRequestRoutingPlugin, ServiceIntake.Plugins, Version=1.0.0.0, Culture=neutral, PublicKeyToken=29cecb4c3d247d71" PluginTypeId="45f1bb24-b254-f111-bec7-000d3a3aca8f" Name="Service Request Routing Plugin">
+      <FriendlyName>Service Request Routing Plugin</FriendlyName>
+    </PluginType>
+  </PluginTypes>
+</PluginAssembly>
