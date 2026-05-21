@@ -5,9 +5,12 @@
   const preview = root.querySelector("[data-routing-preview]");
   const review = root.querySelector("[data-review-summary]");
   const result = root.querySelector("[data-submit-result]");
-  const submitButton = root.querySelector(".esi-primary");
+  const submitButton = root.querySelector('button[type="submit"]');
+  const steps = Array.from(root.querySelectorAll("[data-step]")).map((item) => item.dataset.step);
+  const stepButtons = Array.from(root.querySelectorAll("[data-step-target]"));
   let cachedRules = null;
   let cachedCategories = null;
+  let currentStep = "details";
 
   function field(name) {
     return root.querySelector(`[name="${name}"]`);
@@ -25,6 +28,90 @@
     const element = document.createElement("span");
     element.textContent = value == null ? "" : String(value);
     return element.innerHTML;
+  }
+
+  function stepIndex(stepName) {
+    return steps.indexOf(stepName);
+  }
+
+  function stepPanel(stepName) {
+    return root.querySelector(`[data-step="${stepName}"]`);
+  }
+
+  function stepError(stepName) {
+    return stepPanel(stepName)?.querySelector("[data-step-error]");
+  }
+
+  function setStepError(stepName, message) {
+    const error = stepError(stepName);
+    if (!error) return;
+    error.textContent = message || "";
+    error.classList.toggle("is-visible", Boolean(message));
+  }
+
+  function controlsForStep(stepName) {
+    return Array.from(stepPanel(stepName)?.querySelectorAll("input, select, textarea") || [])
+      .filter((control) => !control.disabled && control.type !== "button" && control.type !== "submit");
+  }
+
+  function validateStep(stepName) {
+    const controls = controlsForStep(stepName);
+    const invalid = controls.find((control) => !control.checkValidity());
+
+    controls.forEach((control) => {
+      control.classList.toggle("is-invalid", !control.checkValidity());
+    });
+
+    if (invalid) {
+      setStepError(stepName, "Complete the required fields on this step before continuing.");
+      invalid.reportValidity();
+      invalid.focus({ preventScroll: false });
+      return false;
+    }
+
+    setStepError(stepName, "");
+    return true;
+  }
+
+  function validateBefore(targetStep) {
+    const targetIndex = stepIndex(targetStep);
+    const currentIndex = stepIndex(currentStep);
+    if (targetIndex <= currentIndex) return true;
+
+    for (let index = currentIndex; index < targetIndex; index += 1) {
+      const stepName = steps[index];
+      if (stepName !== currentStep) setActiveStep(stepName);
+      if (!validateStep(stepName)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function setActiveStep(stepName) {
+    if (!steps.includes(stepName)) return;
+
+    currentStep = stepName;
+    root.querySelectorAll("[data-step]").forEach((item) => {
+      item.classList.toggle("is-active", item.dataset.step === stepName);
+    });
+
+    stepButtons.forEach((button) => {
+      const isActive = button.dataset.stepTarget === stepName;
+      button.classList.toggle("is-active", isActive);
+      if (isActive) {
+        button.setAttribute("aria-current", "step");
+      } else {
+        button.removeAttribute("aria-current");
+      }
+    });
+
+    updateReview();
+  }
+
+  function goToStep(stepName) {
+    if (!validateBefore(stepName)) return;
+    setActiveStep(stepName);
   }
 
   function safeAjax(options) {
@@ -190,7 +277,7 @@
   async function submitRequest(event) {
     event.preventDefault();
     const form = event.currentTarget;
-    if (!form.reportValidity()) return;
+    if (!validateStep("review") || !form.reportValidity()) return;
 
     submitButton.disabled = true;
     result.className = "esi-result";
@@ -243,6 +330,7 @@
         ? `Request submitted. Confirmation number: ${confirmation}.`
         : "Request submitted. The confirmation number will be available in the internal app.";
       form.reset();
+      setActiveStep("details");
       updateReview();
       await populateCategories();
       await refreshPreview();
@@ -271,13 +359,22 @@
     })));
   }
 
-  root.querySelectorAll("[data-step-target]").forEach((button) => {
-    button.addEventListener("click", () => {
-      root.querySelectorAll("[data-step-target]").forEach((item) => item.classList.remove("is-active"));
-      root.querySelectorAll("[data-step]").forEach((item) => item.classList.remove("is-active"));
-      button.classList.add("is-active");
-      root.querySelector(`[data-step="${button.dataset.stepTarget}"]`)?.classList.add("is-active");
-      updateReview();
+  stepButtons.forEach((button) => {
+    button.addEventListener("click", () => goToStep(button.dataset.stepTarget));
+  });
+
+  root.querySelectorAll("[data-next-step]").forEach((button) => {
+    button.addEventListener("click", () => goToStep(button.dataset.nextStep));
+  });
+
+  root.querySelectorAll("[data-prev-step]").forEach((button) => {
+    button.addEventListener("click", () => setActiveStep(button.dataset.prevStep));
+  });
+
+  root.querySelectorAll("input, select, textarea").forEach((control) => {
+    control.addEventListener("input", () => {
+      if (control.checkValidity()) control.classList.remove("is-invalid");
+      setStepError(control.closest("[data-step]")?.dataset.step, "");
     });
   });
 
@@ -285,5 +382,6 @@
   root.querySelector(".esi-form")?.addEventListener("input", updateReview);
   root.querySelector(".esi-form")?.addEventListener("submit", submitRequest);
 
+  setActiveStep("details");
   populateCategories().then(refreshPreview);
 })();

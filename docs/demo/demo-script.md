@@ -17,14 +17,16 @@ Steps:
 
 1. Sign in as a reviewer/customer account.
 2. Start a new service request.
-3. Select `Funding Agreement`, `Critical`, and `Urgent`.
-4. Show the dynamic preview updating without a page reload:
+3. Show that the first step cannot continue until required request details are complete.
+4. Use the explicit step actions: `Continue to impact`, `Continue to documents`, and `Review request`.
+5. Select `Funding Agreement`, `Critical`, and `Urgent`.
+6. Show the dynamic preview updating without a page reload:
    - Department: Finance.
    - SLA: 4 hour response target.
    - Manager approval required.
    - Resolution documentation required.
-5. Complete the review step and submit.
-6. Show confirmation message.
+7. Complete the review step and submit.
+8. Show confirmation message.
 
 Expected result:
 

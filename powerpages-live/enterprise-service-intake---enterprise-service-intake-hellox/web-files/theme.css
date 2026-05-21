@@ -136,6 +136,63 @@ a.homelink:focus {
   clear: both;
 }
 
+.static-top.navbar-dark {
+  background: #ffffff !important;
+  border-bottom: 1px solid #d7dee8;
+  box-shadow: 0 1px 10px rgba(16, 24, 40, 0.06);
+}
+
+.static-top.navbar .container.custom-container {
+  max-width: 1120px;
+}
+
+.navbar-brand.navbar-header {
+  align-items: center;
+  display: flex;
+}
+
+.esi-site-brand,
+.esi-site-brand:hover,
+.esi-site-brand:focus {
+  align-items: center;
+  color: #17212b;
+  display: inline-flex;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.esi-site-logo {
+  background: #0067b1;
+  border-radius: 12px 28px 12px 28px;
+  display: inline-block;
+  height: 32px;
+  width: 44px;
+}
+
+.esi-site-title {
+  color: #17212b;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.navbar-dark .navbar-nav > li > a,
+.navbar-dark .navbar-nav > li.dropdown > a,
+.static-top.navbar-dark .navbar-brand a span {
+  color: #17212b !important;
+}
+
+.navbar-dark .navbar-nav > li > a:hover,
+.navbar-dark .navbar-nav > li.dropdown > a:hover,
+.navbar-dark .navbar-nav > li > a:focus,
+.navbar-dark .navbar-nav > li.dropdown > a:focus {
+  color: #0067b1 !important;
+}
+
+.navbar-dark .navbar-toggler {
+  border-color: #d7dee8;
+}
+
 
 .fixed-top.navbar {
   min-height: 67px;

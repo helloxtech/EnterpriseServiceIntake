@@ -21,6 +21,7 @@
 | Provisioning utility build | Passed with upstream SDK NU1903 warnings |
 | PCF build/push | Passed |
 | Power Pages upload | Passed |
+| Power Pages UX validation update | Passed |
 | Managed solution export | Passed |
 | Unmanaged solution export | Passed |
 | Managed solution unpack | Passed |
@@ -32,6 +33,7 @@
 | --- | --- |
 | Portal dynamic preview | Funding Agreement + Critical + Urgent shows Finance, 4 hour target, approval required, documentation required. |
 | Portal submission | `Portal Demo - Critical funding request 2` created with confirmation `SR-20260521-001004`. |
+| Portal step navigation | Explicit Continue, Back, Review request, and Submit buttons added; required fields block progression before the next step. |
 | Plugin routing | Critical funding request routed to Finance with 4 hour SLA. |
 | Closure guard | Smoke test blocked undocumented critical closure and allowed documented closure. |
 | Model-driven app | Coordinator queue and Service Request form open in the app. |
@@ -45,6 +47,7 @@ dotnet build src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.c
 RUN_VALIDATION_TESTS=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
 
 pac pages upload --path powerpages-live/enterprise-service-intake---enterprise-service-intake-hellox --modelVersion Enhanced --forceUploadAll
+node --check src/powerpages/web-files/service-intake.js
 pac pcf push --solution-unique-name EnterpriseServiceIntake --verbosity minimal
 
 pac solution publish
