@@ -17,6 +17,7 @@ The package includes:
 - PCF control source code.
 - Power Pages source files.
 - Architecture README with ERD, component decisions, security strategy, demo script, and verification notes.
+- Polished architecture design brief in both Word and PDF format.
 
 Live review links:
 

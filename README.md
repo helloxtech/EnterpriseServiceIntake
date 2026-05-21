@@ -32,6 +32,7 @@ The Power Pages site is intentionally private for the interview tenant. Reviewer
 | PCF control | `src/pcf/SlaStatusIndicator/` |
 | Power Pages source | `src/powerpages/` and `powerpages-live/` |
 | Provisioning/ALM utilities | `src/scripts/ServiceIntake.Provisioning/` |
+| Architecture design brief | `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang.docx` and `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang.pdf` |
 | Submission email draft | `docs/submission/email-draft.md` |
 | Demo script | `docs/demo/demo-script.md` |
 
