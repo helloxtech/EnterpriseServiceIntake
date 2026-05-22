@@ -20,10 +20,10 @@ Steps:
 3. Show that the first step cannot continue until required request details are complete.
 4. Use the explicit step actions: `Continue to impact`, `Continue to documents`, and `Review request`.
 5. Select `Funding Agreement`, `Critical`, and `Urgent`.
-6. Show the dynamic preview updating without a page reload:
-   - Department: Finance.
+6. Show the dynamic response estimate updating without a page reload:
+   - Team: Finance.
    - SLA: 4 hour response target.
-   - Manager approval required.
+   - Mitacs review required.
    - Resolution documentation required.
 7. Complete the review step and submit.
 8. Show confirmation message.
@@ -33,7 +33,7 @@ Expected result:
 
 - A new Service Request row is created in Dataverse.
 - Confirmation number follows `SR-yyyyMMdd-######`.
-- Routing preview says Finance with a 4 hour response target.
+- Response estimate says Finance with a 4 hour response target.
 - Supporting files are uploaded after submission through the secure file upload page for that request.
 
 ## 3. Internal Coordinator App

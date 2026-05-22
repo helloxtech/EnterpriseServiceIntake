@@ -6,10 +6,10 @@
       <p>Add screenshots, forms, or other documents that help explain your submitted service request.</p>
     </div>
     {% if user %}
-    <div class="esi-user-card" aria-label="Signed in customer">
+    <div class="esi-user-card" aria-label="Signed-in account">
       <span class="esi-user-label">Signed in</span>
       <strong>{{ user.fullname | default: user.emailaddress1 | escape }}</strong>
-      <span>Customer account</span>
+      <span>Portal account</span>
     </div>
     {% endif %}
   </div>
@@ -37,7 +37,7 @@
     <div>
       <span class="esi-preview-label">Missing request</span>
       <h2>Open this page from a submitted request</h2>
-      <p>The upload page needs a service request ID so files can be saved to the correct request.</p>
+      <p>Open this page from your submitted request so files can be saved to the right place.</p>
       <a class="esi-primary esi-link-button" href="/">Return to intake</a>
     </div>
   </section>

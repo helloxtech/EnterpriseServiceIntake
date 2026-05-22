@@ -271,14 +271,14 @@
 
     preview.innerHTML = `
       <div class="esi-preview-header">
-        <span class="esi-preview-label">Routing preview</span>
+        <span class="esi-preview-label">Response estimate</span>
         <span class="esi-preview-state ${stateClass}">${html(previewStateLabel(status))}</span>
       </div>
       <h2>${html(state.heading)}</h2>
       <div class="esi-preview-grid">
-        ${previewRow("Department", department)}
+        ${previewRow("Team", department)}
       ${previewRow("Target response", sla)}
-      ${previewRow("Review", approval, toneFor(approval, "approval"))}
+      ${previewRow("Mitacs review", approval, toneFor(approval, "approval"))}
       ${previewRow("Supporting files", documentation, toneFor(documentation, "documentation"))}
       </div>
       <p class="esi-preview-note">${html(state.note || "The final team and target response time are confirmed after you submit.")}</p>`;
@@ -293,7 +293,7 @@
     if (!category || !severity || !priority) {
       setPreview({
         status: "waiting",
-        heading: "Complete category, severity, and priority to preview routing.",
+        heading: "Choose a category, impact level, and urgency to see an estimate.",
         note: "The final team and target response time are confirmed after you submit."
       });
       return;
@@ -301,8 +301,8 @@
 
     setPreview({
       status: "loading",
-      heading: "Refreshing live routing preview...",
-      note: "Checking the current service options for your request."
+      heading: "Checking your response estimate...",
+      note: "Reviewing the latest request options."
     });
 
     try {
@@ -315,12 +315,12 @@
       if (!match) {
         setPreview({
           status: "warning",
-          heading: "General Intake review expected",
-          department: "General Intake",
-          sla: "Reviewed after submission",
-          approval: isHighImpactRequest() ? "Additional review may be required" : "To be confirmed",
+          heading: "Mitacs review expected",
+          department: "Mitacs intake",
+          sla: "Confirmed after submission",
+          approval: isHighImpactRequest() ? "Mitacs may review this request" : "To be confirmed",
           documentation: isHighImpactRequest() ? "Impact details required" : "As needed",
-          note: "We will review this request after submission and assign it to the right team."
+          note: "We will review this request after submission and confirm the right team."
         });
         return;
       }
@@ -330,7 +330,7 @@
         heading: match.name,
         department: match.department,
         sla: `${match.responseHours} hour response target`,
-        approval: match.requiresApproval ? "Additional review required" : "No additional review expected",
+        approval: match.requiresApproval ? "Mitacs review required" : "No extra review expected",
         documentation: match.requiresDocumentation ? "Follow-up details may be required" : "Standard supporting files",
         note: "This is an estimate. The final team and target response time are confirmed after you submit."
       });
@@ -338,9 +338,9 @@
       setPreview({
         status: "error",
         heading: "Preview temporarily unavailable",
-        department: "Assigned after submission",
+        department: "Confirmed after submission",
         sla: "Confirmed after submission",
-        approval: isHighImpactRequest() ? "Additional review may be required" : "To be confirmed",
+        approval: isHighImpactRequest() ? "Mitacs may review this request" : "To be confirmed",
         documentation: isHighImpactRequest() ? "Impact details required" : "Standard",
         note: "We could not show an estimate right now. You can still submit the request."
       });
@@ -364,8 +364,8 @@
     review.innerHTML = [
       reviewRow("Title", summaryValue(field("title")?.value, "Not entered")),
       reviewRow("Category", summaryValue(selectedCategoryName(), "Not selected")),
-      reviewRow("Severity", summaryValue(selectedText("severity"), "Not selected")),
-      reviewRow("Priority", summaryValue(selectedText("priority"), "Not selected")),
+      reviewRow("Impact level", summaryValue(selectedText("severity"), "Not selected")),
+      reviewRow("Urgency", summaryValue(selectedText("priority"), "Not selected")),
       reviewRow("Business impact", summaryValue(field("impact")?.value, "Not provided")),
       reviewRow("Supporting files", "Secure upload available after submission")
     ].join("");
@@ -478,7 +478,7 @@
             <ul class="esi-submit-next">
               <li>Your request is now linked to your portal account.</li>
               <li>Supporting files can be uploaded securely after submission.</li>
-              <li>Mitacs will confirm routing, review needs, and response timing after submission.</li>
+              <li>Mitacs will confirm the right team, review needs, and response timing after submission.</li>
             </ul>` : ""}
         </div>
         ${resultActions(tone, options) ? `<div class="esi-submit-actions">${resultActions(tone, options)}</div>` : ""}
@@ -513,7 +513,7 @@
 
     const categoryId = field("category").value;
     if (/^static-/.test(categoryId)) {
-      showResult("error", "Service category unavailable", "We could not load the current service categories. Refresh the page and try again before submitting.");
+      showResult("error", "Request options unavailable", "We could not load the current request options. Refresh the page and try again before submitting.");
       return;
     }
 

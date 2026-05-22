@@ -42,7 +42,7 @@
 
 | Behavior | Evidence |
 | --- | --- |
-| Portal dynamic preview | Funding Agreement + Critical + Urgent shows Finance, 4 hour target, approval required, documentation required. |
+| Portal response estimate | Funding Agreement + Critical + Urgent shows Finance, 4 hour target, Mitacs review required, and follow-up details may be required. |
 | Portal submission | `Portal Demo - Critical funding request 2` created with confirmation `SR-20260521-001004`. |
 | SharePoint document upload path | Portal now directs users to `/request-documents/?id=<request-id>` after submission; page uses Power Pages Basic Form/document management for SharePoint files. |
 | Confirmation email | Smoke test request `SR-20260521-001018` sent through Office 365 Outlook, updated customer-visible notes, and created no System Error Log row. Flow run `08584222604936303691105786332CU11` succeeded. |
@@ -51,6 +51,7 @@
 | Upload page diagnostics | Request Documents page now shows a visible ready/warning/error status for the SharePoint document grid instead of failing silently. |
 | Portal upload UX wording | Fresh live download confirms the upload flow hides the native `New folder` action and relabels portal-facing upload text to `Secure file upload`, `Updates from Mitacs`, `Supporting files`, `Uploaded files`, and `No files have been uploaded yet`. |
 | Portal documents wording | Fresh live download confirms the intake Documents step and success modal use customer-facing secure upload wording instead of SharePoint/Power Pages implementation terms. |
+| Portal step wording audit | Fresh live download confirms the intake journey uses customer-facing wording across Details, Impact, Documents, Review, response estimate, and upload states; visible labels use `Impact level`, `Urgency`, `Team`, and `Mitacs review` instead of internal routing/department/severity/priority language. |
 | SharePoint upload smoke test | `Portal smoke file upload 2026-05-21T07-24-18-212Z` created confirmation `SR-20260521-001025`; `esi-upload-smoke.txt` uploaded through the document grid and appeared on the page. |
 | SharePoint document location | Dataverse returned `sharepointdocumentlocationid` `4c2b05a7-e654-f111-89e7-0022488fbd9b` for request `df11b114-e654-f111-bec7-000d3a3aca8f`. |
 | Model-driven documents | SharePoint uploads use the coordinator form `Documents` tab and the out-of-box document associated area for the file list; `Service Request Evidence Review` stores accepted/rejected review metadata and SharePoint file links for official evidence. |

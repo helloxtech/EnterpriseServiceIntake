@@ -5,13 +5,13 @@
   <div class="esi-hero-inner">
     <div class="esi-hero-copy">
       <h1>Submit a service request</h1>
-      <p>Use this secure form to describe what you need, explain the impact, attach supporting files, and see an estimated response path before you submit.</p>
+      <p>Use this secure form to describe what you need, explain the impact, prepare supporting files, and see an estimated response before you submit.</p>
     </div>
     {% if user %}
-    <div class="esi-user-card" aria-label="Signed in customer">
+    <div class="esi-user-card" aria-label="Signed-in account">
       <span class="esi-user-label">Signed in</span>
       <strong>{{ user.fullname | default: user.emailaddress1 | escape }}</strong>
-      <span>Customer account</span>
+      <span>Portal account</span>
     </div>
     {% endif %}
   </div>
@@ -21,7 +21,7 @@
 <main class="esi-shell" id="mainContent" data-esi-intake>
   <div class="esi-workspace-banner">
     <div>
-      <strong>Secure customer request</strong>
+      <strong>Secure request</strong>
       <span>Your request is linked to your account so you can return later and track updates.</span>
     </div>
     <span class="esi-status-pill">Signed in</span>
@@ -30,19 +30,19 @@
   <nav class="esi-steps" aria-label="Request steps">
     <button type="button" class="is-active" data-step-target="details" aria-current="step">
       <span class="esi-step-index">1</span>
-      <span><strong>Request Details</strong><small>What do you need?</small></span>
+      <span><strong>Request details</strong><small>What do you need?</small></span>
     </button>
     <button type="button" data-step-target="impact">
       <span class="esi-step-index">2</span>
-      <span><strong>Impact and Urgency</strong><small>Who is affected?</small></span>
+      <span><strong>Impact and urgency</strong><small>Who is affected?</small></span>
     </button>
     <button type="button" data-step-target="documents">
       <span class="esi-step-index">3</span>
-      <span><strong>Supporting Files</strong><small>Prepare upload</small></span>
+      <span><strong>Supporting files</strong><small>Prepare upload</small></span>
     </button>
     <button type="button" data-step-target="review">
       <span class="esi-step-index">4</span>
-      <span><strong>Review and Submit</strong><small>Confirm details</small></span>
+      <span><strong>Review and submit</strong><small>Confirm details</small></span>
     </button>
   </nav>
 
@@ -88,9 +88,9 @@
 
         <div class="esi-two-column">
           <label>
-            <span>Severity <em>Required</em></span>
+            <span>Impact level <em>Required</em></span>
             <select name="severity" data-routing-input required>
-              <option value="">Select severity</option>
+              <option value="">Select impact level</option>
               <option value="752630000">Low</option>
               <option value="752630001">Medium</option>
               <option value="752630002">High</option>
@@ -99,9 +99,9 @@
           </label>
 
           <label>
-            <span>Priority <em>Required</em></span>
+            <span>Urgency <em>Required</em></span>
             <select name="priority" data-routing-input required>
-              <option value="">Select priority</option>
+              <option value="">Select urgency</option>
               <option value="752630000">Low</option>
               <option value="752630001">Normal</option>
               <option value="752630002">High</option>
@@ -126,7 +126,7 @@
         <div class="esi-section-heading">
           <span class="esi-section-kicker">Step 3 of 4</span>
           <h2>Supporting files</h2>
-          <p>Supporting files can be uploaded securely after your request record is created.</p>
+          <p>Supporting files can be uploaded securely after your request is submitted.</p>
         </div>
 
         <div class="esi-upload esi-upload-info">
@@ -134,7 +134,7 @@
           <span class="esi-upload-help">After you submit, use the Upload supporting files action on the confirmation screen. Files are saved securely with this service request.</span>
           <ul>
             <li>Use screenshots, forms, approvals, or other evidence that explains the request.</li>
-            <li>The upload area is tied to the confirmation number shown after submission.</li>
+            <li>The upload page is linked to your submitted request.</li>
             <li>You can skip this step now if no files are needed.</li>
           </ul>
         </div>
@@ -172,14 +172,14 @@
 
     <aside class="esi-preview" aria-live="polite" data-routing-preview>
       <div class="esi-preview-header">
-        <span class="esi-preview-label">Routing preview</span>
+        <span class="esi-preview-label">Response estimate</span>
         <span class="esi-preview-state">Waiting for inputs</span>
       </div>
-      <h2>Complete category, severity, and priority to preview routing.</h2>
+      <h2>Choose a category, impact level, and urgency to see an estimate.</h2>
       <div class="esi-preview-grid">
-        <div><span>Department</span><strong>Pending</strong></div>
+        <div><span>Team</span><strong>Pending</strong></div>
         <div><span>Target response</span><strong>Pending</strong></div>
-        <div><span>Review</span><strong>Pending</strong></div>
+        <div><span>Mitacs review</span><strong>Pending</strong></div>
         <div><span>Supporting files</span><strong>Standard</strong></div>
       </div>
       <p>The final team and target response time are confirmed after you submit.</p>
