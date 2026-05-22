@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Xml.Linq;
 
 const string Prefix = "hx";
 const string SolutionUniqueName = "EnterpriseServiceIntake";
@@ -77,6 +78,15 @@ if (string.Equals(Environment.GetEnvironmentVariable("REGISTER_PLUGINS_ONLY"), "
 if (string.Equals(Environment.GetEnvironmentVariable("VERIFY_SECURITY_HARDENING"), "true", StringComparison.OrdinalIgnoreCase))
 {
     VerifySecurityHardening(service);
+    return;
+}
+
+if (string.Equals(Environment.GetEnvironmentVariable("ENSURE_ROUTING_MATRIX_PAGE"), "true", StringComparison.OrdinalIgnoreCase))
+{
+    EnsurePublisher(service);
+    EnsureSolution(service);
+    EnsureRoutingMatrixPage(service);
+    Publish(service);
     return;
 }
 
@@ -863,6 +873,154 @@ static void Publish(IOrganizationService service)
 {
     service.Execute(new PublishAllXmlRequest());
     Console.WriteLine("Published customizations.");
+}
+
+static void EnsureRoutingMatrixPage(IOrganizationService service)
+{
+    var webResourceId = UpsertHtmlWebResource(
+        service,
+        "hx_/routingmatrix.html",
+        "Routing Matrix",
+        "Editable routing/SLA matrix for internal coordinators.",
+        LoadRepositoryFile("src/webresources/hx_routingmatrix.html"));
+
+    AddToSolution(service, webResourceId, 61);
+    AddWebResourceToAppModule(service, webResourceId);
+    EnsureRoutingMatrixSitemapEntry(service);
+}
+
+static string LoadRepositoryFile(string relativePath)
+{
+    var current = new DirectoryInfo(System.AppContext.BaseDirectory);
+    while (current != null)
+    {
+        var candidate = Path.Combine(current.FullName, relativePath);
+        if (File.Exists(candidate))
+        {
+            return File.ReadAllText(candidate, Encoding.UTF8);
+        }
+
+        current = current.Parent;
+    }
+
+    throw new FileNotFoundException($"Could not find repository file {relativePath} from {System.AppContext.BaseDirectory}.");
+}
+
+static Guid UpsertHtmlWebResource(
+    IOrganizationService service,
+    string name,
+    string displayName,
+    string description,
+    string content)
+{
+    var existing = FindByAttribute(service, "webresource", "name", name);
+    var entity = existing ?? new Entity("webresource");
+    entity["name"] = name;
+    entity["displayname"] = displayName;
+    entity["description"] = description;
+    entity["webresourcetype"] = new OptionSetValue(1);
+    entity["languagecode"] = 1033;
+    entity["content"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(content));
+
+    if (existing == null)
+    {
+        var id = service.Create(entity);
+        Console.WriteLine($"Created web resource {name}.");
+        return id;
+    }
+
+    service.Update(entity);
+    Console.WriteLine($"Updated web resource {name}.");
+    return existing.Id;
+}
+
+static void AddWebResourceToAppModule(IOrganizationService service, Guid webResourceId)
+{
+    try
+    {
+        var app = FindByAttribute(service, "appmodule", "uniquename", "hx_EnterpriseServiceIntake");
+        if (app == null)
+        {
+            return;
+        }
+
+        service.Execute(new AddAppComponentsRequest
+        {
+            AppId = app.Id,
+            Components = new EntityReferenceCollection
+            {
+                new("webresource", webResourceId)
+            }
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Warning: Routing Matrix web resource was not explicitly added to the app module: {ex.Message}");
+    }
+}
+
+static void EnsureRoutingMatrixSitemapEntry(IOrganizationService service)
+{
+    var sitemap = FindByAttribute(service, "sitemap", "sitemapnameunique", "hx_EnterpriseServiceIntake")
+        ?? throw new InvalidOperationException("Enterprise Service Intake sitemap was not found.");
+    var sitemapXml = sitemap.GetAttributeValue<string>("sitemapxml") ?? string.Empty;
+    var document = XDocument.Parse(sitemapXml);
+    var group = document.Descendants("Group").FirstOrDefault()
+        ?? throw new InvalidOperationException("Enterprise Service Intake sitemap does not contain a group.");
+
+    var existingRoutingRuleEntries = group.Elements("SubArea")
+        .Where(element => string.Equals((string?)element.Attribute("Entity"), "hx_routingrule", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+    foreach (var entry in existingRoutingRuleEntries)
+    {
+        entry.Remove();
+    }
+
+    var existingMatrixEntries = group.Elements("SubArea")
+        .Where(element => string.Equals((string?)element.Attribute("Url"), "$webresource:hx_/routingmatrix.html", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+    foreach (var entry in existingMatrixEntries)
+    {
+        entry.Remove();
+    }
+
+    var matrixEntry = new XElement("SubArea",
+        new XAttribute("Id", "subarea_hx_routingmatrix"),
+        new XAttribute("Icon", "/_imgs/imagestrips/transparent_spacer.gif"),
+        new XAttribute("Url", "$webresource:hx_/routingmatrix.html"),
+        new XAttribute("Client", "All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web"),
+        new XAttribute("AvailableOffline", "false"),
+        new XAttribute("PassParams", "false"),
+        new XAttribute("Sku", "All,OnPremise,Live,SPLA"),
+        new XElement("Titles",
+            new XElement("Title",
+                new XAttribute("LCID", "1033"),
+                new XAttribute("Title", "Routing Matrix"))));
+
+    var serviceRequestsEntry = group.Elements("SubArea")
+        .FirstOrDefault(element => string.Equals((string?)element.Attribute("Entity"), "hx_servicerequest", StringComparison.OrdinalIgnoreCase));
+    if (serviceRequestsEntry != null)
+    {
+        serviceRequestsEntry.AddAfterSelf(matrixEntry);
+    }
+    else
+    {
+        group.AddFirst(matrixEntry);
+    }
+
+    var updatedXml = document.ToString(SaveOptions.DisableFormatting);
+    if (updatedXml == sitemapXml)
+    {
+        Console.WriteLine("Routing Matrix sitemap entry already exists.");
+        return;
+    }
+
+    service.Update(new Entity("sitemap", sitemap.Id)
+    {
+        ["sitemapxml"] = updatedXml
+    });
+    AddToSolution(service, sitemap.Id, 62);
+    Console.WriteLine("Updated app navigation: replaced Routing / SLA Rules with Routing Matrix.");
 }
 
 static void EnsureModelDrivenExperience(IOrganizationService service)

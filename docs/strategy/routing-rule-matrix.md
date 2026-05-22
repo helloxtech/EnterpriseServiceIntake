@@ -42,3 +42,4 @@ The final SLA/review/documentation outcome is based on the higher risk between I
 - Power Pages loads the active matrix rows through the Web API and previews only exact matches.
 - The routing plugin uses the same Dataverse rule rows on create/update, so submitted records match the portal preview.
 - If no active exact match exists, the portal shows a rule-missing warning instead of applying hidden frontend thresholds.
+- The model-driven app navigation replaces the raw `Routing / SLA Rules` table entry with `Routing Matrix`, an editable web resource page for internal coordinators. The page edits the same Dataverse rule rows through `Xrm.WebApi` and opens the underlying rule record when a rule name is selected.
