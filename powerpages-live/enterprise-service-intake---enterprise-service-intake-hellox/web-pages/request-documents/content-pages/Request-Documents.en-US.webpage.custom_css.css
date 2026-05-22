@@ -199,6 +199,10 @@ body {
   color: var(--esi-red);
 }
 
+.esi-hidden-new-folder {
+  display: none !important;
+}
+
 .esi-status-pill,
 .esi-preview-state,
 .esi-badge {

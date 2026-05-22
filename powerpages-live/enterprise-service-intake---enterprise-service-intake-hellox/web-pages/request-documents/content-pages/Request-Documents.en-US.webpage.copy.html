@@ -3,7 +3,7 @@
   <div class="esi-hero-inner">
     <div class="esi-hero-copy">
       <h1>Upload supporting files</h1>
-      <p>Add screenshots, forms, or other evidence to the SharePoint document library for your submitted service request.</p>
+      <p>Add screenshots, forms, or other documents that help explain your submitted service request.</p>
     </div>
     {% if user %}
     <div class="esi-user-card" aria-label="Signed in customer">
@@ -19,13 +19,13 @@
 <main class="esi-shell esi-document-shell" id="mainContent" data-esi-document-page data-request-id="{{ request.params.id | escape }}">
   <div class="esi-workspace-banner">
     <div>
-      <strong>Secure SharePoint upload</strong>
-      <span>Files added here are stored through Dataverse document management for this service request.</span>
+      <strong>Secure file upload</strong>
+      <span>Files added here are stored securely with this service request.</span>
     </div>
     <a class="esi-secondary esi-link-button" href="/">Return to intake</a>
   </div>
   <div class="esi-document-status" data-document-status role="status" aria-live="polite">
-    Loading the SharePoint upload area for this request...
+    Loading the file upload area for this request...
   </div>
   <section class="esi-form esi-document-upload">
     {% entityform name: 'ESI - Service Request SharePoint Documents' %}
@@ -37,7 +37,7 @@
     <div>
       <span class="esi-preview-label">Missing request</span>
       <h2>Open this page from a submitted request</h2>
-      <p>The upload page needs a service request ID so files can be saved to the correct SharePoint folder.</p>
+      <p>The upload page needs a service request ID so files can be saved to the correct request.</p>
       <a class="esi-primary esi-link-button" href="/">Return to intake</a>
     </div>
   </section>

@@ -367,7 +367,7 @@
       reviewRow("Severity", summaryValue(selectedText("severity"), "Not selected")),
       reviewRow("Priority", summaryValue(selectedText("priority"), "Not selected")),
       reviewRow("Business impact", summaryValue(field("impact")?.value, "Not provided")),
-      reviewRow("Supporting documents", "SharePoint upload available after submission")
+      reviewRow("Supporting files", "Secure upload available after submission")
     ].join("");
   }
 
@@ -477,7 +477,7 @@
           ${tone === "success" ? `
             <ul class="esi-submit-next">
               <li>Your request is now linked to your portal account.</li>
-              <li>Supporting files are uploaded to the secure SharePoint document library after submission.</li>
+              <li>Supporting files can be uploaded securely after submission.</li>
               <li>Mitacs will confirm routing, review needs, and response timing after submission.</li>
             </ul>` : ""}
         </div>

@@ -27,14 +27,14 @@ Steps:
    - Resolution documentation required.
 7. Complete the review step and submit.
 8. Show confirmation message.
-9. Select `Upload supporting files` to open the secure SharePoint document upload page for the saved request.
+9. Select `Upload supporting files` to open the secure file upload page for the saved request.
 
 Expected result:
 
 - A new Service Request row is created in Dataverse.
 - Confirmation number follows `SR-yyyyMMdd-######`.
 - Routing preview says Finance with a 4 hour response target.
-- Supporting files are uploaded after submission through Power Pages document management into SharePoint for that request.
+- Supporting files are uploaded after submission through the secure file upload page for that request.
 
 ## 3. Internal Coordinator App
 

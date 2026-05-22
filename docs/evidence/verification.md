@@ -49,6 +49,8 @@
 | Portal step navigation | Explicit Continue, Back, Review request, and Submit buttons added; required fields block progression before the next step. |
 | Portal SharePoint document path | Localized Home page now removes the pre-submit file input, creates the Service Request first, and opens `/request-documents/?id=<service-request-id>` from the success modal. |
 | Upload page diagnostics | Request Documents page now shows a visible ready/warning/error status for the SharePoint document grid instead of failing silently. |
+| Portal upload UX wording | Fresh live download confirms the upload flow hides the native `New folder` action and relabels portal-facing upload text to `Secure file upload`, `Updates from Mitacs`, `Supporting files`, `Uploaded files`, and `No files have been uploaded yet`. |
+| Portal documents wording | Fresh live download confirms the intake Documents step and success modal use customer-facing secure upload wording instead of SharePoint/Power Pages implementation terms. |
 | SharePoint upload smoke test | `Portal smoke file upload 2026-05-21T07-24-18-212Z` created confirmation `SR-20260521-001025`; `esi-upload-smoke.txt` uploaded through the document grid and appeared on the page. |
 | SharePoint document location | Dataverse returned `sharepointdocumentlocationid` `4c2b05a7-e654-f111-89e7-0022488fbd9b` for request `df11b114-e654-f111-bec7-000d3a3aca8f`. |
 | Model-driven documents | SharePoint uploads use the coordinator form `Documents` tab and the out-of-box document associated area for the file list; `Service Request Evidence Review` stores accepted/rejected review metadata and SharePoint file links for official evidence. |
