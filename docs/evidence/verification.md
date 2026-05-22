@@ -40,6 +40,8 @@
 | Unmanaged solution export | Passed |
 | Managed solution unpack | Passed |
 | Unmanaged solution unpack | Passed |
+| Managed solution pack from source | Passed; local source packed to `solution/export/Enterprise_ServiceIntake_ForrestZhang_managed.zip` |
+| Unmanaged solution pack from source | Passed; local source packed to `solution/export/Enterprise_ServiceIntake_ForrestZhang_unmanaged.zip` |
 
 ## Verified Live Behavior
 
@@ -56,7 +58,7 @@
 | Portal documents wording | Fresh live download confirms the intake Documents step and success modal use customer-facing secure upload wording instead of SharePoint/Power Pages implementation terms. |
 | Portal step wording audit | Fresh live download confirms the intake journey uses customer-facing wording across Details, Impact, Documents, Review, response estimate, and upload states; visible labels use `Impact level`, `Urgency`, `Team`, and `Mitacs review` instead of internal routing/department/severity/priority language. |
 | Portal Save for later | Fresh live download confirms the intake page includes `Save for later`, draft lifecycle handling, and resume support through `/?draftid=<service-request-id>`. |
-| Portal My requests navigation | Fresh live download confirms `My requests` exists as a portal page and is linked from both the top navigation and the profile navigation. |
+| Portal My requests navigation | Fresh live download confirms `My requests` exists as a portal page, is linked from both the top navigation and the profile navigation, and includes portal-safe request detail review. |
 | Portal required-document gate | Fresh live download confirms matched routing rules with documentation required create/save a Draft before the Files step, embed the request-specific upload page, and disable `Review request` until at least one file is detected. |
 | Upload-page embedded mode | Fresh live download confirms the request-specific upload page supports `embed=true` so native SharePoint upload can run inside the Files step without exposing its final-submit controls. |
 | Confirmation email trigger | Live Dataverse verification confirms `ESI - Send Confirmation Email` triggers on Service Request update with `hx_lifecyclestatus eq 752630001`, so drafts saved by `Save for later` do not qualify. |
@@ -64,10 +66,11 @@
 | SharePoint document location | Dataverse returned `sharepointdocumentlocationid` `4c2b05a7-e654-f111-89e7-0022488fbd9b` for request `df11b114-e654-f111-bec7-000d3a3aca8f`. |
 | Model-driven documents | Live form metadata shows the coordinator `Documents` tab and the Power Pages support form now use `sharepointdocument` through `hx_servicerequest_SharePointDocuments`; the coordinator form also includes an `SR Evidence Reviews` subgrid for `hx_servicedocument`. |
 | Model-driven Service Request UX | Live metadata shows `Service Request - Coordinator` as the internal app form and the Power Pages upload support form retained for portal infrastructure; the coordinator form uses two-column sections, includes SharePoint Documents and Evidence Review subgrids, and `Active Service Requests` includes confirmation, customer, category, severity, priority, lifecycle, department, SLA due date, approval, ERP sync, and created-on columns. |
+| Model-driven lifecycle commands | Source-controlled ribbon command XML adds `Resolve Request` and `Complete Request` actions to the Service Request form. The coordinator form locks `Lifecycle Status` in the body and header, so manual lifecycle changes happen through the command buttons instead of direct field editing. The command script uses `Xrm.WebApi.updateRecord` for lifecycle updates, so blocked critical requests show only the custom command error and the form is refreshed back to the persisted lifecycle value. |
 | Evidence review view cleanup | Live saved-query metadata for `Service Request Evidence Review` no longer contains deprecated `Service Request Document` view names; Active, Associated, Lookup, Quick Find, My, Inactive, and Advanced Find views use Evidence Review naming. |
-| Routing/SLA matrix | Live Dataverse verification shows 80 active `Routing / SLA Rule` rows, one for each category/impact/urgency combination. Legacy sample-only rules are inactive. `Event Support + High + Normal` resolves to Client Services, High - 1 business day response, manager review required, and documentation required. |
+| Routing/SLA matrix | Final routing configuration is intended to contain 81 active `Routing / SLA Rule` rows: 80 active exact-match matrix rows and one active `Generic fallback - unmatched request`. Runtime logic filters to active rules and uses the fallback only if no exact active match exists. `Event Support + High + Normal` resolves to Client Services, High - 1 business day response, manager review required, and documentation required. |
 | Model-driven navigation groups | Live app navigation shows `Intake Work`, `Routing Configuration`, and `Monitoring` so request work, rule administration, and telemetry are separated for normal users. |
-| Routing Matrix editor | Model-driven app navigation now shows `Routing Matrix` instead of raw `Routing / SLA Rules`. The matrix loads 80 rules, shows one category at a time, summarizes manager-review/documentation counts, saves inline rule edits through `Xrm.WebApi`, and opens the underlying `Routing / SLA Rule` record from the rule name. |
+| Routing Matrix editor | Model-driven app navigation now shows `Routing Matrix` instead of raw `Routing / SLA Rules`. The matrix loads the 80 exact-match cells, shows one category at a time, summarizes manager-review/documentation counts, saves inline rule edits through `Xrm.WebApi`, and opens the underlying `Routing / SLA Rule` record from the rule name. The generic fallback remains available from the raw Dataverse table for advanced administration. |
 | Routing Matrix save smoke test | Live page was loaded with a cache-busting `data` query string; one Event Support low-risk manager-review toggle was switched on, saved, then switched back off and saved to restore the original matrix count. |
 | Portal evidence-review security | Power Pages live source no longer exposes `hx_servicedocument` through Web API settings or a global create table permission; Evidence Review is internal-only. |
 | Power Pages Web API hardening | Fresh PAC download from live site confirms explicit field allowlists for Service Request, Service Category, Routing Rule, Department, and SLA Policy; `Webapi/error/innererror=false`. |
@@ -75,13 +78,14 @@
 | Portal Service Request create allowlist | Fresh live download confirms `Webapi/hx_servicerequest/fields` includes both lookup columns and Web API bind properties: `hx_servicecategory`, `hx_Servicecategory`, `hx_customercontact`, and `hx_Customercontact`. |
 | Power Pages email login | Fresh live download confirms `Authentication/Registration/LocalLoginByEmail=true` and `Authentication/UserManager/UserValidator/RequireUniqueEmail=true`, so local registration/login uses email instead of a separate username. |
 | Service Request portal write scope | Fresh PAC download confirms `Service Request - Read - Contact` remains contact-scoped and `create=false`; `write=true` is required for native SharePoint document upload, while protected Service Request fields remain blocked by the plugin and are not exposed through the portal UI. |
-| Protected internal field guard | Live Dataverse verification confirms `ESI - Guard critical request closure` filters lifecycle, approval, ERP, routing, SLA, documentation, status, and internal-note fields; plugin config includes internal user IDs plus `agent@hellosmart.ca`, `manager@hellosmart.ca`, and `forrest@hellosmart.ca` email fallback. |
+| Protected internal field guard | Live Dataverse verification confirms `ESI - Guard critical request closure` filters lifecycle, approval, ERP, routing, SLA, documentation, status, and internal-note fields; plugin config includes internal user IDs plus `agent@hellosmart.ca`, `manager@hellosmart.ca`, and `forrest@hellosmart.ca` email fallback. The route-on-create, route-on-update, and completion-guard plugin steps are enabled (`state=0`, `status=1`). |
+| Dataverse security roles | Live verification confirms `Basic User` is assigned to `agent@hellosmart.ca` and `manager@hellosmart.ca` for model-driven app platform/metadata access, including `prvReadEntity`. `ESI Service Coordinator` and `ESI Approval Manager` are included in the Dataverse solution. `agent@hellosmart.ca` has the coordinator role; `manager@hellosmart.ca` has the approval manager role. Coordinator can read/write Service Requests and Evidence Reviews; manager can read requests/evidence/logs but does not receive create/write privileges for Service Requests or Evidence Reviews through that role. |
 | Plugin routing | Critical funding request routed to Finance with 4 hour SLA. |
-| Closure guard | Smoke test blocked undocumented critical closure and allowed closure only after an accepted resolution evidence-review row with a SharePoint file URL was created. |
+| Completion guard | Smoke test initially reproduced an inactive-step defect; after re-registering active plugin steps, live validation blocked undocumented critical completion and allowed completion only after an accepted resolution evidence-review row with a SharePoint file URL was created. |
 | Model-driven app | Coordinator queue and Service Request form open in the app. |
 | Approval/ERP flow | Active, solution-aware, includes approval, HelloX OAuth token request, Bearer-token HTTP sync to HelloX mock ERP, sync log, reject branch, and catch error-log scope. |
 | Confirmation email flow | Active, solution-aware, sends generated confirmation number to applicant and logs missing/failed email cases to System Error Logs. |
-| Model-driven dashboards | Exported solution contains `ESI - Coordinator Operations Dashboard`, `ESI - Manager Approval Dashboard`, and `ESI - Integration Monitoring Dashboard`; app module includes all three dashboard components. |
+| Model-driven dashboards | Live Dataverse verification confirms dashboard navigation is role-gated at two layers. The dashboards are removed from automatic app dashboard components, then exposed through sitemap dashboard pages with role-specific access-marker privileges. Dashboard `FormXml` display conditions remain role-specific: Coordinator Operations is restricted to `ESI Service Coordinator`, Manager Approval is restricted to `ESI Approval Manager`, and Integration Monitoring is available to both internal ESI roles. `RetrieveFilteredForms` for `manager@hellosmart.ca` returns Manager Approval and Integration Monitoring, not Coordinator Operations. |
 | Hidden HelloX ERP console | Source created under `static-site/esi/`; endpoint function created under `functions/api/esi-service-requests.js`. |
 
 ## Commands Used
@@ -107,19 +111,26 @@ node src/scripts/verify-portal-required-docs.mjs
 node --check src/powerpages/web-files/service-intake.js
 node --check src/powerpages/web-files/request-documents.js
 node --check src/powerpages/web-files/my-requests.js
+node --check src/webresources/hx_serviceRequestCommands.js
+xmllint --noout solution/unpacked/unmanaged/Entities/hx_Servicerequest/RibbonDiff.xml
+xmllint --noout 'solution/unpacked/unmanaged/Entities/hx_Servicerequest/FormXml/main/{9d7aadac-8016-4109-94fc-2d0bf5f367a9}.xml'
 pac pcf push --solution-unique-name EnterpriseServiceIntake --verbosity minimal
 ENSURE_CONFIRMATION_EMAIL_FLOW=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
 ENSURE_ROUTING_MATRIX_PAGE=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+ENSURE_DASHBOARD_SECURITY=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+DUMP_DASHBOARD_SECURITY=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
 /Volumes/Forrest/Users/Forrest/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 tools/build_architecture_design_doc.py
 /Volumes/Forrest/Users/Forrest/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 tools/build_user_manual_doc.py
-sips -s format png docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v3.pdf --out /tmp/esi-doc-preview/architecture-v3.png
-sips -s format png docs/submission/Enterprise_ServiceIntake_User_Manual_ForrestZhang_v1.pdf --out /tmp/esi-doc-preview/user-manual-v1.png
+sips -s format png docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v4.pdf --out /tmp/esi-doc-preview/architecture-v4.png
+sips -s format png docs/submission/Enterprise_ServiceIntake_User_Manual_ForrestZhang_v2.pdf --out /tmp/esi-doc-preview/user-manual-v2.png
 
 pac solution publish
 pac solution export --name EnterpriseServiceIntake --path solution/export/Enterprise_ServiceIntake_ForrestZhang_unmanaged.zip --overwrite
 pac solution export --name EnterpriseServiceIntake --path solution/export/Enterprise_ServiceIntake_ForrestZhang_managed.zip --managed --overwrite
 pac solution unpack --zipfile solution/export/Enterprise_ServiceIntake_ForrestZhang_managed.zip --folder solution/unpacked/managed --packagetype Managed --clobber --allowWrite
 pac solution unpack --zipfile solution/export/Enterprise_ServiceIntake_ForrestZhang_unmanaged.zip --folder solution/unpacked/unmanaged --packagetype Unmanaged --clobber --allowWrite
+pac solution pack --zipfile solution/export/Enterprise_ServiceIntake_ForrestZhang_unmanaged.zip --folder solution/unpacked/unmanaged --packagetype Unmanaged
+pac solution pack --zipfile solution/export/Enterprise_ServiceIntake_ForrestZhang_managed.zip --folder solution/unpacked/managed --packagetype Managed
 ```
 
 ## Known Limitations

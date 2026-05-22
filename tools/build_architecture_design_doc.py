@@ -37,9 +37,9 @@ from reportlab.platypus import (
 ROOT = Path(__file__).resolve().parents[1]
 SUBMISSION_DIR = ROOT / "docs" / "submission"
 ASSET_DIR = ROOT / "artifacts" / "doc-assets"
-DOC_VERSION = "V3"
-DOCX_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v3.docx"
-PDF_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v3.pdf"
+DOC_VERSION = "V4"
+DOCX_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v4.docx"
+PDF_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v4.pdf"
 
 BLUE = "0067B1"
 DARK_BLUE = "003B66"
@@ -344,7 +344,7 @@ def create_architecture_diagram(path: Path) -> None:
     draw_round_box(draw, boxes["customer"], "External Customer", "Authenticated portal user", fill=LIGHT_BLUE)
     draw_round_box(draw, boxes["portal"], "Power Pages", "Multi-step intake and live routing preview", fill=LIGHT_BLUE)
     draw_round_box(draw, boxes["dataverse"], "Dataverse", "Service Request, rules, logs, email activity", fill=WHITE, outline=DARK_BLUE)
-    draw_round_box(draw, boxes["sharepoint"], "SharePoint", "Post-submit supporting files through document management", fill=WHITE, outline=GREEN, title_color=GREEN)
+    draw_round_box(draw, boxes["sharepoint"], "SharePoint", "Request-specific supporting files through document management", fill=WHITE, outline=GREEN, title_color=GREEN)
     draw_round_box(draw, boxes["plugin"], "C# Plugins", "Routing, SLA calculation, close guardrail", fill=GREY, outline=DARK_BLUE)
     draw_round_box(draw, boxes["rules"], "Editable Rule Matrix", "Routing rules, departments, SLA policies", fill=GREY, outline=DARK_BLUE)
     draw_round_box(draw, boxes["app"], "Model-driven App", "Coordinator queue and PCF status indicator", fill=WHITE, outline=GREEN, title_color=GREEN)
@@ -658,7 +658,7 @@ def add_architecture(doc: Document, architecture_image: Path) -> None:
         doc,
         ["Requirement", "Component", "Reason"],
         [
-            ["External intake", "Power Pages", ["Authenticated customer access", "Contact-scoped table permissions", "Multi-step forms", "Post-submit SharePoint upload", "Liquid/Web API extensibility"]],
+            ["External intake", "Power Pages", ["Authenticated customer access", "Contact-scoped table permissions", "Multi-step forms", "Required-file upload before final submission", "Liquid/Web API extensibility"]],
             ["System of record", "Dataverse", ["Relational data model", "Security roles and ownership", "Auditing and solution packaging", "Consistent state across portal, app, flow, and API entry points"]],
             ["Routing and SLA", "C# plugin", ["Runs transactionally on create/update", "Applies the same rule result for all entry points", "Cannot be bypassed by imports, flows, APIs, or alternate clients"]],
             ["Close guardrail", "C# plugin", ["Enforces critical documentation requirements at the server boundary", "Stronger than form scripts or after-the-fact flow validation"]],
@@ -672,6 +672,7 @@ def add_architecture(doc: Document, architecture_image: Path) -> None:
 
 def add_data_model(doc: Document, erd_image: Path) -> None:
     add_section_title(doc, "Dataverse Data Strategy", "The data model separates request state, rule configuration, documents, integration telemetry, and operational error records.")
+    add_subtitle(doc, "Entity Relationship Diagram (ERD)")
     doc.add_picture(str(erd_image), width=Inches(6.8))
     doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -702,14 +703,26 @@ def add_data_model(doc: Document, erd_image: Path) -> None:
         ],
     )
 
+    add_subtitle(doc, "Routing Rule Record Count")
+    add_bullets(
+        doc,
+        [
+            "The active exact-match matrix contains 80 rules: 5 service categories x 4 impact levels x 4 urgency levels.",
+            "One additional active rule, Generic fallback - unmatched request, handles unmatched or misconfigured combinations.",
+            "The clean final routing table contains 81 active rules total; runtime logic filters to active rules and treats the fallback separately from the 80-cell matrix.",
+        ],
+    )
+
 
 def add_security(doc: Document) -> None:
     add_section_title(doc, "Security Strategy", "The design assumes least privilege across external portal users, internal coordinators, managers, and administrators.")
-    add_subtitle(doc, "Power Pages Access")
+    add_subtitle(doc, "Portal Authentication And Security Strategy")
     add_bullets(
         doc,
         [
             "External users authenticate to Power Pages and are associated to Contact rows.",
+            "Anonymous create was considered because the assignment FAQ allows it, but sign-in is used because the primary scenario asks external customers to securely log into the portal.",
+            "Authenticated access supports My requests, draft resume, request-specific file ownership, and contact-scoped table permissions.",
             "Table permissions are contact-scoped so users can create requests and view only requests tied to their contact.",
             "Reference data needed for dynamic preview, such as active service categories and routing outcomes, is exposed read-only.",
             "Portal forms exclude internal-only fields, integration payloads, internal notes, sync logs, and system error logs.",
@@ -720,8 +733,10 @@ def add_security(doc: Document) -> None:
     add_bullets(
         doc,
         [
-            "Coordinators use the model-driven app for operational request triage.",
-            "Managers review approvals and can inspect high-priority items.",
+            "Coordinators use the ESI Service Coordinator role with Basic User for operational request triage.",
+            "Managers use the ESI Approval Manager role with Basic User, plus the standard Approvals User role for Power Automate approval records.",
+            "Dashboard access is role-gated in two layers: dashboard DisplayConditions limit direct dashboard visibility, and sitemap dashboard links use role-specific access-marker privileges so the app navigation does not expose dashboards intended for another role.",
+            "Coordinators see the Operations Dashboard and Monitoring Dashboard; managers see the Approval Dashboard and Monitoring Dashboard.",
             "Sensitive internal resolution notes are kept off the portal and should be protected with role and column-level security in production.",
             "Error and sync telemetry tables are intended for managers, admins, and support owners rather than broad staff access.",
         ],
@@ -732,8 +747,8 @@ def add_security(doc: Document) -> None:
         doc,
         ["Area", "Lean Demo Choice", "Production Hardening"],
         [
-            ["Portal identity", ["Authenticated Power Pages users in the interview tenant"], ["Use Entra External ID or configured B2C provider", "Apply lifecycle controls", "Add conditional access where appropriate"]],
-            ["Uploads", ["Post-submit document-management page", "Files stored in SharePoint for the saved Service Request"], ["Apply file type limits", "Use malware scanning", "Review retention and DLP rules"]],
+            ["Portal identity", ["Authenticated Power Pages users in the interview tenant", "Anonymous create considered but not used"], ["Use Entra External ID or configured B2C provider", "Apply lifecycle controls", "Add conditional access where appropriate"]],
+            ["Uploads", ["Request-specific document-management page", "Files stored in SharePoint for the saved Service Request"], ["Apply file type limits", "Use malware scanning", "Review retention and DLP rules"]],
             ["Secrets", ["No tenant passwords or tokens committed to Git"], ["Use connection references and environment variables", "Use Key Vault-backed custom connectors", "Prefer managed identities where available"]],
         ],
         [1.35, 2.65, 2.75],
@@ -760,8 +775,8 @@ def add_portal_ux(doc: Document) -> None:
     add_bullets(
         doc,
         [
-            "The portal reads eligible routing/SLA data through Power Pages Web API and/or Liquid-rendered data.",
-            "Client-side JavaScript recalculates the displayed routing destination and expected SLA when the user changes category, impact, or urgency.",
+            "The portal reads active routing/SLA data through the Power Pages Web API and client-side JavaScript.",
+            "Client-side JavaScript evaluates the 80 exact-match category/impact/urgency rules first, then uses the Generic fallback - unmatched request rule only if no exact active match exists.",
             "The preview avoids a full page reload and mirrors the server-side plugin rule result, while the plugin remains the authoritative enforcement layer.",
         ],
     )
@@ -852,7 +867,7 @@ def add_alm_verification(doc: Document) -> None:
             ["Plugin build", "Passed."],
             ["Provisioning utility", ["Builds with zero warnings", "NuGet vulnerability audit reports no vulnerable packages"]],
             ["PCF", "Build and pac pcf push passed."],
-            ["Power Pages", ["Dynamic preview shows Finance", "4 hour SLA and approval required display before submit", "Post-submit SharePoint upload is available from the confirmation dialog"]],
+            ["Power Pages", ["Dynamic preview shows Finance", "4 hour SLA and approval required display before submit", "Required-file requests create a draft and block review until a file is uploaded", "Optional supporting files can still be added after submission"]],
             ["Portal submission", ["Portal demo request created with formatted confirmation SR-20260521-001004", "Outlook confirmation smoke test created SR-20260521-001018"]],
             ["Closure guard", ["Blocked undocumented critical closure", "Allowed documented closure"]],
             ["Flows", ["Approval/ERP flow is active and solution-aware", "Confirmation email flow is active and solution-aware", "Both use Try/Catch logging patterns"]],
@@ -868,7 +883,7 @@ def add_alm_verification(doc: Document) -> None:
         [
             "If email delivery is restricted, use Office 365 Outlook action output, Approval records, and Flow run history as evidence.",
             "The HelloX mock ERP endpoint avoids third-party API keys and includes a deliberate failure mode for Catch-scope demos.",
-            "The hidden HelloX console at https://hellox.ca/esi/ is noindex and not linked from public navigation.",
+            "Open the hidden HelloX console at https://hellox.ca/esi/ to view mock ERP sync attempts, returned external IDs, and failure-path evidence. It is noindex and not linked from public navigation.",
             "If a target environment does not automatically bind the PCF control on import, add the PCF control to the coordinator form field in the form designer.",
         ],
     )
@@ -883,6 +898,7 @@ def add_appendix(doc: Document) -> None:
             "Submit a critical funding request from the portal and show dynamic preview before submit.",
             "Open the request in the model-driven app and review routing, SLA, approval, sync status, dashboards, and internal fields.",
             "Open the cloud flow and explain approval, HTTP POST, writeback, sync log, reject branch, and Catch scope.",
+            "Open https://hellox.ca/esi/ to show the mock ERP received request row, returned external ERP ID, and accepted/failed dashboard counts.",
             "Demonstrate or explain failure handling through System Error Log rows.",
             "Demonstrate the critical close guardrail through the smoke test or form behavior.",
             "Show managed solution, unpacked source, PCF, plugin source, Power Pages source, and GitHub repository.",
@@ -1176,11 +1192,12 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
     story.append(pp("The solution keeps Dataverse as the authority for state while placing business logic in the component that best enforces the requirement.", styles["Body"]))
     story.append(RLImage(str(architecture_image), width=6.7 * inch, height=4.17 * inch))
     story.append(Spacer(1, 8))
+    pdf_heading(story, "Component Placement", styles, level=2)
     pdf_table(
         story,
         ["Requirement", "Component", "Reason"],
         [
-            ["External intake", "Power Pages", ["Authenticated customer access", "Contact-scoped permissions", "Multi-step forms", "Post-submit SharePoint upload", "Liquid/Web API extensibility"]],
+            ["External intake", "Power Pages", ["Authenticated customer access", "Contact-scoped permissions", "Multi-step forms", "Required-file upload before final submission", "Liquid/Web API extensibility"]],
             ["System of record", "Dataverse", ["Relational model", "Security roles and ownership", "Auditing and solution packaging", "Consistent state across portal, app, flow, and APIs"]],
             ["Routing and SLA", "C# plugin", ["Runs transactionally on create/update", "Same rule result for all entry points", "Cannot be bypassed by imports, flows, APIs, or alternate clients"]],
             ["Close guardrail", "C# plugin", ["Enforces critical documentation requirements", "Runs at the server boundary"]],
@@ -1194,6 +1211,7 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
 
     pdf_heading(story, "Dataverse Data Strategy", styles)
     story.append(pp("The data model separates request state, rule configuration, documents, integration telemetry, and operational error records.", styles["Body"]))
+    pdf_heading(story, "Entity Relationship Diagram (ERD)", styles, level=2)
     story.append(RLImage(str(erd_image), width=6.7 * inch, height=4.69 * inch))
     story.append(Spacer(1, 8))
     pdf_table(
@@ -1221,13 +1239,25 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         ],
         styles,
     )
+    pdf_heading(story, "Routing Rule Record Count", styles, level=2)
+    pdf_bullets(
+        story,
+        [
+            "The active exact-match matrix contains 80 rules: 5 service categories x 4 impact levels x 4 urgency levels.",
+            "One additional active rule, Generic fallback - unmatched request, handles unmatched or misconfigured combinations.",
+            "The clean final routing table contains 81 active rules total; runtime logic filters to active rules and treats the fallback separately from the 80-cell matrix.",
+        ],
+        styles,
+    )
     pdf_heading(story, "Security Strategy", styles)
     story.append(pp("The design assumes least privilege across external portal users, internal coordinators, managers, and administrators.", styles["Body"]))
-    pdf_heading(story, "Power Pages Access", styles, level=2)
+    pdf_heading(story, "Portal Authentication And Security Strategy", styles, level=2)
     pdf_bullets(
         story,
         [
             "External users authenticate to Power Pages and are associated to Contact rows.",
+            "Anonymous create was considered because the assignment FAQ allows it, but sign-in is used because the primary scenario asks external customers to securely log into the portal.",
+            "Authenticated access supports My requests, draft resume, request-specific file ownership, and contact-scoped table permissions.",
             "Table permissions are contact-scoped so users can create requests and view only requests tied to their contact.",
             "Reference data needed for dynamic preview is exposed read-only.",
             "Portal forms exclude internal-only fields, integration payloads, internal notes, sync logs, and system error logs.",
@@ -1238,8 +1268,10 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
     pdf_bullets(
         story,
         [
-            "Coordinators use the model-driven app for operational request triage.",
-            "Managers review approvals and can inspect high-priority items.",
+            "Coordinators use the ESI Service Coordinator role with Basic User for operational request triage.",
+            "Managers use the ESI Approval Manager role with Basic User, plus the standard Approvals User role for Power Automate approval records.",
+            "Dashboard access is role-gated in two layers: dashboard DisplayConditions limit direct dashboard visibility, and sitemap dashboard links use role-specific access-marker privileges so the app navigation does not expose dashboards intended for another role.",
+            "Coordinators see the Operations Dashboard and Monitoring Dashboard; managers see the Approval Dashboard and Monitoring Dashboard.",
             "Sensitive internal resolution notes are kept off the portal and should be protected with role and column-level security in production.",
             "Error and sync telemetry tables are intended for managers, admins, and support owners rather than broad staff access.",
         ],
@@ -1250,8 +1282,8 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         story,
         ["Area", "Lean Demo Choice", "Production Hardening"],
         [
-            ["Portal identity", ["Authenticated Power Pages users in the interview tenant"], ["Use Entra External ID or configured B2C provider", "Apply lifecycle controls", "Add conditional access where appropriate"]],
-            ["Uploads", ["Post-submit document-management page", "Files stored in SharePoint for the saved Service Request"], ["Apply file type limits", "Use malware scanning", "Review retention and DLP rules"]],
+            ["Portal identity", ["Authenticated Power Pages users in the interview tenant", "Anonymous create considered but not used"], ["Use Entra External ID or configured B2C provider", "Apply lifecycle controls", "Add conditional access where appropriate"]],
+            ["Uploads", ["Request-specific document-management page", "Files stored in SharePoint for the saved Service Request"], ["Apply file type limits", "Use malware scanning", "Review retention and DLP rules"]],
             ["Secrets", ["No tenant passwords or tokens committed to Git"], ["Use connection references and environment variables", "Use Key Vault-backed custom connectors", "Prefer managed identities where available"]],
         ],
         [1.25, 2.7, 2.8],
@@ -1278,8 +1310,8 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
     pdf_bullets(
         story,
         [
-            "The portal reads eligible routing/SLA data through Power Pages Web API and/or Liquid-rendered data.",
-            "Client-side JavaScript recalculates the displayed routing destination and expected SLA when the user changes category, impact, or urgency.",
+            "The portal reads active routing/SLA data through the Power Pages Web API and client-side JavaScript.",
+            "Client-side JavaScript evaluates the 80 exact-match category/impact/urgency rules first, then uses the Generic fallback - unmatched request rule only if no exact active match exists.",
             "The preview avoids a full page reload and mirrors the server-side plugin rule result, while the plugin remains the authoritative enforcement layer.",
         ],
         styles,
@@ -1367,7 +1399,7 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
             ["Plugin build", "Passed."],
             ["Provisioning utility", ["Builds with zero warnings", "NuGet vulnerability audit reports no vulnerable packages"]],
             ["PCF", "Build and pac pcf push passed."],
-            ["Power Pages", ["Dynamic preview shows Finance", "4 hour SLA and approval required display before submit", "Post-submit SharePoint upload is available from the confirmation dialog"]],
+            ["Power Pages", ["Dynamic preview shows Finance", "4 hour SLA and approval required display before submit", "Required-file requests create a draft and block review until a file is uploaded", "Optional supporting files can still be added after submission"]],
             ["Portal submission", ["Portal demo request created with formatted confirmation SR-20260521-001004", "Outlook confirmation smoke test created SR-20260521-001018"]],
             ["Closure guard", ["Blocked undocumented critical closure", "Allowed documented closure"]],
             ["Flows", ["Approval/ERP flow is active and solution-aware", "Confirmation email flow is active and solution-aware", "Both use Try/Catch logging patterns"]],
@@ -1382,7 +1414,7 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
         [
             "If email delivery is restricted, use Office 365 Outlook action output, Approval records, and Flow run history as evidence.",
             "The HelloX mock ERP endpoint avoids third-party API keys and includes a deliberate failure mode for Catch-scope demos.",
-            "The hidden HelloX console at https://hellox.ca/esi/ is noindex and not linked from public navigation.",
+            "Open the hidden HelloX console at https://hellox.ca/esi/ to view mock ERP sync attempts, returned external IDs, and failure-path evidence. It is noindex and not linked from public navigation.",
             "If a target environment does not automatically bind the PCF control on import, add the PCF control to the coordinator form field in the form designer.",
         ],
         styles,
@@ -1397,6 +1429,7 @@ def build_pdf(architecture_image: Path, erd_image: Path) -> None:
             "Submit a critical funding request from the portal and show dynamic preview before submit.",
             "Open the request in the model-driven app and review routing, SLA, approval, sync status, dashboards, and internal fields.",
             "Open the cloud flow and explain approval, HTTP POST, writeback, sync log, reject branch, and Catch scope.",
+            "Open https://hellox.ca/esi/ to show the mock ERP received request row, returned external ERP ID, and accepted/failed dashboard counts.",
             "Demonstrate or explain failure handling through System Error Log rows.",
             "Demonstrate the critical close guardrail through the smoke test or form behavior.",
             "Show managed solution, unpacked source, PCF, plugin source, Power Pages source, and GitHub repository.",

@@ -6,6 +6,7 @@ Senior Power Platform Developer take-home assignment for an enterprise external 
 
 | Version | Date | Notes |
 | --- | --- | --- |
+| V4 | 2026-05-22 | Documents authenticated portal decision versus allowed anonymous fallback; refreshes Architecture Design v4 and User Manual v2 artifacts. |
 | V3 | 2026-05-22 | Updates for required-document portal workflow, `My requests`, model-driven app navigation groups, editable Routing Matrix web resource, consolidated Service Request form, evidence review terminology, and live verification. |
 | V2 | 2026-05-21 | Added confirmation email flow, SharePoint document-management path, Evidence Review metadata, dashboards, and security hardening notes. |
 | V1 | 2026-05-20 | Initial architecture, Dataverse model, plugin, PCF, flow, and portal design. |
@@ -26,7 +27,7 @@ End to end: an external user starts a multi-step service request in Power Pages,
 | Power Pages site | https://enterprise-service-intake-hellox.powerappsportals.com |
 | HelloX mock ERP API | https://hellox.ca/api/mock/enterprise-service-intake/erp |
 | HelloX OAuth token endpoint | https://hellox.ca/api/mock/oauth/token |
-| Hidden HelloX ERP console | https://hellox.ca/esi/ |
+| Hidden HelloX ERP console | https://hellox.ca/esi/ - view mock ERP sync attempts, returned external IDs, and failure-path evidence |
 | Power Automate flow | `ESI - Approval and ERP Sync` |
 
 The Power Pages site is intentionally private for the interview tenant. Reviewer credentials should be shared separately by the administrator, not committed in this repository.
@@ -43,8 +44,8 @@ The Power Pages site is intentionally private for the interview tenant. Reviewer
 | PCF control | `src/pcf/SlaStatusIndicator/` |
 | Power Pages source | `src/powerpages/` and `powerpages-live/` |
 | Provisioning/ALM utilities | `src/scripts/ServiceIntake.Provisioning/` and `tools/apply_model_driven_app_design.mjs` |
-| Architecture design brief | `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v3.docx` and `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v3.pdf` |
-| User manual | `docs/manual/user-manual.md`, `docs/submission/Enterprise_ServiceIntake_User_Manual_ForrestZhang_v1.docx`, and `docs/submission/Enterprise_ServiceIntake_User_Manual_ForrestZhang_v1.pdf` |
+| Architecture design brief | `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v4.docx` and `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v4.pdf` |
+| User manual | `docs/manual/user-manual.md`, `docs/submission/Enterprise_ServiceIntake_User_Manual_ForrestZhang_v2.docx`, and `docs/submission/Enterprise_ServiceIntake_User_Manual_ForrestZhang_v2.pdf` |
 | Submission email draft | `docs/submission/email-draft.md` |
 | Demo script | `docs/demo/demo-script.md` |
 
@@ -54,7 +55,7 @@ The Power Pages site is intentionally private for the interview tenant. Reviewer
 flowchart LR
     Customer["External customer"] --> Pages["Power Pages\nmulti-step intake"]
     Pages --> Dataverse["Dataverse\nService Request"]
-    Dataverse --> Plugin["C# plugin\nrouting, SLA, close guard"]
+    Dataverse --> Plugin["C# plugin\nrouting, SLA, completion guard"]
     Plugin --> Rules["Routing Rules\nDepartments + SLA Policies"]
     Dataverse --> App["Model-driven app\ncoordinator queue"]
     Dataverse --> Flow["Power Automate\napproval + ERP sync"]
@@ -134,7 +135,7 @@ erDiagram
 | --- | --- | --- |
 | Dynamic routing/SLA | Dataverse stores an 80-row exact-match routing matrix covering every service category, impact level, and urgency combination, plus one documented generic fallback rule for misconfiguration. The portal previews the same active rule rows through Power Pages Web API, and `ServiceRequestRoutingPlugin` applies the exact match or fallback on create/update. See `docs/strategy/routing-rule-matrix.md`. | Routing must be transactional and consistent for portal, app, and automation creates. A complete matrix avoids hidden frontend thresholds, and the fallback prevents unrouted requests if an admin accidentally deactivates a matrix cell. |
 | Confirmation number | Dataverse autonumber `SR-{yyyyMMdd}-{SEQNUM}` on Service Request. | Server-generated and tamper-resistant. |
-| Critical close and protected-field guardrail | PreOperation C# plugin blocks resolved/closed critical requests unless internal resolution notes exist and an accepted `Service Request Evidence Review` row references a SharePoint file. The same plugin step also blocks non-internal callers from updating approval, ERP sync, routing, SLA, lifecycle, and internal documentation fields. | A plugin is the right layer because agents and API callers cannot bypass it from forms, imports, flows, or portal/Web API calls. The guardrail does not rely on a user-editable documentation checkbox. |
+| Critical completion and protected-field guardrail | PreOperation C# plugin blocks resolved/completed critical requests unless internal resolution notes exist and an accepted `Service Request Evidence Review` row references a SharePoint file. The coordinator form locks `Lifecycle Status`, and source-controlled command buttons provide `Resolve Request` and `Complete Request` actions for the two manual lifecycle changes. The same plugin step also blocks non-internal callers from updating approval, ERP sync, routing, SLA, lifecycle, and internal documentation fields. | A plugin is the right layer because agents and API callers cannot bypass it from forms, imports, flows, or portal/Web API calls. The guardrail does not rely on a user-editable documentation checkbox, and the command buttons make the internal UX clearer than direct status editing. |
 | Supporting documents | The portal creates or updates a Draft request before the Files step when the matched rule requires documentation, embeds the request-specific secure upload page, and disables Review until at least one file exists. Optional files can still be uploaded after submission. Uploaded files are stored against the request's native SharePoint document location and viewed from the out-of-box model-driven Documents associated tab. `Service Request Evidence Review` stores Dataverse-owned review metadata and file links only for documents that become official evidence. | SharePoint document management needs a saved request ID before files can be associated to the correct Dataverse record. This keeps file storage on the supported document-management path while Dataverse owns request state, routing, approval, and evidence-review decisions. |
 | Approval + ERP sync | Cloud flow `ESI - Approval and ERP Sync` with Try scope, approval, OAuth client-credentials token request, protected HTTP POST, Dataverse writeback, sync log, reject branch, and Catch error-log scope. | Flow is appropriate for human approvals, connector-based integration, retries, and run history evidence. The mock ERP token step demonstrates app-to-app authentication without a human refresh token. |
 | Applicant confirmation email | Cloud flow `ESI - Send Confirmation Email` triggers when a Service Request reaches Submitted, sends the generated confirmation number to the applicant, and logs email failures to System Error Logs. | Email delivery belongs in automation so failures are visible in flow history/error logs and do not block transactional request creation. Triggering on Submitted prevents draft saves from sending premature confirmation emails. |
@@ -165,12 +166,13 @@ There are two Service Request main forms by design, but only `Service Request - 
 ## Security Strategy
 
 - External users authenticate to Power Pages and are associated to Contact rows.
+- Anonymous create was considered because the FAQ allows it, but the implemented solution intentionally requires sign-in. Authenticated access better satisfies the primary business scenario, supports `My requests`, draft resume, request-specific file ownership, and contact-scoped table permissions.
 - Local Power Pages sign-in is configured to use email address instead of username, with unique email validation enabled so registration does not ask users to manage a separate username.
 - Power Pages table permissions allow authenticated global create for Service Request intake and contact-scoped own-record access. Contact-scoped Service Request write is enabled only to support the native SharePoint document upload grid; protected routing, approval, sync, lifecycle, and internal-note fields are still hidden from the portal and rejected by the guard plugin for non-internal callers.
 - Power Pages Web API site settings use explicit field allowlists for Service Request, Service Category, Routing Rule, Department, and SLA Policy; `Webapi/error/innererror` is disabled.
 - Public read access is limited to reference/routing data required for SLA preview.
 - Internal-only fields such as `hx_internalresolutionnotes` are not exposed on portal pages, the column is configured as secured metadata, and the plugin rejects protected-field updates from callers outside the configured internal allowlist.
-- Internal users work from the model-driven app with Dataverse security roles and views; sensitive audit/error tables are intended for managers/admins.
+- Internal users work from the model-driven app with Dataverse security roles and views. `Basic User` is assigned to the internal test users for model-driven app platform and metadata access. `ESI Service Coordinator` is assigned to `agent@hellosmart.ca` for request/evidence read-write work. `ESI Approval Manager` is assigned to `manager@hellosmart.ca` for request/evidence/log review without create/write privileges on Service Requests or Evidence Reviews through that role.
 - Secrets and reviewer passwords are stored outside Git. The HelloX mock ERP OAuth client secret is injected from the private provisioning environment file, and the token action uses secure inputs/outputs in Power Automate run history. See the administrator handoff for credential sharing.
 
 ## Automation Design
@@ -227,7 +229,7 @@ Catch/skip path:
 | Component | Location | Purpose |
 | --- | --- | --- |
 | `ServiceRequestRoutingPlugin` | `src/plugins/ServiceIntake.Plugins/ServiceRequestRoutingPlugin.cs` | Applies routing rule, SLA due date, approval requirement, documentation requirement, and lifecycle defaults. |
-| `ServiceRequestClosureGuardPlugin` | `src/plugins/ServiceIntake.Plugins/ServiceRequestClosureGuardPlugin.cs` | Blocks critical request closure without resolution documentation and rejects external updates to protected internal Service Request fields. |
+| `ServiceRequestClosureGuardPlugin` | `src/plugins/ServiceIntake.Plugins/ServiceRequestClosureGuardPlugin.cs` | Blocks critical request completion without resolution documentation and rejects external updates to protected internal Service Request fields. |
 | `ServiceRequestExternalUpdatePolicy` | `src/plugins/ServiceIntake.Plugins/ServiceRequestExternalUpdatePolicy.cs` | Testable policy for protected-field detection and internal caller allowlists. |
 | `SlaStatusIndicator` PCF | `src/pcf/SlaStatusIndicator/` | Visual severity/SLA/approval status indicator for internal coordinators. |
 | Provisioning utility | `src/scripts/ServiceIntake.Provisioning/` | Reproducible environment setup, metadata creation, plugin registration, app/forms/views, sample data, and flow definition patching. |
@@ -254,7 +256,7 @@ Validated locally and against the live environment:
 - Plugin build succeeds.
 - PCF build and `pac pcf push` succeed.
 - Provisioning utility builds and runs.
-- Closure guard smoke test blocks undocumented critical closure and allows closure only after accepted resolution evidence is recorded.
+- Completion guard smoke test blocks undocumented critical completion and allows completion only after accepted resolution evidence is recorded.
 - Power Pages dynamic preview updates before submit.
 - Power Pages create path submits to Dataverse and routes to Finance for critical funding requests.
 - Power Pages save-for-later, `My requests`, and required-document gates are present in live source and verified against the downloaded site.

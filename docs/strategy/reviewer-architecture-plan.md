@@ -8,7 +8,7 @@ The final project README should let a reviewer understand the solution before op
 
 1. **Executive Summary**
    - One-paragraph purpose: authenticated external Service Intake built with Power Pages, Dataverse, Power Automate, C# extensibility, and PCF.
-   - Short end-to-end flow: portal submission, Dataverse routing, approval, REST sync, internal follow-up, closure guardrail.
+   - Short end-to-end flow: portal submission, Dataverse routing, approval, REST sync, internal follow-up, completion guardrail.
 
 2. **Solution Contents**
    - Managed solution zip name: `Enterprise_ServiceIntake_<YourName>.zip`.
@@ -33,7 +33,7 @@ The final project README should let a reviewer understand the solution before op
    - Routing/SLA rule evaluation.
    - High-priority approval.
    - REST sync and error logging.
-   - Critical-request close validation.
+   - Critical-request completion validation.
    - For each decision, explain why the selected platform component is the right placement.
 
 7. **Power Pages Experience**
@@ -76,14 +76,15 @@ The final project README should let a reviewer understand the solution before op
 | Area | Decision | Rationale | Reviewer Talking Point |
 | --- | --- | --- | --- |
 | Core system of record | Dataverse stores service requests, routing rules, documents, approvals, sync state, and error logs. | Dataverse gives relational modeling, security roles, auditing, solution packaging, and first-class Power Platform integration. | The design keeps operational state auditable and deployable as a managed solution. |
-| Portal authentication | Prefer authenticated Power Pages users mapped to Contact rows. Anonymous create is only a documented fallback. | Authentication supports row-level request visibility and a more enterprise-grade reviewer story. | External users see only requests tied to their contact/account through table permissions. |
+| Portal authentication | Use authenticated Power Pages users mapped to Contact rows. Anonymous create was considered because the FAQ allows it, but it is not used in this implementation. | Authentication supports secure login, row-level request visibility, drafts, `My requests`, and request-specific file ownership. | External users see only requests tied to their contact/account through table permissions. |
 | Confirmation number | Generate a formatted number server-side at create time. | Server-side generation avoids client tampering and keeps portal, app, and integration entries consistent. | The number can combine an auto number, prefix, and date-friendly display format. |
 | Routing/SLA evaluation | Store routing and SLA rules in configurable Dataverse tables. Evaluate on create/update through a plugin or custom API. | Business users can update rules without redeploying code, while server-side evaluation keeps results consistent. | This is better than hard-coded flow conditions because rule data remains maintainable. |
 | Dynamic portal feedback | Use Power Pages Web API or Liquid-backed data to preview expected department/SLA before final submit. | The portal requirement asks for real-time feedback without full page reload. | Preview is advisory; final routing still runs server-side for integrity. |
 | Approval process | Power Automate handles high-priority manager approval. | Approvals, notifications, run history, retries, and connection references fit Flow well. | If email is unavailable, reviewer evidence comes from approval records and run history. |
 | REST sync | Power Automate posts approved requests to a mock REST API and writes the returned external ID to Dataverse. | Flow is appropriate for integration orchestration and has visible operational history. | Try/Catch scopes and error-log rows show enterprise resiliency. |
-| Close guardrail | C# plugin enforces that critical requests cannot close without required resolution documentation. | This is a transactional integrity rule and must not be bypassed by UI or flow changes. | Plugin placement protects all entry points, including model-driven app, API, and automation. |
+| Completion guardrail | C# plugin enforces that critical requests cannot be resolved or completed without required resolution documentation. | This is a transactional integrity rule and must not be bypassed by UI or flow changes. | Plugin placement protects all entry points, including model-driven app command buttons, API, and automation. |
 | Internal UX | PCF control enhances internal coordinator triage, such as severity visualization or status indicator. | PCF demonstrates pro-code UI skill while keeping business logic server-side. | The PCF improves speed and clarity without becoming a rules engine. |
+| Internal dashboard access | Model-driven dashboards are role-gated by dashboard DisplayConditions and sitemap links protected through role-specific access-marker privileges. | Dashboard form security alone did not prevent automatically listed app dashboards from appearing to other roles, so the navigation is also gated. | Coordinators see Operations plus Monitoring; approval managers see Approval plus Monitoring. |
 | Error logging | Custom Dataverse error log table captures flow/plugin/integration failures. | Centralized logs simplify support and provide demo evidence. | Logs include source component, correlation/request ID, severity, message, and related request. |
 
 ## Proposed ERD
@@ -220,6 +221,7 @@ erDiagram
 | Approval Request | Tracks high-priority approval state and evidence. | One service request can have one or more approvals. | Internal manager/coordinator only. |
 | External Sync Log | Records outbound REST sync attempts and returned IDs. | Many attempts per service request. | Internal support only. |
 | Error Log | Centralized operational error capture. | Optional related service request. | Internal support/admin only; no secrets or raw credentials in messages. |
+| Dashboard Access Marker Tables | Internal access-control marker tables used only by the model-driven sitemap. | Coordinator and manager marker tables are referenced by sitemap privileges. | Service Coordinator has read access to the coordinator marker; Approval Manager has read access to the manager marker. This keeps role-specific dashboard links out of the wrong user's app navigation. |
 
 ## Demo Script Outline
 
@@ -257,10 +259,11 @@ erDiagram
    - Show Try/Catch behavior in the flow.
    - Open the related Error Log row with source component, correlation ID, and summary.
 
-7. **Close guardrail**
-   - Attempt to close a critical request without required resolution documentation.
+7. **Completion guardrail**
+   - Confirm `Lifecycle Status` is read-only on the coordinator form.
+   - Attempt to use `Complete Request` on a critical request without required resolution documentation.
    - Show the plugin/custom API blocks the operation.
-   - Add sufficient resolution documentation and close successfully.
+   - Add sufficient resolution documentation and complete successfully.
 
 8. **ALM and source review**
    - Show managed solution zip.
@@ -303,8 +306,8 @@ Use this list to collect reviewer evidence before packaging.
 ### C# Plugin or Custom API
 
 - [ ] Screenshot or exported registration: target table/message/stage/mode.
-- [ ] Evidence: critical close without documentation is blocked.
-- [ ] Evidence: critical close with sufficient documentation succeeds.
+- [ ] Evidence: critical completion without documentation is blocked.
+- [ ] Evidence: critical completion with sufficient documentation succeeds.
 - [ ] Evidence: plugin trace or error handling avoids exposing secrets.
 
 ### ALM and Packaging
@@ -320,7 +323,7 @@ Use this list to collect reviewer evidence before packaging.
 
 These should be resolved before final README publication:
 
-- Will the portal require authenticated Contact-based access, or will anonymous create be used as a documented fallback?
+- Portal authentication decision: authenticated Contact-based access is implemented. Anonymous create remains a possible fallback for constrained tenants, but it is not used in this submission.
 - Will routing run as a plugin on Service Request create/update, or as a Custom API called by the portal and plugin-backed final save?
 - Which PCF control gives the strongest demo value in the available time: severity selector, SLA/status indicator, or custom timeline?
 - Will uploaded documentation use Dataverse file columns, notes, or Power Pages-supported attachment behavior?

@@ -40,8 +40,8 @@ from build_architecture_design_doc import (
 )
 
 
-DOCX_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_User_Manual_ForrestZhang_v1.docx"
-PDF_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_User_Manual_ForrestZhang_v1.pdf"
+DOCX_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_User_Manual_ForrestZhang_v2.docx"
+PDF_PATH = SUBMISSION_DIR / "Enterprise_ServiceIntake_User_Manual_ForrestZhang_v2.pdf"
 SOURCE_PATH = ROOT / "docs" / "manual" / "user-manual.md"
 
 
@@ -55,7 +55,7 @@ def add_title_page(doc: Document) -> None:
 
     subtitle = doc.add_paragraph()
     subtitle.paragraph_format.space_after = Pt(14)
-    sub_run = subtitle.add_run("User Manual - V1")
+    sub_run = subtitle.add_run("User Manual - V2")
     sub_run.font.size = Pt(18)
     sub_run.bold = True
     sub_run.font.color.rgb = rgb(BLUE)
@@ -68,7 +68,7 @@ def add_title_page(doc: Document) -> None:
             ("Audience", "Reviewers, portal customers, coordinators, managers, and administrators"),
             ("Environment", "https://mitacs.crm.dynamics.com/"),
             ("Portal", "https://enterprise-service-intake-hellox.powerappsportals.com"),
-            ("Status", "Candidate user manual - V1"),
+            ("Status", "Candidate user manual - V2"),
         ],
         widths=(1.8, 4.9),
     )
@@ -90,7 +90,7 @@ def add_quick_access(doc: Document) -> None:
             ["Power Pages site", "https://enterprise-service-intake-hellox.powerappsportals.com", "External customer intake, drafts, required-file upload, and final submission"],
             ["Model-driven app", "https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f", "Internal coordinator, manager, configuration, and monitoring experience"],
             ["Maker solution", "https://make.powerapps.com/environments/99dd50ed-a753-e37f-912c-78a022b12b09/solutions", "Solution components, flows, tables, forms, views, and web resources"],
-            ["Hidden ERP console", "https://hellox.ca/esi/", "Mock ERP endpoint demonstration and intentional failure mode"],
+            ["Hidden ERP console", "https://hellox.ca/esi/", "View mock ERP sync attempts, returned external IDs, and failure-path evidence"],
         ],
         [1.25, 2.85, 2.65],
         font_size=7,
@@ -113,6 +113,7 @@ def add_portal(doc: Document) -> None:
             "Open the Power Pages site and sign in.",
             "Select New service request to start a new intake.",
             "Use My requests to resume an existing draft or review submitted requests.",
+            "Use View details on a request card to inspect the confirmation number, status, routing estimate, request text, and supporting-file requirement.",
             "Use Save for later if you want to leave the intake before final submission.",
         ],
     )
@@ -120,6 +121,7 @@ def add_portal(doc: Document) -> None:
         doc,
         [
             "Draft requests remain in Draft and do not trigger the applicant confirmation email.",
+            "Sign-in is required before creating, saving, resuming, or submitting a request so each request and file upload stays linked to the correct portal account.",
             "Portal users do not see internal-only notes, error logs, approval details, or integration payloads.",
         ],
     )
@@ -162,6 +164,7 @@ def add_portal(doc: Document) -> None:
             "Select Submit service request.",
             "Capture the confirmation number in the format SR-yyyyMMdd-######.",
             "Return to My requests to view the submitted request.",
+            "Use View details if reviewers want to inspect the submitted request from the portal user's perspective.",
         ],
     )
 
@@ -178,6 +181,25 @@ def add_internal_app(doc: Document) -> None:
         ],
         [2.1, 4.65],
         font_size=9,
+    )
+    add_subtitle(doc, "Role-Based Dashboards")
+    add_standard_table(
+        doc,
+        ["User", "Required Roles", "Expected Dashboards"],
+        [
+            ["agent@hellosmart.ca", "Basic User; ESI Service Coordinator", "Operations Dashboard and Monitoring Dashboard"],
+            ["manager@hellosmart.ca", "Basic User; ESI Approval Manager; Approvals User", "Approval Dashboard and Monitoring Dashboard"],
+            ["forrest@hellosmart.ca", "System Administrator or System Customizer", "All dashboards for administration and review"],
+        ],
+        [1.65, 2.35, 2.75],
+        font_size=8,
+    )
+    add_bullets(
+        doc,
+        [
+            "Approvals User supports Power Automate approval records; it does not control the ESI dashboard visibility.",
+            "If a recently changed dashboard list looks stale, sign out and back in or open a fresh browser session.",
+        ],
     )
     add_subtitle(doc, "Review A Service Request")
     add_numbered(
@@ -230,6 +252,9 @@ def add_routing_matrix(doc: Document) -> None:
         doc,
         [
             "The page updates the same Dataverse Routing / SLA Rule rows used by the portal preview and routing plugin.",
+            "Routing Matrix presents the 80 active exact-match cells for 5 categories x 4 impact levels x 4 urgency levels.",
+            "The raw Dataverse table also includes one active Generic fallback - unmatched request, so the clean final rule set is 81 active rules total.",
+            "Runtime logic filters to active rules and uses the fallback only when no exact active match exists.",
             "Select the rule name inside a matrix cell to open the underlying Dataverse record.",
             "If you change a rule during the live demo, change it back immediately after showing the saved status.",
         ],
@@ -256,6 +281,7 @@ def add_monitoring(doc: Document) -> None:
         [
             ["System Error Logs", "Plugin, portal, flow, approval, and integration failures with source, stage, message, correlation ID, related request, and resolved status."],
             ["External Sync Logs", "ERP endpoint calls, HTTP status, external ID, payload snapshot, and timestamps."],
+            ["HelloX ERP Dashboard", "Open https://hellox.ca/esi/ to view received mock ERP requests, returned external IDs, accepted/failed counts, and breakdowns by status, priority, and department."],
             ["Flow Run Histories", "Confirmation email, approval, ERP sync, and Catch-path evidence."],
         ],
         [1.7, 5.05],
@@ -267,21 +293,27 @@ def add_accounts_notes(doc: Document) -> None:
     add_section_title(doc, "Demo Accounts And Notes")
     add_standard_table(
         doc,
-        ["Account", "Purpose"],
+        ["Account", "Purpose", "Sign-In Location", "Credential Note"],
         [
-            ["forrest@hellosmart.ca", "Admin/customizer reviewer"],
-            ["agent@hellosmart.ca", "Internal service coordinator"],
-            ["manager@hellosmart.ca", "Approval manager"],
+            ["agent@hellosmart.ca", "Internal service coordinator", "Model-driven app / Power Platform environment", "Uses the temporary demo password shared separately by the administrator"],
+            ["manager@hellosmart.ca", "Approval manager", "Model-driven app / Power Platform environment", "Uses the temporary demo password shared separately by the administrator"],
+            ["forrest@hellosmart.ca", "Admin/customizer reviewer", "Maker portal, model-driven app, and Power Pages administration", "Admin password is shared separately by the administrator"],
         ],
-        [2.7, 4.05],
-        font_size=9,
+        [1.45, 1.65, 1.85, 1.8],
+        font_size=7,
     )
     add_bullets(
         doc,
         [
             "Do not commit passwords or OAuth secrets.",
+            "Power Platform environment: https://mitacs.crm.dynamics.com/",
+            "Maker solution: https://make.powerapps.com/environments/99dd50ed-a753-e37f-912c-78a022b12b09/solutions",
+            "Model-driven app: https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f",
+            "Power Pages site: https://enterprise-service-intake-hellox.powerappsportals.com",
+            "Hidden ERP console: https://hellox.ca/esi/",
             "The portal is private for the interview tenant.",
             "The raw Routing / SLA Rule table still exists for Dataverse administration, but normal rule maintenance should use Routing Matrix.",
+            "The clean final routing table should contain 81 active rules: 80 exact-match matrix rows plus one active generic fallback.",
             "No final solution export should be produced until the administrator requests it.",
         ],
     )
@@ -336,7 +368,7 @@ def build_pdf() -> None:
     )
     story: list = []
     story.append(pp("Enterprise Service Intake", styles["Title"]))
-    story.append(pp("User Manual - V1", styles["Subtitle"]))
+    story.append(pp("User Manual - V2", styles["Subtitle"]))
     pdf_key_value_table(
         story,
         [
@@ -345,7 +377,7 @@ def build_pdf() -> None:
             ("Audience", "Reviewers, portal customers, coordinators, managers, and administrators"),
             ("Environment", "https://mitacs.crm.dynamics.com/"),
             ("Portal", "https://enterprise-service-intake-hellox.powerappsportals.com"),
-            ("Status", "Candidate user manual - V1"),
+            ("Status", "Candidate user manual - V2"),
         ],
         styles,
     )
@@ -359,7 +391,7 @@ def build_pdf() -> None:
             ["Power Pages site", "https://enterprise-service-intake-hellox.powerappsportals.com", "External customer intake, drafts, required-file upload, and final submission"],
             ["Model-driven app", "https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f", "Internal coordinator, manager, configuration, and monitoring experience"],
             ["Maker solution", "https://make.powerapps.com/environments/99dd50ed-a753-e37f-912c-78a022b12b09/solutions", "Solution components, flows, tables, forms, views, and web resources"],
-            ["Hidden ERP console", "https://hellox.ca/esi/", "Mock ERP endpoint demonstration and intentional failure mode"],
+            ["Hidden ERP console", "https://hellox.ca/esi/", "View mock ERP sync attempts, returned external IDs, and failure-path evidence"],
         ],
         [1.15, 2.9, 2.7],
         styles,
@@ -368,8 +400,8 @@ def build_pdf() -> None:
 
     pdf_heading(story, "External Customer Portal", styles)
     pdf_heading(story, "Create Or Resume A Request", styles, level=2)
-    pdf_numbers(story, ["Open the Power Pages site and sign in.", "Select New service request.", "Use My requests to resume a draft or review submitted requests.", "Use Save for later if you want to leave before final submission."], styles)
-    pdf_bullets(story, ["Draft requests remain in Draft and do not trigger the applicant confirmation email.", "Portal users do not see internal-only notes, error logs, approval details, or integration payloads."], styles)
+    pdf_numbers(story, ["Open the Power Pages site and sign in.", "Select New service request.", "Use My requests to resume a draft or review submitted requests.", "Use View details on a request card to inspect portal-safe request details.", "Use Save for later if you want to leave before final submission."], styles)
+    pdf_bullets(story, ["Draft requests remain in Draft and do not trigger the applicant confirmation email.", "Sign-in is required before creating, saving, resuming, or submitting a request so each request and file upload stays linked to the correct portal account.", "Portal users do not see internal-only notes, error logs, approval details, or integration payloads."], styles)
     pdf_heading(story, "Request Details, Impact, And Files", styles, level=2)
     pdf_numbers(story, ["Enter request title, category, and description.", "Select Impact level and Urgency.", "Watch the response estimate update without a full page reload.", "Upload at least one file when documentation is required.", "Submit from Review and capture the confirmation number."], styles)
     pdf_table(
@@ -395,13 +427,33 @@ def build_pdf() -> None:
         [2.0, 4.75],
         styles,
     )
+    pdf_heading(story, "Role-Based Dashboards", styles, level=2)
+    pdf_table(
+        story,
+        ["User", "Required Roles", "Expected Dashboards"],
+        [
+            ["agent@hellosmart.ca", "Basic User; ESI Service Coordinator", "Operations Dashboard and Monitoring Dashboard"],
+            ["manager@hellosmart.ca", "Basic User; ESI Approval Manager; Approvals User", "Approval Dashboard and Monitoring Dashboard"],
+            ["forrest@hellosmart.ca", "System Administrator or System Customizer", "All dashboards for administration and review"],
+        ],
+        [1.55, 2.35, 2.85],
+        styles,
+    )
+    pdf_bullets(
+        story,
+        [
+            "Approvals User supports Power Automate approval records; it does not control ESI dashboard visibility.",
+            "If a recently changed dashboard list looks stale, sign out and back in or open a fresh browser session.",
+        ],
+        styles,
+    )
     pdf_numbers(story, ["Open Intake Work > Service Requests.", "Use Active Service Requests to scan operational columns.", "Open a request and review customer, triage, routing/SLA, approval/ERP sync, and resolution fields.", "Open Documents to view SharePoint files and SR Evidence Reviews."], styles)
     pdf_bullets(story, ["Critical closure is blocked until internal resolution notes and accepted evidence with a SharePoint file URL exist."], styles)
 
     story.append(PageBreak())
     pdf_heading(story, "Routing Matrix Administration", styles)
     pdf_numbers(story, ["Open Routing Configuration > Routing Matrix.", "Select a service category tab.", "Review summary cards for department, SLA distribution, manager review, and required documents.", "Edit Department or SLA from dropdowns.", "Use toggles for Review and Docs.", "Wait for the saved status."], styles)
-    pdf_bullets(story, ["The page updates the same Dataverse rules used by the portal preview and routing plugin.", "Select a rule name to open the underlying Dataverse record.", "If you change a rule during the live demo, change it back immediately."], styles)
+    pdf_bullets(story, ["The page updates the same Dataverse rules used by the portal preview and routing plugin.", "Routing Matrix presents the 80 active exact-match cells.", "The raw Dataverse table also includes one active generic fallback, so the clean final rule set is 81 active rules total.", "Runtime logic filters active rules and uses the fallback only when no exact active match exists.", "Select a rule name to open the underlying Dataverse record.", "If you change a rule during the live demo, change it back immediately."], styles)
 
     pdf_heading(story, "Approval, ERP Sync, And Monitoring", styles)
     pdf_numbers(story, ["Open an approval-required request.", "Open Power Automate flow ESI - Approval and ERP Sync.", "Review the Try scope, approval action, OAuth token request, protected HTTP POST, Service Request update, External Sync Log, and Catch scope.", "Use Approval records and flow run history as evidence if email delivery is restricted."], styles)
@@ -411,6 +463,7 @@ def build_pdf() -> None:
         [
             ["System Error Logs", "Plugin, portal, flow, approval, and integration failures."],
             ["External Sync Logs", "ERP endpoint calls, HTTP status, external ID, payload snapshot, and timestamps."],
+            ["HelloX ERP Dashboard", "Open https://hellox.ca/esi/ to view received mock ERP requests, returned external IDs, accepted/failed counts, and breakdowns by status, priority, and department."],
             ["Flow Run Histories", "Confirmation email, approval, ERP sync, and Catch-path evidence."],
         ],
         [1.65, 5.1],
@@ -419,16 +472,16 @@ def build_pdf() -> None:
     pdf_heading(story, "Demo Accounts And Notes", styles)
     pdf_table(
         story,
-        ["Account", "Purpose"],
+        ["Account", "Purpose", "Sign-In Location", "Credential Note"],
         [
-            ["forrest@hellosmart.ca", "Admin/customizer reviewer"],
-            ["agent@hellosmart.ca", "Internal service coordinator"],
-            ["manager@hellosmart.ca", "Approval manager"],
+            ["agent@hellosmart.ca", "Internal service coordinator", "Model-driven app / Power Platform environment", "Uses the temporary demo password shared separately by the administrator"],
+            ["manager@hellosmart.ca", "Approval manager", "Model-driven app / Power Platform environment", "Uses the temporary demo password shared separately by the administrator"],
+            ["forrest@hellosmart.ca", "Admin/customizer reviewer", "Maker portal, model-driven app, and Power Pages administration", "Admin password is shared separately by the administrator"],
         ],
-        [2.7, 4.05],
+        [1.35, 1.45, 1.75, 2.2],
         styles,
     )
-    pdf_bullets(story, ["Do not commit passwords or OAuth secrets.", "The portal is private for the interview tenant.", "Normal rule maintenance should use Routing Matrix.", "No final solution export should be produced until the administrator requests it."], styles)
+    pdf_bullets(story, ["Do not commit passwords or OAuth secrets.", "Power Platform environment: https://mitacs.crm.dynamics.com/", "Maker solution: https://make.powerapps.com/environments/99dd50ed-a753-e37f-912c-78a022b12b09/solutions", "Model-driven app: https://mitacs.crm.dynamics.com/main.aspx?appid=3de4f813-b454-f111-bec7-000d3a3aca8f", "Power Pages site: https://enterprise-service-intake-hellox.powerappsportals.com", "Hidden ERP console: https://hellox.ca/esi/", "The portal is private for the interview tenant.", "Normal rule maintenance should use Routing Matrix.", "The clean final routing table should contain 81 active rules: 80 exact matrix rows plus one active fallback.", "No final solution export should be produced until the administrator requests it."], styles)
     story.append(Spacer(1, 2))
     story.append(Paragraph(f"Source Markdown: {SOURCE_PATH.relative_to(ROOT)}", styles["Note"]))
 

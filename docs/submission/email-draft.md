@@ -17,8 +17,8 @@ The package includes:
 - PCF control source code.
 - Power Pages source files.
 - Architecture README with ERD, component decisions, security strategy, demo script, and verification notes.
-- Polished Architecture & Design Brief V3 in both Word and PDF format.
-- User Manual V1 in both Word and PDF format.
+- Polished Architecture & Design Brief V4 in both Word and PDF format.
+- User Manual V2 in both Word and PDF format.
 
 Live review links:
 
@@ -27,7 +27,7 @@ Live review links:
 - Power Pages site: https://enterprise-service-intake-hellox.powerappsportals.com
 - OAuth-protected mock ERP endpoint: https://hellox.ca/api/mock/enterprise-service-intake/erp
 - OAuth token endpoint: https://hellox.ca/api/mock/oauth/token
-- Hidden mock ERP console: https://hellox.ca/esi/
+- Hidden mock ERP console: https://hellox.ca/esi/ for received sync attempts, returned external IDs, and failure-path evidence.
 
 Reviewer accounts available in the tenant:
 
