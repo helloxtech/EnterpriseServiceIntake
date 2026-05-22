@@ -17,7 +17,8 @@ The package includes:
 - PCF control source code.
 - Power Pages source files.
 - Architecture README with ERD, component decisions, security strategy, demo script, and verification notes.
-- Polished architecture design brief in both Word and PDF format.
+- Polished Architecture & Design Brief V3 in both Word and PDF format.
+- User Manual V1 in both Word and PDF format.
 
 Live review links:
 
@@ -38,7 +39,7 @@ Passwords will be shared separately by the environment administrator and rotated
 
 One implementation note: the assignment mentioned `reqres.in` as an example mock endpoint. Its POST endpoint currently requires an API key, so I used a HelloX-hosted mock ERP endpoint protected by OAuth 2.0 client credentials. It returns a mock external ID, avoids a third-party dependency, and includes a failure mode for demonstrating the Power Automate Catch path.
 
-I also included reviewer-ready live evidence for the post-submit SharePoint document upload path, applicant confirmation email flow, model-driven dashboards, and seeded demo data across all custom tables.
+I also included reviewer-ready live evidence for the Power Pages required-file workflow, SharePoint document upload path, applicant confirmation email flow, editable Routing Matrix, model-driven dashboards, and seeded demo data across all custom tables.
 
 I look forward to walking through the architecture, implementation, and tradeoffs in the live review.
 

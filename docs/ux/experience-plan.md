@@ -19,13 +19,15 @@ The experience should feel professional, restrained, and enterprise-ready: clear
 
 ### Home / Request Dashboard
 
-Purpose: give the authenticated customer a clear starting point.
+Purpose: give the authenticated customer a clear starting point and a way to resume saved work.
 
 Recommended content:
 
 - Primary action: `New service request`
-- List of the user's submitted requests
-- Request number, title, status, submitted date, and expected response window
+- Link from the top navigation and profile navigation as `My requests`
+- List of the user's drafts and submitted requests
+- Request number, title, status, last updated date, submitted date, and expected response window where available
+- Clear actions: `Resume draft`, `Upload required files`, or `Supporting files`
 - Empty state that explains how to submit the first request
 - Help link for support, documentation, or contact information
 
@@ -41,7 +43,7 @@ Use a multi-step flow with a visible progress indicator:
 4. Review and submit
 5. Confirmation
 
-Each step should support save-and-continue behavior if time permits. If not, keep the steps short enough that the demo does not feel fragile.
+Each step should support `Save for later`. Saved requests remain Draft and can be resumed from `My requests`.
 
 ### Request Details
 
@@ -85,8 +87,9 @@ Tone:
 
 UX notes:
 
-- Provide a clear upload area with accepted file types and size limits.
-- Explain when documentation is required, especially for high-severity requests.
+- Explain whether files are optional after submission or required before final submission.
+- When files are required, create or update a Draft request before the Files step and show the request-specific secure upload area in that step.
+- Do not allow the user to continue to Review until at least one required file is present.
 - Show uploaded file name, size, status, and remove action.
 - Use validation messaging that explains the missing requirement, not just `Required`.
 
@@ -114,12 +117,14 @@ Content:
 - Submitted date/time
 - Expected response target
 - What happens next
-- Link back to request dashboard
+- Link back to `My requests`
+- Optional file upload action when supporting files are not required before submission
 
 UX notes:
 
 - Make the confirmation number large enough to capture clearly in screenshots.
 - Include a copy action if implementation time allows.
+- If files are required, the Files step should hold the user in the upload experience until a file exists; final submission happens from the Review step.
 
 ## Dynamic Feedback Behavior
 
@@ -148,6 +153,22 @@ Recommended main form structure:
 - Audit / errors tab: concise operational error summary for authorized internal users
 
 Keep sensitive fields role-secured and visually separated from customer-facing values.
+
+## Routing Matrix Admin Experience
+
+The routing matrix is a configuration surface for business administrators, not a high-volume queue. The goal is to make exact-match rules understandable without forcing users to work from a raw 80-row table.
+
+Recommended behavior:
+
+- Put the matrix under `Routing Configuration` in the model-driven app.
+- Show one service category at a time with category tabs.
+- Use Impact as rows and Urgency as columns, matching the portal labels.
+- Use compact summary cards for department, SLA mix, manager-review count, and documentation-required count.
+- Use toggle controls for boolean fields such as manager review and required documentation.
+- Save inline changes immediately and show a visible saved/error status.
+- Keep the rule name clickable so an administrator can open the underlying Dataverse record for audit details.
+
+This approach keeps the exact-match rule methodology while making the maintenance experience less intimidating for normal users.
 
 ## PCF Experience Concept
 
@@ -187,9 +208,12 @@ Visual direction:
 1. Customer signs in and sees only their own requests.
 2. Customer starts a new service request.
 3. Customer changes category, severity, or impact and sees the preview update without a page reload.
-4. Customer reviews the request and submits.
-5. Customer receives a formatted confirmation number.
-6. Customer opens the secure upload step and adds supporting files to SharePoint for the saved request.
-7. Internal coordinator opens the model-driven app record.
-8. Coordinator sees severity, SLA, routing, approval state, and documentation status.
-9. Manager approval, applicant confirmation email, and ERP sync are discussed from internal views without exposing internal fields to the portal user.
+4. Customer saves a draft and resumes it from `My requests`.
+5. Customer reviews the request and submits.
+6. If documentation is required, customer uploads files before final submission.
+7. Customer receives a formatted confirmation number.
+8. Customer opens the secure upload step and adds optional supporting files to SharePoint for the saved request.
+9. Internal coordinator opens the model-driven app record.
+10. Coordinator sees severity, SLA, routing, approval state, and documentation status.
+11. Administrator opens the Routing Matrix to explain how category, impact, and urgency drive SLA, manager review, and document requirements.
+12. Manager approval, applicant confirmation email, and ERP sync are discussed from internal views without exposing internal fields to the portal user.

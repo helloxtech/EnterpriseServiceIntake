@@ -8,10 +8,10 @@ Build an enterprise-style Service Intake solution that demonstrates secure exter
 
 1. Dataverse foundation: solution, publisher, tables, choices, relationships, autonumber confirmation number, routing/SLA sample data, and error log.
 2. Backend code: C# plugin for routing/SLA assignment and critical closure validation.
-3. Internal app: model-driven app, main forms/views, PCF SLA/status indicator, and internal-only fields.
-4. External app: authenticated Power Pages site with multi-step request submission, post-submit SharePoint document upload, and dynamic SLA/routing preview.
+3. Internal app: model-driven app, grouped navigation, consolidated Service Request form, editable Routing Matrix web resource, PCF SLA/status indicator, and internal-only fields.
+4. External app: authenticated Power Pages site with multi-step request submission, `My requests`, save-for-later drafts, required-file SharePoint upload before final submission when needed, optional post-submit upload, and dynamic SLA/routing preview.
 5. Automation: applicant confirmation email flow, approval flow with Try/Catch/Finally, mock REST sync, external ID writeback, and Dataverse error logging.
-6. Evidence and packaging: managed solution, unpacked solution source, source code, screenshots, demo script, reviewer notes, and submission email draft.
+6. Evidence and packaging: managed solution, unpacked solution source, source code, screenshots, demo script, reviewer notes, Architecture & Design Brief, User Manual, and submission email draft.
 
 ## Scope Control
 

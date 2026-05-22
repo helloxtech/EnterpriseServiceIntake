@@ -2,11 +2,19 @@
 
 Senior Power Platform Developer take-home assignment for an enterprise external service request intake process.
 
+## Revision History
+
+| Version | Date | Notes |
+| --- | --- | --- |
+| V3 | 2026-05-22 | Updates for required-document portal workflow, `My requests`, model-driven app navigation groups, editable Routing Matrix web resource, consolidated Service Request form, evidence review terminology, and live verification. |
+| V2 | 2026-05-21 | Added confirmation email flow, SharePoint document-management path, Evidence Review metadata, dashboards, and security hardening notes. |
+| V1 | 2026-05-20 | Initial architecture, Dataverse model, plugin, PCF, flow, and portal design. |
+
 ## Executive Summary
 
 This solution implements authenticated external request intake with Power Pages, Dataverse as the system of record, plugin-based routing and guardrails, Power Automate approval and mock ERP synchronization, and a PCF control for internal coordinator visibility.
 
-End to end: an external user submits a multi-step service request in Power Pages, the C# routing plugin applies configurable department/SLA rules and generates a formatted confirmation number, high-priority requests go through manager approval, approved requests are posted to a mock REST endpoint, the returned external ID is stored in Dataverse, and failures are logged to a custom System Error Log table.
+End to end: an external user starts a multi-step service request in Power Pages, can save a draft and resume it from `My requests`, uploads required supporting files before final submission when the matched rule requires documentation, and submits the request. The C# routing plugin applies configurable department/SLA rules and generates a formatted confirmation number, high-priority requests go through manager approval, approved requests are posted to a mock REST endpoint, the returned external ID is stored in Dataverse, and failures are logged to a custom System Error Log table.
 
 ## Reviewer Links
 
@@ -35,7 +43,8 @@ The Power Pages site is intentionally private for the interview tenant. Reviewer
 | PCF control | `src/pcf/SlaStatusIndicator/` |
 | Power Pages source | `src/powerpages/` and `powerpages-live/` |
 | Provisioning/ALM utilities | `src/scripts/ServiceIntake.Provisioning/` and `tools/apply_model_driven_app_design.mjs` |
-| Architecture design brief | `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v2.docx` and `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v2.pdf` |
+| Architecture design brief | `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v3.docx` and `docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v3.pdf` |
+| User manual | `docs/manual/user-manual.md`, `docs/submission/Enterprise_ServiceIntake_User_Manual_ForrestZhang_v1.docx`, and `docs/submission/Enterprise_ServiceIntake_User_Manual_ForrestZhang_v1.pdf` |
 | Submission email draft | `docs/submission/email-draft.md` |
 | Demo script | `docs/demo/demo-script.md` |
 
@@ -123,23 +132,24 @@ erDiagram
 
 | Requirement | Implementation | Rationale |
 | --- | --- | --- |
-| Dynamic routing/SLA | Dataverse stores an 80-row exact-match routing matrix covering every service category, impact level, and urgency combination. The portal previews the same active rule rows through Power Pages Web API, and `ServiceRequestRoutingPlugin` applies the matching row on create/update. See `docs/strategy/routing-rule-matrix.md`. | Routing must be transactional and consistent for portal, app, and automation creates. A complete matrix avoids hidden frontend thresholds and prevents unrouted normal combinations. |
+| Dynamic routing/SLA | Dataverse stores an 80-row exact-match routing matrix covering every service category, impact level, and urgency combination, plus one documented generic fallback rule for misconfiguration. The portal previews the same active rule rows through Power Pages Web API, and `ServiceRequestRoutingPlugin` applies the exact match or fallback on create/update. See `docs/strategy/routing-rule-matrix.md`. | Routing must be transactional and consistent for portal, app, and automation creates. A complete matrix avoids hidden frontend thresholds, and the fallback prevents unrouted requests if an admin accidentally deactivates a matrix cell. |
 | Confirmation number | Dataverse autonumber `SR-{yyyyMMdd}-{SEQNUM}` on Service Request. | Server-generated and tamper-resistant. |
 | Critical close and protected-field guardrail | PreOperation C# plugin blocks resolved/closed critical requests unless internal resolution notes exist and an accepted `Service Request Evidence Review` row references a SharePoint file. The same plugin step also blocks non-internal callers from updating approval, ERP sync, routing, SLA, lifecycle, and internal documentation fields. | A plugin is the right layer because agents and API callers cannot bypass it from forms, imports, flows, or portal/Web API calls. The guardrail does not rely on a user-editable documentation checkbox. |
-| Supporting documents | After request creation, the portal sends the applicant to a secure SharePoint upload page backed by Power Pages Basic Form/document management. Uploaded files are stored against the request's native document location and are viewed from the out-of-box model-driven Documents associated tab. `Service Request Evidence Review` stores Dataverse-owned review metadata and file links only for documents that become official evidence. | The applicant must have a saved request ID before SharePoint can associate files to the correct Dataverse record; this keeps the custom intake fast while using the supported document-management path for files and Dataverse for request, routing, approval, and review state. |
+| Supporting documents | The portal creates or updates a Draft request before the Files step when the matched rule requires documentation, embeds the request-specific secure upload page, and disables Review until at least one file exists. Optional files can still be uploaded after submission. Uploaded files are stored against the request's native SharePoint document location and viewed from the out-of-box model-driven Documents associated tab. `Service Request Evidence Review` stores Dataverse-owned review metadata and file links only for documents that become official evidence. | SharePoint document management needs a saved request ID before files can be associated to the correct Dataverse record. This keeps file storage on the supported document-management path while Dataverse owns request state, routing, approval, and evidence-review decisions. |
 | Approval + ERP sync | Cloud flow `ESI - Approval and ERP Sync` with Try scope, approval, OAuth client-credentials token request, protected HTTP POST, Dataverse writeback, sync log, reject branch, and Catch error-log scope. | Flow is appropriate for human approvals, connector-based integration, retries, and run history evidence. The mock ERP token step demonstrates app-to-app authentication without a human refresh token. |
-| Applicant confirmation email | Cloud flow `ESI - Send Confirmation Email` triggers on Service Request create, sends the generated confirmation number to the applicant, and logs email failures to System Error Logs. | Email delivery belongs in automation so failures are visible in flow history/error logs and do not block transactional request creation. |
+| Applicant confirmation email | Cloud flow `ESI - Send Confirmation Email` triggers when a Service Request reaches Submitted, sends the generated confirmation number to the applicant, and logs email failures to System Error Logs. | Email delivery belongs in automation so failures are visible in flow history/error logs and do not block transactional request creation. Triggering on Submitted prevents draft saves from sending premature confirmation emails. |
 | Mock ERP endpoint | `https://hellox.ca/api/mock/enterprise-service-intake/erp` is protected by HelloX OAuth 2.0 client credentials and returns a deterministic external `id`/`externalId` from POST. | Keeps the demo self-contained on a controlled HelloX endpoint, avoids third-party API keys, and provides a deliberate failure mode for the Catch path. The client secret is stored outside Git and injected into the live flow through the provisioning utility. |
-| Internal UX | Model-driven coordinator app plus PCF SLA/status indicator. | Keeps operational work in Dataverse while using PCF for richer visual status. |
-| External UX | Power Pages private site with multi-step intake, dynamic SLA/routing preview, and post-submit SharePoint upload step. | External users get a clean customer-facing experience without internal fields. |
+| Internal UX | Model-driven coordinator app, PCF SLA/status indicator, grouped navigation, and an editable Routing Matrix web resource. | Keeps operational work in Dataverse while using PCF and a focused web resource for richer visual status and safer rule maintenance. |
+| External UX | Power Pages private site with multi-step intake, `My requests`, save-for-later drafts, dynamic SLA/routing preview, and secure SharePoint upload for required or optional files. | External users get a clean customer-facing experience without internal fields. |
 
 ## Model-Driven App Design
 
 The `Enterprise Service Intake` app uses solution-aware system forms and views for each included table:
 
-- Request operations: `Coordinator Queue`, `Pending Manager Approval`, `Critical Documentation Guardrails`, and `ERP Sync Monitor`.
+- Navigation groups: `Intake Work`, `Routing Configuration`, and `Monitoring`, each with purpose-specific icons so reviewers do not need to hunt through raw tables.
+- Request operations: `Active Service Requests`, `Pending Manager Approval`, `Critical Documentation Guardrails`, and `ERP Sync Monitor`.
 - Supporting documentation: Service Request files are available from the coordinator form's `Documents` tab through the SharePoint Documents grid, with a separate `SR Evidence Reviews` subgrid for accepted/rejected evidence metadata.
-- Configuration: `Active Routing Rules`, `Active Departments`, `Active SLA Policies`, and `Active Service Categories`; routing rule default Active, Associated, and Lookup views use the same operational columns.
+- Configuration: `Routing Matrix`, `Active Departments`, `Active SLA Policies`, and `Active Service Categories`. The `Routing Matrix` web resource presents one editable category matrix at a time, uses switch controls for manager review/documentation booleans, saves inline with `Xrm.WebApi`, and lets admins open the underlying `Routing / SLA Rule` row from the rule name.
 - Monitoring: `ERP Sync Attempts`, `Open Integration and Automation Errors`, and `All System Error Logs`; default Active, Associated, and Lookup views for sync/error logs show request, status, source, correlation, and timing fields.
 
 Dashboards are also provisioned for the live review:
@@ -196,7 +206,8 @@ Trigger:
 
 - Dataverse `When a row is added, modified or deleted`
 - Table: `Service Requests`
-- Change type: `Added`
+- Change type: `Added or Modified`
+- Filter: submitted lifecycle status
 
 Main path:
 
@@ -234,7 +245,7 @@ Seed records include:
 - Service Request Evidence Reviews, External Sync Logs, and System Error Logs are seeded so all model-driven tables and dashboards have demo rows.
 - Portal demo submissions with formatted confirmation numbers such as `SR-20260521-001004`.
 
-Routing rules include critical funding, high research support, standard technical support, standard event support, and a general fallback.
+Routing rules include the full category/impact/urgency matrix and the documented `Generic fallback - unmatched request` rule.
 
 ## Verification
 
@@ -246,7 +257,10 @@ Validated locally and against the live environment:
 - Closure guard smoke test blocks undocumented critical closure and allows closure only after accepted resolution evidence is recorded.
 - Power Pages dynamic preview updates before submit.
 - Power Pages create path submits to Dataverse and routes to Finance for critical funding requests.
+- Power Pages save-for-later, `My requests`, and required-document gates are present in live source and verified against the downloaded site.
 - Model-driven app opens the coordinator queue and request form.
+- Model-driven app navigation uses the three reviewed groups and the `Routing Matrix` web resource for rule maintenance.
+- Routing Matrix loads the 80-row active matrix, displays a focused category view, saves inline edits, and opens the source rule record when needed.
 - Managed/unmanaged solution export and unpack succeed.
 - Cloud flow is active, solution-aware, and includes approval, HelloX OAuth token request, Bearer-token sync to HelloX mock ERP, reject branch, External Sync Log, and Catch error-log scope.
 - Confirmation email flow is active and solution-aware; email delivery issues are captured in System Error Logs.

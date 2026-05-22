@@ -30,9 +30,12 @@
 | Power Pages live download-first update | Passed |
 | Power Pages UX validation update | Passed |
 | Power Pages live refresh/download | Passed |
+| Power Pages required-document workflow | Passed; portal source check and fresh live download confirm draft save before Step 3, inline required-file upload, blocked Review button until upload, My requests navigation, and embedded upload-page support are present |
 | Power Pages SharePoint upload fix | Uploaded and re-downloaded key live files for verification |
 | Confirmation email flow creation | Passed |
 | Confirmation email smoke test | Passed |
+| Model-driven app navigation redesign | Passed; app navigation uses `Intake Work`, `Routing Configuration`, and `Monitoring` groups with custom icons |
+| Routing Matrix web resource | Passed; live page loads the 80-rule matrix by category, saves inline edits through `Xrm.WebApi`, opens source rule records, and uses switch controls for boolean fields |
 | Managed solution export | Passed |
 | Unmanaged solution export | Passed |
 | Managed solution unpack | Passed |
@@ -52,13 +55,20 @@
 | Portal upload UX wording | Fresh live download confirms the upload flow hides the native `New folder` action and relabels portal-facing upload text to `Secure file upload`, `Updates from Mitacs`, `Supporting files`, `Uploaded files`, and `No files have been uploaded yet`. |
 | Portal documents wording | Fresh live download confirms the intake Documents step and success modal use customer-facing secure upload wording instead of SharePoint/Power Pages implementation terms. |
 | Portal step wording audit | Fresh live download confirms the intake journey uses customer-facing wording across Details, Impact, Documents, Review, response estimate, and upload states; visible labels use `Impact level`, `Urgency`, `Team`, and `Mitacs review` instead of internal routing/department/severity/priority language. |
+| Portal Save for later | Fresh live download confirms the intake page includes `Save for later`, draft lifecycle handling, and resume support through `/?draftid=<service-request-id>`. |
+| Portal My requests navigation | Fresh live download confirms `My requests` exists as a portal page and is linked from both the top navigation and the profile navigation. |
+| Portal required-document gate | Fresh live download confirms matched routing rules with documentation required create/save a Draft before the Files step, embed the request-specific upload page, and disable `Review request` until at least one file is detected. |
+| Upload-page embedded mode | Fresh live download confirms the request-specific upload page supports `embed=true` so native SharePoint upload can run inside the Files step without exposing its final-submit controls. |
+| Confirmation email trigger | Live Dataverse verification confirms `ESI - Send Confirmation Email` triggers on Service Request update with `hx_lifecyclestatus eq 752630001`, so drafts saved by `Save for later` do not qualify. |
 | SharePoint upload smoke test | `Portal smoke file upload 2026-05-21T07-24-18-212Z` created confirmation `SR-20260521-001025`; `esi-upload-smoke.txt` uploaded through the document grid and appeared on the page. |
 | SharePoint document location | Dataverse returned `sharepointdocumentlocationid` `4c2b05a7-e654-f111-89e7-0022488fbd9b` for request `df11b114-e654-f111-bec7-000d3a3aca8f`. |
 | Model-driven documents | Live form metadata shows the coordinator `Documents` tab and the Power Pages support form now use `sharepointdocument` through `hx_servicerequest_SharePointDocuments`; the coordinator form also includes an `SR Evidence Reviews` subgrid for `hx_servicedocument`. |
 | Model-driven Service Request UX | Live metadata shows `Service Request - Coordinator` as the internal app form and the Power Pages upload support form retained for portal infrastructure; the coordinator form uses two-column sections, includes SharePoint Documents and Evidence Review subgrids, and `Active Service Requests` includes confirmation, customer, category, severity, priority, lifecycle, department, SLA due date, approval, ERP sync, and created-on columns. |
 | Evidence review view cleanup | Live saved-query metadata for `Service Request Evidence Review` no longer contains deprecated `Service Request Document` view names; Active, Associated, Lookup, Quick Find, My, Inactive, and Advanced Find views use Evidence Review naming. |
 | Routing/SLA matrix | Live Dataverse verification shows 80 active `Routing / SLA Rule` rows, one for each category/impact/urgency combination. Legacy sample-only rules are inactive. `Event Support + High + Normal` resolves to Client Services, High - 1 business day response, manager review required, and documentation required. |
-| Routing Matrix editor | Model-driven app navigation now shows `Routing Matrix` instead of raw `Routing / SLA Rules`. The matrix loads 80 rules, saves inline rule edits through `Xrm.WebApi`, and opens the underlying `Routing / SLA Rule` record from the rule name. |
+| Model-driven navigation groups | Live app navigation shows `Intake Work`, `Routing Configuration`, and `Monitoring` so request work, rule administration, and telemetry are separated for normal users. |
+| Routing Matrix editor | Model-driven app navigation now shows `Routing Matrix` instead of raw `Routing / SLA Rules`. The matrix loads 80 rules, shows one category at a time, summarizes manager-review/documentation counts, saves inline rule edits through `Xrm.WebApi`, and opens the underlying `Routing / SLA Rule` record from the rule name. |
+| Routing Matrix save smoke test | Live page was loaded with a cache-busting `data` query string; one Event Support low-risk manager-review toggle was switched on, saved, then switched back off and saved to restore the original matrix count. |
 | Portal evidence-review security | Power Pages live source no longer exposes `hx_servicedocument` through Web API settings or a global create table permission; Evidence Review is internal-only. |
 | Power Pages Web API hardening | Fresh PAC download from live site confirms explicit field allowlists for Service Request, Service Category, Routing Rule, Department, and SLA Policy; `Webapi/error/innererror=false`. |
 | SharePoint upload permission fix | Fresh live download confirms `Service Request - Read - Contact` has `write=true`, `append=true`, and `appendto=true`, while child `Document Location - Upload - Service Request Parent` has `create=true`, `write=true`, and `append=true`; this enables the Power Pages document grid upload actions for owned requests. |
@@ -92,9 +102,18 @@ pac pages upload --path /tmp/esi-powerpages-live-20260520223111/enterprise-servi
 pac pages upload --path powerpages-live/enterprise-service-intake---enterprise-service-intake-hellox --modelVersion Enhanced --forceUploadAll
 pac pages download --path /tmp/esi-portal-verify --webSiteId 8c12ac01-467a-4fa8-8034-50b8028de647 --modelVersion Enhanced --overwrite
 pac pages download --path /tmp/esi-pages-verify.<id> --webSiteId 8c12ac01-467a-4fa8-8034-50b8028de647 --overwrite --modelVersion Enhanced
+pac pages download --path /tmp/esi-portal-required-docs-verify --webSiteId 8c12ac01-467a-4fa8-8034-50b8028de647 --modelVersion Enhanced --overwrite
+node src/scripts/verify-portal-required-docs.mjs
 node --check src/powerpages/web-files/service-intake.js
+node --check src/powerpages/web-files/request-documents.js
+node --check src/powerpages/web-files/my-requests.js
 pac pcf push --solution-unique-name EnterpriseServiceIntake --verbosity minimal
 ENSURE_CONFIRMATION_EMAIL_FLOW=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+ENSURE_ROUTING_MATRIX_PAGE=true dotnet run --project src/scripts/ServiceIntake.Provisioning/ServiceIntake.Provisioning.csproj
+/Volumes/Forrest/Users/Forrest/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 tools/build_architecture_design_doc.py
+/Volumes/Forrest/Users/Forrest/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 tools/build_user_manual_doc.py
+sips -s format png docs/submission/Enterprise_ServiceIntake_Architecture_Design_ForrestZhang_v3.pdf --out /tmp/esi-doc-preview/architecture-v3.png
+sips -s format png docs/submission/Enterprise_ServiceIntake_User_Manual_ForrestZhang_v1.pdf --out /tmp/esi-doc-preview/user-manual-v1.png
 
 pac solution publish
 pac solution export --name EnterpriseServiceIntake --path solution/export/Enterprise_ServiceIntake_ForrestZhang_unmanaged.zip --overwrite
@@ -106,6 +125,6 @@ pac solution unpack --zipfile solution/export/Enterprise_ServiceIntake_ForrestZh
 ## Known Limitations
 
 - Email delivery can be restricted in trial tenants. Use the Office 365 Outlook action output, Approval records, and Flow run history if emails do not arrive externally.
-- DOCX visual rendering could not be completed in this local shell because LibreOffice/`soffice` is not installed. The generated PDF is 9 pages and the first-page Quick Look thumbnail was inspected.
+- DOCX visual rendering could not be completed in this local shell because LibreOffice/`soffice` is not installed. The generated PDFs were structurally inspected; the architecture brief is 9 pages, the user manual is 3 pages, and first-page PNG previews were rendered with `sips` to confirm the white page background and layout.
 - The protected mock ERP endpoint is hosted at `https://hellox.ca/api/mock/enterprise-service-intake/erp`; the OAuth token endpoint is `https://hellox.ca/api/mock/oauth/token`; the hidden demo console is `https://hellox.ca/esi/`.
 - The PCF control is included in the solution and bound on the Service Request coordinator form through exported form XML.
