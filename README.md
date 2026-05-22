@@ -138,7 +138,7 @@ erDiagram
 The `Enterprise Service Intake` app uses solution-aware system forms and views for each included table:
 
 - Request operations: `Coordinator Queue`, `Pending Manager Approval`, `Critical Documentation Guardrails`, and `ERP Sync Monitor`.
-- Supporting documentation: Service Request files use the out-of-box Documents associated tab for SharePoint uploads, plus `Service Request Evidence Reviews` and redesigned default Active, Associated, and Lookup views for accepted/rejected evidence metadata.
+- Supporting documentation: Service Request files are available from the coordinator form's `Documents` tab and the out-of-box Documents associated area for SharePoint uploads, plus `Service Request Evidence Reviews` and redesigned default Active, Associated, Lookup, Quick Find, My, and Inactive views for accepted/rejected evidence metadata.
 - Configuration: `Active Routing Rules`, `Active Departments`, `Active SLA Policies`, and `Active Service Categories`; routing rule default Active, Associated, and Lookup views use the same operational columns.
 - Monitoring: `ERP Sync Attempts`, `Open Integration and Automation Errors`, and `All System Error Logs`; default Active, Associated, and Lookup views for sync/error logs show request, status, source, correlation, and timing fields.
 
@@ -150,7 +150,7 @@ Dashboards are also provisioned for the live review:
 
 The forms are role-focused instead of generic Dataverse layouts: service requests separate intake, triage, routing/SLA, approval/ERP sync, and resolution guardrails; configuration tables surface active rule inputs; log tables prioritize triage fields and payload details.
 
-There are two Service Request main forms by design. `Service Request - Coordinator` is the internal working form. `Service Request - SharePoint Documents` is a minimal Power Pages support form used by the `ESI - Service Request SharePoint Documents` Basic Form to render Dataverse document management after a portal submission. It is not the coordinator work surface.
+There are two Service Request main forms by design, but coordinators do not need to switch forms for documents. `Service Request - Coordinator` is the internal working form and includes a `Documents` tab with the SharePoint document-management grid. `Service Request - SharePoint Documents` remains a minimal Power Pages support form used by the `ESI - Service Request SharePoint Documents` Basic Form to render Dataverse document management after a portal submission; it is not the coordinator work surface.
 
 ## Security Strategy
 

@@ -18,6 +18,7 @@ const string HelloXMockErpEndpoint = "https://hellox.ca/api/mock/enterprise-serv
 const string HelloXMockOAuthTokenEndpoint = "https://hellox.ca/api/mock/oauth/token";
 const string HelloXMockOAuthTokenActionName = "HTTP_-_get_HelloX_OAuth_token";
 const string HelloXMockErpActionName = "HTTP";
+const string SharePointDocumentLocationViewId = "820684b1-8d57-df11-a5a2-00155d2a9005";
 const string ProtectedServiceRequestUpdateAttributes =
     "hx_lifecyclestatus,hx_approvalstatus,hx_integrationsyncstatus,hx_externalerpid,hx_assigneddepartment," +
     "hx_appliedslapolicy,hx_duedate,hx_requiresapproval,hx_resolutiondocumentationrequired," +
@@ -283,6 +284,10 @@ static void EnsureMetadata(IOrganizationService service)
         "Service Request Evidence Review",
         "Service Request Evidence Reviews",
         "Dataverse-owned review metadata for SharePoint files used as service request evidence.");
+    EnsureAttributeLabelAndDescription(service, "hx_servicedocument", "hx_name", "Name", "Primary name for Service Request Evidence Review.");
+    EnsureAttributeLabelAndDescription(service, "hx_servicedocument", "hx_servicedocumentid", "Service Request Evidence Review", "Unique identifier for Service Request Evidence Review rows.");
+    EnsureAttributeLabelAndDescription(service, "hx_servicedocument", "statecode", "Status", "Status of the Service Request Evidence Review.");
+    EnsureAttributeLabelAndDescription(service, "hx_servicedocument", "statuscode", "Status Reason", "Reason for the status of the Service Request Evidence Review.");
     EnsureChoice(service, "hx_servicedocument", "hx_documenttype", "Evidence Type", DocumentTypeOptions());
     EnsureAttributeLabel(service, "hx_servicedocument", "hx_documenttype", "Evidence Type");
     EnsureChoice(service, "hx_servicedocument", "hx_reviewstatus", "Review Status", EvidenceReviewStatusOptions());
@@ -566,6 +571,40 @@ static void EnsureAttributeLabel(IOrganizationService service, string entity, st
         MergeLabels = true
     });
     Console.WriteLine($"Updated label for {entity}.{logicalName}.");
+}
+
+static void EnsureAttributeLabelAndDescription(
+    IOrganizationService service,
+    string entity,
+    string logicalName,
+    string displayName,
+    string description)
+{
+    var response = (RetrieveAttributeResponse)service.Execute(new RetrieveAttributeRequest
+    {
+        EntityLogicalName = entity,
+        LogicalName = logicalName,
+        RetrieveAsIfPublished = true
+    });
+
+    var metadata = response.AttributeMetadata;
+    var currentDisplayName = metadata.DisplayName?.UserLocalizedLabel?.Label;
+    var currentDescription = metadata.Description?.UserLocalizedLabel?.Label;
+    if (string.Equals(currentDisplayName, displayName, StringComparison.Ordinal) &&
+        string.Equals(currentDescription, description, StringComparison.Ordinal))
+    {
+        return;
+    }
+
+    metadata.DisplayName = Label(displayName);
+    metadata.Description = Label(description);
+    service.Execute(new UpdateAttributeRequest
+    {
+        EntityName = entity,
+        Attribute = metadata,
+        MergeLabels = true
+    });
+    Console.WriteLine($"Updated label/description for {entity}.{logicalName}.");
 }
 
 static void EnsureAutoNumber(
@@ -880,7 +919,8 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
             Field("hx_lifecyclestatus", "Lifecycle", FormControlClass.OptionSet),
             Field("hx_assigneddepartment", "Department", FormControlClass.Lookup, disabled: true),
             Field("hx_duedate", "SLA Due", FormControlClass.DateTime, disabled: true)
-        });
+        },
+        includeDocumentsTab: true);
 
     EnsureMainForm(
         service,
@@ -1114,6 +1154,55 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
 
     EnsureSystemView(
         service,
+        "hx_servicedocument",
+        "Inactive Service Request Evidence Reviews",
+        new[]
+        {
+            "hx_name",
+            "hx_servicerequest",
+            "hx_documenttype",
+            "hx_reviewstatus",
+            "hx_filename",
+            "hx_sharepointfileurl",
+            "hx_verified",
+            "hx_verifiedon",
+            "modifiedon",
+            "ownerid"
+        },
+        "<condition attribute='statecode' operator='eq' value='1' />",
+        "modifiedon",
+        descending: true,
+        alternateNames: new[] { "Inactive Service Request Documents" });
+
+    EnsureSystemView(
+        service,
+        "hx_servicedocument",
+        "My Service Request Evidence Reviews",
+        new[]
+        {
+            "hx_name",
+            "hx_servicerequest",
+            "hx_documenttype",
+            "hx_reviewstatus",
+            "hx_filename",
+            "hx_sharepointfileurl",
+            "hx_verified",
+            "hx_verifiedon",
+            "createdon",
+            "ownerid"
+        },
+        string.Join(Environment.NewLine + "      ", new[]
+        {
+            "<condition attribute='statecode' operator='eq' value='0' />",
+            "<condition attribute='ownerid' operator='eq-userid' />"
+        }),
+        "createdon",
+        descending: true,
+        queryType: 8192,
+        alternateNames: new[] { "My Service Request Documents" });
+
+    EnsureSystemView(
+        service,
         "hx_servicerequest",
         "Coordinator Queue",
         new[]
@@ -1266,7 +1355,8 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         },
         "<condition attribute='statecode' operator='eq' value='0' />",
         "createdon",
-        descending: true);
+        descending: true,
+        alternateNames: new[] { "Active Service Request Documents" });
 
     EnsureSystemView(
         service,
@@ -1309,7 +1399,8 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         "<condition attribute='statecode' operator='eq' value='0' />",
         "createdon",
         descending: true,
-        queryType: 2);
+        queryType: 2,
+        alternateNames: new[] { "Service Request Document Associated View" });
 
     EnsureSystemView(
         service,
@@ -1327,7 +1418,21 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         "<condition attribute='statecode' operator='eq' value='0' />",
         "hx_name",
         descending: false,
-        queryType: 64);
+        queryType: 64,
+        alternateNames: new[] { "Service Request Document Lookup View" });
+
+    RenameSystemView(
+        service,
+        "hx_servicedocument",
+        "Quick Find Active Service Request Documents",
+        "Quick Find Active Service Request Evidence Reviews",
+        queryType: 4);
+    RenameSystemView(
+        service,
+        "hx_servicedocument",
+        "Service Request Document Advanced Find View",
+        "Service Request Evidence Review Advanced Find View",
+        queryType: 1);
 
     EnsureSystemView(
         service,
@@ -1648,7 +1753,8 @@ static void EnsureMainForm(
     string existingFormName,
     string targetFormName,
     IReadOnlyList<FormSection> sections,
-    IReadOnlyList<FormField> headerFields)
+    IReadOnlyList<FormField> headerFields,
+    bool includeDocumentsTab = false)
 {
     var objectTypeCode = GetObjectTypeCode(service, entityLogicalName);
     var form = FindMainForm(service, objectTypeCode, existingFormName) ?? FindMainForm(service, objectTypeCode, targetFormName);
@@ -1660,7 +1766,7 @@ static void EnsureMainForm(
             ["objecttypecode"] = objectTypeCode,
             ["type"] = new OptionSetValue(2),
             ["formactivationstate"] = new OptionSetValue(1),
-            ["formxml"] = BuildMainFormXml(entityLogicalName, targetFormName, sections, headerFields)
+            ["formxml"] = BuildMainFormXml(entityLogicalName, targetFormName, sections, headerFields, includeDocumentsTab)
         };
         var createdFormId = service.Create(createdForm);
         AddToSolution(service, createdFormId, 60);
@@ -1671,7 +1777,7 @@ static void EnsureMainForm(
     var update = new Entity("systemform", form.Id)
     {
         ["name"] = targetFormName,
-        ["formxml"] = BuildMainFormXml(entityLogicalName, targetFormName, sections, headerFields)
+        ["formxml"] = BuildMainFormXml(entityLogicalName, targetFormName, sections, headerFields, includeDocumentsTab)
     };
     service.Update(update);
     AddToSolution(service, form.Id, 60);
@@ -1756,7 +1862,8 @@ static string BuildMainFormXml(
     string entityLogicalName,
     string formName,
     IReadOnlyList<FormSection> sections,
-    IReadOnlyList<FormField> headerFields)
+    IReadOnlyList<FormField> headerFields,
+    bool includeDocumentsTab)
 {
     var formId = DeterministicGuid($"{entityLogicalName}:{formName}:form");
     var builder = new StringBuilder();
@@ -1779,6 +1886,10 @@ static string BuildMainFormXml(
 
     builder.AppendLine("      </sections></column></columns>");
     builder.AppendLine("    </tab>");
+    if (includeDocumentsTab)
+    {
+        AppendSharePointDocumentsTab(builder, entityLogicalName);
+    }
     builder.AppendLine("  </tabs>");
     var headerColumns = new string('1', Math.Max(1, headerFields.Count));
     builder.AppendLine($"  <header id=\"{{{DeterministicGuid($"{entityLogicalName}:header")}}}\" celllabelposition=\"Top\" columns=\"{headerColumns}\" labelwidth=\"115\" celllabelalignment=\"Left\">");
@@ -1795,6 +1906,41 @@ static string BuildMainFormXml(
     builder.AppendLine("</form>");
     _ = formId;
     return builder.ToString();
+}
+
+static void AppendSharePointDocumentsTab(StringBuilder builder, string entityLogicalName)
+{
+    var tabId = DeterministicGuid($"{entityLogicalName}:documents-tab");
+    var sectionId = DeterministicGuid($"{entityLogicalName}:documents-section");
+    var cellId = DeterministicGuid($"{entityLogicalName}:documents-cell");
+    builder.AppendLine($"    <tab verticallayout=\"true\" id=\"{{{tabId}}}\" name=\"tab_documents\" IsUserDefined=\"1\" showlabel=\"true\">");
+    builder.AppendLine("      <labels><label description=\"Documents\" languagecode=\"1033\" /></labels>");
+    builder.AppendLine("      <columns><column width=\"100%\"><sections>");
+    builder.AppendLine($"        <section id=\"{{{sectionId}}}\" name=\"sharepoint_documents\" IsUserDefined=\"1\" showlabel=\"true\" showbar=\"false\" layout=\"varwidth\" columns=\"1\" labelwidth=\"160\">");
+    builder.AppendLine("          <labels><label description=\"SharePoint Documents\" languagecode=\"1033\" /></labels>");
+    builder.AppendLine("          <rows><row>");
+    builder.AppendLine($"            <cell id=\"{{{cellId}}}\" showlabel=\"true\" rowspan=\"12\" colspan=\"1\" auto=\"false\">");
+    builder.AppendLine("              <labels><label description=\"Supporting Documents\" languagecode=\"1033\" /></labels>");
+    builder.AppendLine("              <control id=\"SharePointDocuments\" classid=\"{E7A81278-8635-4d9e-8D4D-59480B391C5B}\">");
+    builder.AppendLine("                <parameters>");
+    builder.AppendLine("                  <TargetEntityType>sharepointdocumentlocation</TargetEntityType>");
+    builder.AppendLine("                  <ChartGridMode>Grid</ChartGridMode>");
+    builder.AppendLine("                  <EnableQuickFind>false</EnableQuickFind>");
+    builder.AppendLine("                  <EnableViewPicker>false</EnableViewPicker>");
+    builder.AppendLine("                  <EnableJumpBar>false</EnableJumpBar>");
+    builder.AppendLine("                  <RecordsPerPage>10</RecordsPerPage>");
+    builder.AppendLine($"                  <ViewId>{{{SharePointDocumentLocationViewId}}}</ViewId>");
+    builder.AppendLine("                  <IsUserView>false</IsUserView>");
+    builder.AppendLine($"                  <ViewIds>{{{SharePointDocumentLocationViewId}}}</ViewIds>");
+    builder.AppendLine("                  <AutoExpand>Fixed</AutoExpand>");
+    builder.AppendLine("                  <RelationshipName>hx_servicerequest_SharePointDocumentLocations</RelationshipName>");
+    builder.AppendLine("                </parameters>");
+    builder.AppendLine("              </control>");
+    builder.AppendLine("            </cell>");
+    builder.AppendLine("          </row></rows>");
+    builder.AppendLine("        </section>");
+    builder.AppendLine("      </sections></column></columns>");
+    builder.AppendLine("    </tab>");
 }
 
 static void AppendSectionRows(StringBuilder builder, string entityLogicalName, FormSection section, int sectionColumns)
@@ -1901,12 +2047,20 @@ static Guid EnsureSystemView(
     string? filterConditionXml,
     string orderBy,
     bool descending,
-    int queryType = 0)
+    int queryType = 0,
+    IReadOnlyList<string>? alternateNames = null)
 {
     var objectTypeCode = GetObjectTypeCode(service, entityLogicalName);
-    var existing = FindSystemView(service, objectTypeCode, viewName, queryType);
+    var candidates = FindSystemViewCandidates(service, objectTypeCode, viewName, queryType, alternateNames);
+    var existing = SelectSystemViewCandidate(candidates, viewName, alternateNames);
+    if (existing != null)
+    {
+        DeleteDuplicateSystemViews(service, candidates, existing.Id, viewName);
+    }
+
     var savedQuery = existing ?? new Entity("savedquery");
     savedQuery["name"] = viewName;
+    savedQuery["description"] = $"{viewName} view for Enterprise Service Intake.";
     savedQuery["fetchxml"] = BuildViewFetchXml(entityLogicalName, columns, filterConditionXml, orderBy, descending);
     savedQuery["layoutxml"] = BuildViewLayoutXml(entityLogicalName, columns);
 
@@ -1926,14 +2080,104 @@ static Guid EnsureSystemView(
     }
 }
 
+static IReadOnlyList<Entity> FindSystemViewCandidates(
+    IOrganizationService service,
+    int objectTypeCode,
+    string viewName,
+    int queryType,
+    IReadOnlyList<string>? alternateNames)
+{
+    var names = new List<string> { viewName };
+    if (alternateNames != null)
+    {
+        names.AddRange(alternateNames.Where(name => !string.IsNullOrWhiteSpace(name)));
+    }
+
+    names = names.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    var query = new QueryExpression("savedquery")
+    {
+        ColumnSet = new ColumnSet("savedqueryid", "name", "isdefault")
+    };
+    query.Criteria.AddCondition("returnedtypecode", ConditionOperator.Equal, objectTypeCode);
+    query.Criteria.AddCondition("querytype", ConditionOperator.Equal, queryType);
+    query.Criteria.AddCondition("name", ConditionOperator.In, names.Cast<object>().ToArray());
+    return service.RetrieveMultiple(query).Entities.ToList();
+}
+
+static Entity? SelectSystemViewCandidate(
+    IReadOnlyList<Entity> candidates,
+    string viewName,
+    IReadOnlyList<string>? alternateNames)
+{
+    return candidates.FirstOrDefault(view =>
+            IsDefaultSystemView(view) &&
+            alternateNames?.Contains(view.GetAttributeValue<string>("name") ?? string.Empty, StringComparer.OrdinalIgnoreCase) == true)
+        ?? candidates.FirstOrDefault(view => string.Equals(view.GetAttributeValue<string>("name"), viewName, StringComparison.Ordinal))
+        ?? candidates.FirstOrDefault(IsDefaultSystemView)
+        ?? candidates.FirstOrDefault();
+}
+
+static bool IsDefaultSystemView(Entity view)
+{
+    return view.Attributes.TryGetValue("isdefault", out var value) && value is bool isDefault && isDefault;
+}
+
+static void DeleteDuplicateSystemViews(
+    IOrganizationService service,
+    IReadOnlyList<Entity> candidates,
+    Guid keepId,
+    string targetViewName)
+{
+    foreach (var candidate in candidates.Where(view => view.Id != keepId))
+    {
+        var name = candidate.GetAttributeValue<string>("name") ?? candidate.Id.ToString();
+        try
+        {
+            service.Delete("savedquery", candidate.Id);
+            Console.WriteLine($"Deleted duplicate system view after consolidating to {targetViewName}: {name}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Warning: skipped deleting duplicate system view {name}: {ex.Message}");
+        }
+    }
+}
+
+static void RenameSystemView(
+    IOrganizationService service,
+    string entityLogicalName,
+    string oldName,
+    string newName,
+    int queryType)
+{
+    var objectTypeCode = GetObjectTypeCode(service, entityLogicalName);
+    var oldView = FindSystemView(service, objectTypeCode, oldName, queryType);
+    if (oldView == null)
+    {
+        return;
+    }
+
+    var newView = FindSystemView(service, objectTypeCode, newName, queryType);
+    if (newView != null && newView.Id != oldView.Id)
+    {
+        DeleteDuplicateSystemViews(service, new[] { oldView }, newView.Id, newName);
+        return;
+    }
+
+    service.Update(new Entity("savedquery", oldView.Id)
+    {
+        ["name"] = newName,
+        ["description"] = $"{newName} view for Enterprise Service Intake."
+    });
+    AddToSolution(service, oldView.Id, 26);
+    Console.WriteLine($"Renamed system view {oldName} to {newName}.");
+}
+
 static void DeleteObsoleteMainViewDuplicates(IOrganizationService service)
 {
     var duplicateNames = new (string EntityLogicalName, string ViewName)[]
     {
         ("hx_servicedocument", "Request Documents - Review"),
-        ("hx_servicedocument", "Active Service Request Documents"),
-        ("hx_servicedocument", "Service Request Document Associated View"),
-        ("hx_servicedocument", "Service Request Document Lookup View"),
         ("hx_routingrule", "Routing / SLA Rule Associated View"),
         ("hx_routingrule", "Routing / SLA Rule Lookup View"),
         ("hx_externalsynclog", "External Sync Log Associated View"),
