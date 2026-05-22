@@ -18,7 +18,11 @@ const string HelloXMockErpEndpoint = "https://hellox.ca/api/mock/enterprise-serv
 const string HelloXMockOAuthTokenEndpoint = "https://hellox.ca/api/mock/oauth/token";
 const string HelloXMockOAuthTokenActionName = "HTTP_-_get_HelloX_OAuth_token";
 const string HelloXMockErpActionName = "HTTP";
-const string SharePointDocumentLocationViewId = "820684b1-8d57-df11-a5a2-00155d2a9005";
+const string SharePointDocumentViewId = "0016f9f3-41cc-4276-9d11-04308d15858d";
+const string LegacySharePointDocumentLocationViewId = "820684b1-8d57-df11-a5a2-00155d2a9005";
+const string ServiceRequestSharePointDocumentRelationship = "hx_servicerequest_SharePointDocuments";
+const string LegacyServiceRequestSharePointDocumentLocationRelationship = "hx_servicerequest_SharePointDocumentLocations";
+const string ServiceRequestEvidenceReviewRelationship = "hx_ServicerequestHxServicedocumentHxServicerequest";
 const string ProtectedServiceRequestUpdateAttributes =
     "hx_lifecyclestatus,hx_approvalstatus,hx_integrationsyncstatus,hx_externalerpid,hx_assigneddepartment," +
     "hx_appliedslapolicy,hx_duedate,hx_requiresapproval,hx_resolutiondocumentationrequired," +
@@ -863,6 +867,29 @@ static void Publish(IOrganizationService service)
 
 static void EnsureModelDrivenExperience(IOrganizationService service)
 {
+    var evidenceReviewAssociatedViewId = EnsureSystemView(
+        service,
+        "hx_servicedocument",
+        "Service Request Evidence Review Associated View",
+        new[]
+        {
+            "hx_name",
+            "hx_servicerequest",
+            "hx_documenttype",
+            "hx_reviewstatus",
+            "hx_filename",
+            "hx_sharepointfileurl",
+            "hx_verified",
+            "hx_verifiedon",
+            "createdon",
+            "ownerid"
+        },
+        "<condition attribute='statecode' operator='eq' value='0' />",
+        "createdon",
+        descending: true,
+        queryType: 2,
+        alternateNames: new[] { "Service Request Document Associated View" });
+
     EnsureMainForm(
         service,
         "hx_servicerequest",
@@ -920,7 +947,10 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
             Field("hx_assigneddepartment", "Department", FormControlClass.Lookup, disabled: true),
             Field("hx_duedate", "SLA Due", FormControlClass.DateTime, disabled: true)
         },
-        includeDocumentsTab: true);
+        includeDocumentsTab: true,
+        evidenceReviewAssociatedViewId: evidenceReviewAssociatedViewId);
+
+    EnsureSharePointDocumentsSupportForm(service);
 
     EnsureMainForm(
         service,
@@ -1382,29 +1412,6 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
     EnsureSystemView(
         service,
         "hx_servicedocument",
-        "Service Request Evidence Review Associated View",
-        new[]
-        {
-            "hx_name",
-            "hx_servicerequest",
-            "hx_documenttype",
-            "hx_reviewstatus",
-            "hx_filename",
-            "hx_sharepointfileurl",
-            "hx_verified",
-            "hx_verifiedon",
-            "createdon",
-            "ownerid"
-        },
-        "<condition attribute='statecode' operator='eq' value='0' />",
-        "createdon",
-        descending: true,
-        queryType: 2,
-        alternateNames: new[] { "Service Request Document Associated View" });
-
-    EnsureSystemView(
-        service,
-        "hx_servicedocument",
         "Service Request Evidence Review Lookup View",
         new[]
         {
@@ -1754,7 +1761,8 @@ static void EnsureMainForm(
     string targetFormName,
     IReadOnlyList<FormSection> sections,
     IReadOnlyList<FormField> headerFields,
-    bool includeDocumentsTab = false)
+    bool includeDocumentsTab = false,
+    Guid? evidenceReviewAssociatedViewId = null)
 {
     var objectTypeCode = GetObjectTypeCode(service, entityLogicalName);
     var form = FindMainForm(service, objectTypeCode, existingFormName) ?? FindMainForm(service, objectTypeCode, targetFormName);
@@ -1766,7 +1774,7 @@ static void EnsureMainForm(
             ["objecttypecode"] = objectTypeCode,
             ["type"] = new OptionSetValue(2),
             ["formactivationstate"] = new OptionSetValue(1),
-            ["formxml"] = BuildMainFormXml(entityLogicalName, targetFormName, sections, headerFields, includeDocumentsTab)
+            ["formxml"] = BuildMainFormXml(entityLogicalName, targetFormName, sections, headerFields, includeDocumentsTab, evidenceReviewAssociatedViewId)
         };
         var createdFormId = service.Create(createdForm);
         AddToSolution(service, createdFormId, 60);
@@ -1777,7 +1785,7 @@ static void EnsureMainForm(
     var update = new Entity("systemform", form.Id)
     {
         ["name"] = targetFormName,
-        ["formxml"] = BuildMainFormXml(entityLogicalName, targetFormName, sections, headerFields, includeDocumentsTab)
+        ["formxml"] = BuildMainFormXml(entityLogicalName, targetFormName, sections, headerFields, includeDocumentsTab, evidenceReviewAssociatedViewId)
     };
     service.Update(update);
     AddToSolution(service, form.Id, 60);
@@ -1806,6 +1814,44 @@ static Entity? FindMainForm(IOrganizationService service, int objectTypeCode, st
     query.Criteria.AddCondition("type", ConditionOperator.Equal, 2);
     query.Criteria.AddCondition("name", ConditionOperator.Equal, name);
     return service.RetrieveMultiple(query).Entities.FirstOrDefault();
+}
+
+static void EnsureSharePointDocumentsSupportForm(IOrganizationService service)
+{
+    var objectTypeCode = GetObjectTypeCode(service, "hx_servicerequest");
+    var form = FindMainForm(service, objectTypeCode, "Service Request - SharePoint Documents");
+    if (form is null)
+    {
+        Console.WriteLine("Warning: Service Request - SharePoint Documents form was not found.");
+        return;
+    }
+
+    var formXml = form.GetAttributeValue<string>("formxml") ?? string.Empty;
+    var updatedFormXml = NormalizeSharePointDocumentsGrid(formXml);
+    if (updatedFormXml == formXml)
+    {
+        return;
+    }
+
+    service.Update(new Entity("systemform", form.Id)
+    {
+        ["formxml"] = updatedFormXml
+    });
+    AddToSolution(service, form.Id, 60);
+    Console.WriteLine("Updated Service Request - SharePoint Documents form to use the SharePoint Documents grid.");
+}
+
+static string NormalizeSharePointDocumentsGrid(string formXml)
+{
+    var legacyViewId = "{" + LegacySharePointDocumentLocationViewId + "}";
+    var sharePointDocumentViewId = "{" + SharePointDocumentViewId + "}";
+
+    return formXml
+        .Replace("<TargetEntityType>sharepointdocumentlocation</TargetEntityType>", "<TargetEntityType>sharepointdocument</TargetEntityType>")
+        .Replace($"<ViewId>{legacyViewId}</ViewId>", $"<ViewId>{sharePointDocumentViewId}</ViewId>")
+        .Replace($"<ViewIds>{legacyViewId}</ViewIds>", "<ViewIds />")
+        .Replace("<EnableViewPicker>false</EnableViewPicker>", "<EnableViewPicker>true</EnableViewPicker>")
+        .Replace($"<RelationshipName>{LegacyServiceRequestSharePointDocumentLocationRelationship}</RelationshipName>", $"<RelationshipName>{ServiceRequestSharePointDocumentRelationship}</RelationshipName>");
 }
 
 static void DeleteObsoleteMainForms(IOrganizationService service)
@@ -1863,7 +1909,8 @@ static string BuildMainFormXml(
     string formName,
     IReadOnlyList<FormSection> sections,
     IReadOnlyList<FormField> headerFields,
-    bool includeDocumentsTab)
+    bool includeDocumentsTab,
+    Guid? evidenceReviewAssociatedViewId)
 {
     var formId = DeterministicGuid($"{entityLogicalName}:{formName}:form");
     var builder = new StringBuilder();
@@ -1888,7 +1935,7 @@ static string BuildMainFormXml(
     builder.AppendLine("    </tab>");
     if (includeDocumentsTab)
     {
-        AppendSharePointDocumentsTab(builder, entityLogicalName);
+        AppendSharePointDocumentsTab(builder, entityLogicalName, evidenceReviewAssociatedViewId ?? Guid.Empty);
     }
     builder.AppendLine("  </tabs>");
     var headerColumns = new string('1', Math.Max(1, headerFields.Count));
@@ -1908,32 +1955,67 @@ static string BuildMainFormXml(
     return builder.ToString();
 }
 
-static void AppendSharePointDocumentsTab(StringBuilder builder, string entityLogicalName)
+static void AppendSharePointDocumentsTab(StringBuilder builder, string entityLogicalName, Guid evidenceReviewAssociatedViewId)
 {
     var tabId = DeterministicGuid($"{entityLogicalName}:documents-tab");
-    var sectionId = DeterministicGuid($"{entityLogicalName}:documents-section");
-    var cellId = DeterministicGuid($"{entityLogicalName}:documents-cell");
+    var sharePointSectionId = DeterministicGuid($"{entityLogicalName}:sharepoint-documents-section");
+    var sharePointCellId = DeterministicGuid($"{entityLogicalName}:sharepoint-documents-cell");
+    var sharePointControlId = DeterministicGuid($"{entityLogicalName}:sharepoint-documents-control");
+    var evidenceSectionId = DeterministicGuid($"{entityLogicalName}:evidence-reviews-section");
+    var evidenceCellId = DeterministicGuid($"{entityLogicalName}:evidence-reviews-cell");
+    var evidenceControlId = DeterministicGuid($"{entityLogicalName}:evidence-reviews-control");
     builder.AppendLine($"    <tab verticallayout=\"true\" id=\"{{{tabId}}}\" name=\"tab_documents\" IsUserDefined=\"1\" showlabel=\"true\">");
     builder.AppendLine("      <labels><label description=\"Documents\" languagecode=\"1033\" /></labels>");
     builder.AppendLine("      <columns><column width=\"100%\"><sections>");
-    builder.AppendLine($"        <section id=\"{{{sectionId}}}\" name=\"sharepoint_documents\" IsUserDefined=\"1\" showlabel=\"true\" showbar=\"false\" layout=\"varwidth\" columns=\"1\" labelwidth=\"160\">");
+    builder.AppendLine($"        <section id=\"{{{sharePointSectionId}}}\" name=\"sharepoint_documents\" IsUserDefined=\"1\" showlabel=\"true\" showbar=\"false\" layout=\"varwidth\" columns=\"1\" labelwidth=\"160\">");
     builder.AppendLine("          <labels><label description=\"SharePoint Documents\" languagecode=\"1033\" /></labels>");
     builder.AppendLine("          <rows><row>");
-    builder.AppendLine($"            <cell id=\"{{{cellId}}}\" showlabel=\"true\" rowspan=\"12\" colspan=\"1\" auto=\"false\">");
+    builder.AppendLine($"            <cell id=\"{{{sharePointCellId}}}\" showlabel=\"true\" rowspan=\"12\" colspan=\"1\" auto=\"false\">");
     builder.AppendLine("              <labels><label description=\"Supporting Documents\" languagecode=\"1033\" /></labels>");
-    builder.AppendLine("              <control id=\"SharePointDocuments\" classid=\"{E7A81278-8635-4d9e-8D4D-59480B391C5B}\">");
+    builder.AppendLine($"              <control id=\"SharePointDocuments\" classid=\"{{E7A81278-8635-4d9e-8D4D-59480B391C5B}}\" indicationOfSubgrid=\"true\" uniqueid=\"{{{sharePointControlId}}}\">");
     builder.AppendLine("                <parameters>");
-    builder.AppendLine("                  <TargetEntityType>sharepointdocumentlocation</TargetEntityType>");
+    builder.AppendLine($"                  <ViewId>{{{SharePointDocumentViewId}}}</ViewId>");
+    builder.AppendLine("                  <IsUserView>false</IsUserView>");
+    builder.AppendLine($"                  <RelationshipName>{ServiceRequestSharePointDocumentRelationship}</RelationshipName>");
+    builder.AppendLine("                  <TargetEntityType>sharepointdocument</TargetEntityType>");
+    builder.AppendLine("                  <AutoExpand>Fixed</AutoExpand>");
+    builder.AppendLine("                  <EnableQuickFind>false</EnableQuickFind>");
+    builder.AppendLine("                  <EnableViewPicker>true</EnableViewPicker>");
+    builder.AppendLine("                  <ViewIds />");
+    builder.AppendLine("                  <EnableJumpBar>false</EnableJumpBar>");
     builder.AppendLine("                  <ChartGridMode>Grid</ChartGridMode>");
+    builder.AppendLine("                  <VisualizationId />");
+    builder.AppendLine("                  <IsUserChart>false</IsUserChart>");
+    builder.AppendLine("                  <EnableChartPicker>false</EnableChartPicker>");
+    builder.AppendLine("                  <RecordsPerPage>10</RecordsPerPage>");
+    builder.AppendLine("                  <HeaderColorCode>#F3F3F3</HeaderColorCode>");
+    builder.AppendLine("                </parameters>");
+    builder.AppendLine("              </control>");
+    builder.AppendLine("            </cell>");
+    builder.AppendLine("          </row></rows>");
+    builder.AppendLine("        </section>");
+    builder.AppendLine($"        <section id=\"{{{evidenceSectionId}}}\" name=\"evidence_reviews\" IsUserDefined=\"1\" showlabel=\"true\" showbar=\"false\" layout=\"varwidth\" columns=\"1\" labelwidth=\"160\">");
+    builder.AppendLine("          <labels><label description=\"SR Evidence Reviews\" languagecode=\"1033\" /></labels>");
+    builder.AppendLine("          <rows><row>");
+    builder.AppendLine($"            <cell id=\"{{{evidenceCellId}}}\" showlabel=\"true\" rowspan=\"8\" colspan=\"1\" auto=\"false\">");
+    builder.AppendLine("              <labels><label description=\"Evidence Review Records\" languagecode=\"1033\" /></labels>");
+    builder.AppendLine($"              <control id=\"EvidenceReviews\" classid=\"{{E7A81278-8635-4d9e-8D4D-59480B391C5B}}\" indicationOfSubgrid=\"true\" uniqueid=\"{{{evidenceControlId}}}\">");
+    builder.AppendLine("                <parameters>");
+    builder.AppendLine($"                  <ViewId>{{{evidenceReviewAssociatedViewId}}}</ViewId>");
+    builder.AppendLine("                  <IsUserView>false</IsUserView>");
+    builder.AppendLine($"                  <RelationshipName>{ServiceRequestEvidenceReviewRelationship}</RelationshipName>");
+    builder.AppendLine("                  <TargetEntityType>hx_servicedocument</TargetEntityType>");
+    builder.AppendLine("                  <AutoExpand>Fixed</AutoExpand>");
     builder.AppendLine("                  <EnableQuickFind>false</EnableQuickFind>");
     builder.AppendLine("                  <EnableViewPicker>false</EnableViewPicker>");
+    builder.AppendLine($"                  <ViewIds>{{{evidenceReviewAssociatedViewId}}}</ViewIds>");
     builder.AppendLine("                  <EnableJumpBar>false</EnableJumpBar>");
+    builder.AppendLine("                  <ChartGridMode>Grid</ChartGridMode>");
+    builder.AppendLine("                  <VisualizationId />");
+    builder.AppendLine("                  <IsUserChart>false</IsUserChart>");
+    builder.AppendLine("                  <EnableChartPicker>false</EnableChartPicker>");
     builder.AppendLine("                  <RecordsPerPage>10</RecordsPerPage>");
-    builder.AppendLine($"                  <ViewId>{{{SharePointDocumentLocationViewId}}}</ViewId>");
-    builder.AppendLine("                  <IsUserView>false</IsUserView>");
-    builder.AppendLine($"                  <ViewIds>{{{SharePointDocumentLocationViewId}}}</ViewIds>");
-    builder.AppendLine("                  <AutoExpand>Fixed</AutoExpand>");
-    builder.AppendLine("                  <RelationshipName>hx_servicerequest_SharePointDocumentLocations</RelationshipName>");
+    builder.AppendLine("                  <HeaderColorCode>#F3F3F3</HeaderColorCode>");
     builder.AppendLine("                </parameters>");
     builder.AppendLine("              </control>");
     builder.AppendLine("            </cell>");

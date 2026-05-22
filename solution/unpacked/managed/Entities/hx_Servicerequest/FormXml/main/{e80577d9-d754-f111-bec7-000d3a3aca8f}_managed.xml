@@ -65,17 +65,17 @@
                         </labels>
                         <control id="SharePointDocuments" classid="{E7A81278-8635-4d9e-8D4D-59480B391C5B}">
                           <parameters>
-                            <TargetEntityType>sharepointdocumentlocation</TargetEntityType>
+                            <TargetEntityType>sharepointdocument</TargetEntityType>
                             <ChartGridMode>Grid</ChartGridMode>
                             <EnableQuickFind>false</EnableQuickFind>
-                            <EnableViewPicker>false</EnableViewPicker>
+                            <EnableViewPicker>true</EnableViewPicker>
                             <EnableJumpBar>false</EnableJumpBar>
                             <RecordsPerPage>10</RecordsPerPage>
-                            <ViewId>{820684b1-8d57-df11-a5a2-00155d2a9005}</ViewId>
+                            <ViewId>{0016f9f3-41cc-4276-9d11-04308d15858d}</ViewId>
                             <IsUserView>false</IsUserView>
-                            <ViewIds>{820684b1-8d57-df11-a5a2-00155d2a9005}</ViewIds>
+                            <ViewIds />
                             <AutoExpand>Fixed</AutoExpand>
-                            <RelationshipName>hx_servicerequest_SharePointDocumentLocations</RelationshipName>
+                            <RelationshipName>hx_servicerequest_SharePointDocuments</RelationshipName>
                           </parameters>
                         </control>
                       </cell>
