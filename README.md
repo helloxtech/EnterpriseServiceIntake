@@ -150,7 +150,7 @@ Dashboards are also provisioned for the live review:
 
 The forms are role-focused instead of generic Dataverse layouts: service requests separate intake, triage, routing/SLA, approval/ERP sync, and resolution guardrails; configuration tables surface active rule inputs; log tables prioritize triage fields and payload details.
 
-There are two Service Request main forms by design, but coordinators do not need to switch forms for documents. `Service Request - Coordinator` is the internal working form and includes a `Documents` tab with the actual SharePoint Documents grid plus `SR Evidence Reviews`. `Service Request - SharePoint Documents` remains a minimal Power Pages support form used by the `ESI - Service Request SharePoint Documents` Basic Form to render Dataverse document management after a portal submission; it uses the same SharePoint Documents target but is not the coordinator work surface.
+There are two Service Request main forms by design, but only `Service Request - Coordinator` is included in the internal model-driven app. It includes a `Documents` tab with the actual SharePoint Documents grid plus `SR Evidence Reviews`. `Service Request - SharePoint Documents` remains a minimal Power Pages support form used by the `ESI - Service Request SharePoint Documents` Basic Form to render Dataverse document management after a portal submission; it uses the same SharePoint Documents target but is not included in the coordinator app.
 
 ## Security Strategy
 

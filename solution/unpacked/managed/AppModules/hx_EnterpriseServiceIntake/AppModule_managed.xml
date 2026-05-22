@@ -18,6 +18,7 @@
     <AppModuleComponent type="1" schemaName="hx_servicedocument" />
     <AppModuleComponent type="1" schemaName="hx_servicerequest" />
     <AppModuleComponent type="1" schemaName="hx_slapolicy" />
+    <AppModuleComponent type="60" id="{9d7aadac-8016-4109-94fc-2d0bf5f367a9}" />
     <AppModuleComponent type="60" id="{2141bfc2-e554-f111-bec7-000d3a3aca8f}" />
     <AppModuleComponent type="60" id="{3341bfc2-e554-f111-bec7-000d3a3aca8f}" />
     <AppModuleComponent type="60" id="{4641bfc2-e554-f111-bec7-000d3a3aca8f}" />

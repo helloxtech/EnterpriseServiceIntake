@@ -36,7 +36,7 @@ export class SlaStatusIndicator implements ComponentFramework.StandardControl<II
                     </div>
                 </div>
                 <div class="hx-sla-side">
-                    <span class="hx-sla-pill">${requiresApproval ? "Approval required" : "No approval"}</span>
+                    <span class="hx-sla-pill">${requiresApproval ? "Approval Required" : "Approval Not Required"}</span>
                     <span class="hx-sla-due">${slaState.dueText}</span>
                 </div>
             </div>`;

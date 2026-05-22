@@ -951,6 +951,7 @@ static void EnsureModelDrivenExperience(IOrganizationService service)
         evidenceReviewAssociatedViewId: evidenceReviewAssociatedViewId);
 
     EnsureSharePointDocumentsSupportForm(service);
+    RestrictServiceRequestFormsInAppModule(service);
 
     EnsureMainForm(
         service,
@@ -1839,6 +1840,61 @@ static void EnsureSharePointDocumentsSupportForm(IOrganizationService service)
     });
     AddToSolution(service, form.Id, 60);
     Console.WriteLine("Updated Service Request - SharePoint Documents form to use the SharePoint Documents grid.");
+}
+
+static void RestrictServiceRequestFormsInAppModule(IOrganizationService service)
+{
+    var app = FindByAttribute(service, "appmodule", "uniquename", "hx_EnterpriseServiceIntake");
+    if (app is null)
+    {
+        return;
+    }
+
+    var coordinatorForm = FindMainForm(service, GetObjectTypeCode(service, "hx_servicerequest"), "Service Request - Coordinator");
+    if (coordinatorForm is null)
+    {
+        Console.WriteLine("Warning: Service Request - Coordinator form was not found for app module restriction.");
+        return;
+    }
+
+    try
+    {
+        service.Execute(new AddAppComponentsRequest
+        {
+            AppId = app.Id,
+            Components = new EntityReferenceCollection
+            {
+                new("systemform", coordinatorForm.Id)
+            }
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Warning: coordinator form was not explicitly added to the app module: {ex.Message}");
+    }
+
+    var portalSupportForm = FindMainForm(service, GetObjectTypeCode(service, "hx_servicerequest"), "Service Request - SharePoint Documents");
+    if (portalSupportForm is null)
+    {
+        return;
+    }
+
+    try
+    {
+        service.Execute(new RemoveAppComponentsRequest
+        {
+            AppId = app.Id,
+            Components = new EntityReferenceCollection
+            {
+                new("systemform", portalSupportForm.Id)
+            }
+        });
+        Console.WriteLine("Removed Service Request - SharePoint Documents from the internal app module.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Warning: Service Request - SharePoint Documents was not removed from the app module: {ex.Message}");
+    }
 }
 
 static string NormalizeSharePointDocumentsGrid(string formXml)
