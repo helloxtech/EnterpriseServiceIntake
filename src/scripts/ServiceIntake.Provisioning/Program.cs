@@ -21,6 +21,7 @@ const string HelloXMockOAuthTokenActionName = "HTTP_-_get_HelloX_OAuth_token";
 const string HelloXMockErpActionName = "HTTP";
 const string SharePointDocumentViewId = "0016f9f3-41cc-4276-9d11-04308d15858d";
 const string LegacySharePointDocumentLocationViewId = "820684b1-8d57-df11-a5a2-00155d2a9005";
+const string EnterpriseServiceIntakeAppId = "3de4f813-b454-f111-bec7-000d3a3aca8f";
 const string ServiceRequestSharePointDocumentRelationship = "hx_servicerequest_SharePointDocuments";
 const string LegacyServiceRequestSharePointDocumentLocationRelationship = "hx_servicerequest_SharePointDocumentLocations";
 const string ServiceRequestEvidenceReviewRelationship = "hx_ServicerequestHxServicedocumentHxServicerequest";
@@ -171,6 +172,15 @@ static Entity? FindByAttribute(IOrganizationService service, string entityName, 
     };
     query.Criteria.AddCondition(attributeName, ConditionOperator.Equal, value);
     return service.RetrieveMultiple(query).Entities.FirstOrDefault();
+}
+
+static Entity? FindEnterpriseServiceIntakeAppModule(IOrganizationService service)
+{
+    var appId = Guid.Parse(EnterpriseServiceIntakeAppId);
+    return FindByAttribute(service, "appmodule", "uniquename", "hx_EnterpriseServiceIntake")
+        ?? FindByAttribute(service, "appmodule", "appmoduleidunique", appId)
+        ?? FindByAttribute(service, "appmodule", "appmoduleid", appId)
+        ?? FindByAttribute(service, "appmodule", "name", "Enterprise Service Intake");
 }
 
 static void DeleteByAttribute(IOrganizationService service, string entityName, string attributeName, object value)
@@ -885,8 +895,8 @@ static void EnsureRoutingMatrixPage(IOrganizationService service)
         LoadRepositoryFile("src/webresources/hx_routingmatrix.html"));
 
     AddToSolution(service, webResourceId, 61);
-    AddWebResourceToAppModule(service, webResourceId);
-    EnsureRoutingMatrixSitemapEntry(service);
+    EnsureSitemapIconWebResources(service);
+    EnsureAppNavigationDesign(service);
 }
 
 static string LoadRepositoryFile(string relativePath)
@@ -912,13 +922,30 @@ static Guid UpsertHtmlWebResource(
     string displayName,
     string description,
     string content)
+    => UpsertWebResource(service, name, displayName, description, content, 1);
+
+static Guid UpsertSvgWebResource(
+    IOrganizationService service,
+    string name,
+    string displayName,
+    string description,
+    string content)
+    => UpsertWebResource(service, name, displayName, description, content, 11);
+
+static Guid UpsertWebResource(
+    IOrganizationService service,
+    string name,
+    string displayName,
+    string description,
+    string content,
+    int webResourceType)
 {
     var existing = FindByAttribute(service, "webresource", "name", name);
     var entity = existing ?? new Entity("webresource");
     entity["name"] = name;
     entity["displayname"] = displayName;
     entity["description"] = description;
-    entity["webresourcetype"] = new OptionSetValue(1);
+    entity["webresourcetype"] = new OptionSetValue(webResourceType);
     entity["languagecode"] = 1033;
     entity["content"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(content));
 
@@ -934,94 +961,248 @@ static Guid UpsertHtmlWebResource(
     return existing.Id;
 }
 
-static void AddWebResourceToAppModule(IOrganizationService service, Guid webResourceId)
+static void EnsureSitemapIconWebResources(IOrganizationService service)
 {
-    try
+    foreach (var icon in SitemapIconSpecs())
     {
-        var app = FindByAttribute(service, "appmodule", "uniquename", "hx_EnterpriseServiceIntake");
-        if (app == null)
-        {
-            return;
-        }
-
-        service.Execute(new AddAppComponentsRequest
-        {
-            AppId = app.Id,
-            Components = new EntityReferenceCollection
-            {
-                new("webresource", webResourceId)
-            }
-        });
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Warning: Routing Matrix web resource was not explicitly added to the app module: {ex.Message}");
+        var id = UpsertSvgWebResource(
+            service,
+            icon.WebResourceName,
+            icon.DisplayName,
+            "Navigation icon for the Enterprise Service Intake model-driven app.",
+            LoadRepositoryFile(icon.SourcePath));
+        AddToSolution(service, id, 61);
     }
 }
 
-static void EnsureRoutingMatrixSitemapEntry(IOrganizationService service)
+static void EnsureAppNavigationDesign(IOrganizationService service)
 {
-    var sitemap = FindByAttribute(service, "sitemap", "sitemapnameunique", "hx_EnterpriseServiceIntake")
-        ?? throw new InvalidOperationException("Enterprise Service Intake sitemap was not found.");
+    var sitemaps = FindSitemapsByUniqueName(service, "hx_EnterpriseServiceIntake").ToList();
+    var linkedSitemap = FindLinkedSitemapForApp(service);
+    if (linkedSitemap != null && sitemaps.All(sitemap => sitemap.Id != linkedSitemap.Id))
+    {
+        sitemaps.Add(linkedSitemap);
+    }
+
+    if (sitemaps.Count == 0)
+    {
+        throw new InvalidOperationException("Enterprise Service Intake sitemap was not found.");
+    }
+
+    foreach (var sitemap in sitemaps)
+    {
+        var sitemapName = sitemap.GetAttributeValue<string>("sitemapnameunique") ?? sitemap.Id.ToString();
+        var updated = UpdateNavigationXmlIfNeeded(service, sitemap, "sitemap", $"sitemap {sitemapName}");
+        if (updated)
+        {
+            AddToSolution(service, sitemap.Id, 62);
+        }
+    }
+}
+
+static bool UpdateNavigationXmlIfNeeded(IOrganizationService service, Entity sitemap, string entityName, string label)
+{
     var sitemapXml = sitemap.GetAttributeValue<string>("sitemapxml") ?? string.Empty;
     var document = XDocument.Parse(sitemapXml);
-    var group = document.Descendants("Group").FirstOrDefault()
-        ?? throw new InvalidOperationException("Enterprise Service Intake sitemap does not contain a group.");
+    var area = document.Descendants("Area").FirstOrDefault()
+        ?? throw new InvalidOperationException("Enterprise Service Intake sitemap does not contain an area.");
 
-    var existingRoutingRuleEntries = group.Elements("SubArea")
-        .Where(element => string.Equals((string?)element.Attribute("Entity"), "hx_routingrule", StringComparison.OrdinalIgnoreCase))
-        .ToList();
-    foreach (var entry in existingRoutingRuleEntries)
+    area.SetAttributeValue("ShowGroups", "true");
+    area.Attribute("ResourceId")?.Remove();
+    area.Attribute("DescriptionResourceId")?.Remove();
+    area.Elements("Titles").Remove();
+    area.AddFirst(BuildTitles("Enterprise Service Intake"));
+    area.Elements("Group").Remove();
+    foreach (var group in NavigationGroups())
     {
-        entry.Remove();
-    }
-
-    var existingMatrixEntries = group.Elements("SubArea")
-        .Where(element => string.Equals((string?)element.Attribute("Url"), "$webresource:hx_/routingmatrix.html", StringComparison.OrdinalIgnoreCase))
-        .ToList();
-    foreach (var entry in existingMatrixEntries)
-    {
-        entry.Remove();
-    }
-
-    var matrixEntry = new XElement("SubArea",
-        new XAttribute("Id", "subarea_hx_routingmatrix"),
-        new XAttribute("Icon", "/_imgs/imagestrips/transparent_spacer.gif"),
-        new XAttribute("Url", "$webresource:hx_/routingmatrix.html"),
-        new XAttribute("Client", "All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web"),
-        new XAttribute("AvailableOffline", "false"),
-        new XAttribute("PassParams", "false"),
-        new XAttribute("Sku", "All,OnPremise,Live,SPLA"),
-        new XElement("Titles",
-            new XElement("Title",
-                new XAttribute("LCID", "1033"),
-                new XAttribute("Title", "Routing Matrix"))));
-
-    var serviceRequestsEntry = group.Elements("SubArea")
-        .FirstOrDefault(element => string.Equals((string?)element.Attribute("Entity"), "hx_servicerequest", StringComparison.OrdinalIgnoreCase));
-    if (serviceRequestsEntry != null)
-    {
-        serviceRequestsEntry.AddAfterSelf(matrixEntry);
-    }
-    else
-    {
-        group.AddFirst(matrixEntry);
+        area.Add(BuildSitemapGroup(group));
     }
 
     var updatedXml = document.ToString(SaveOptions.DisableFormatting);
     if (updatedXml == sitemapXml)
     {
-        Console.WriteLine("Routing Matrix sitemap entry already exists.");
-        return;
+        Console.WriteLine($"App navigation groups and icons are already current in {label}.");
+        return false;
     }
 
-    service.Update(new Entity("sitemap", sitemap.Id)
+    service.Update(new Entity(entityName, sitemap.Id)
     {
         ["sitemapxml"] = updatedXml
     });
-    AddToSolution(service, sitemap.Id, 62);
-    Console.WriteLine("Updated app navigation: replaced Routing / SLA Rules with Routing Matrix.");
+    Console.WriteLine($"Updated app navigation groups and icons in {label}.");
+    return true;
 }
+
+static IReadOnlyList<Entity> FindSitemapsByUniqueName(IOrganizationService service, string uniqueName)
+{
+    var query = new QueryExpression("sitemap")
+    {
+        ColumnSet = new ColumnSet("sitemapxml", "sitemapnameunique"),
+    };
+    query.Criteria.AddCondition("sitemapnameunique", ConditionOperator.Equal, uniqueName);
+    return service.RetrieveMultiple(query).Entities;
+}
+
+static Entity? FindLinkedSitemapForApp(IOrganizationService service)
+{
+    var app = FindEnterpriseServiceIntakeAppModule(service);
+    if (app == null)
+    {
+        Console.WriteLine("Warning: Enterprise Service Intake app module was not found.");
+        return null;
+    }
+
+    try
+    {
+        var query = new QueryExpression("appmodulecomponent")
+        {
+            ColumnSet = new ColumnSet("objectid", "componenttype", "appmoduleidunique"),
+            TopCount = 100
+        };
+        query.Criteria.AddCondition("componenttype", ConditionOperator.Equal, 62);
+        var components = service.RetrieveMultiple(query).Entities;
+        var component = components.FirstOrDefault(row => AppModuleComponentBelongsToApp(row, app));
+        if (component == null && components.Count == 1)
+        {
+            component = components[0];
+        }
+        else if (component == null)
+        {
+            var appUniqueId = app.GetAttributeValue<Guid>("appmoduleidunique");
+            Console.WriteLine($"Warning: found {components.Count} sitemap app components, but none matched appmoduleid={app.Id} or appmoduleidunique={appUniqueId}.");
+            foreach (var row in components.Take(10))
+            {
+                Console.WriteLine($"  Sitemap component objectid={row.GetAttributeValue<Guid>("objectid")} appmoduleidunique={DescribeAttributeValue(row.Attributes.TryGetValue("appmoduleidunique", out var value) ? value : null)}");
+            }
+        }
+
+        var sitemapId = component?.GetAttributeValue<Guid>("objectid") ?? Guid.Empty;
+        if (sitemapId == Guid.Empty)
+        {
+            return null;
+        }
+
+        return service.Retrieve("sitemap", sitemapId, new ColumnSet("sitemapxml", "sitemapnameunique"));
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Warning: linked app sitemap lookup failed: {ex.Message}");
+        return null;
+    }
+}
+
+static bool AppModuleComponentBelongsToApp(Entity component, Entity app)
+{
+    var appUniqueId = app.GetAttributeValue<Guid>("appmoduleidunique");
+    if (!component.Attributes.TryGetValue("appmoduleidunique", out var value))
+    {
+        return false;
+    }
+
+    return value switch
+    {
+        EntityReference reference => reference.Id == app.Id || reference.Id == appUniqueId,
+        Guid id => id == app.Id || id == appUniqueId,
+        _ => false
+    };
+}
+
+static string DescribeAttributeValue(object? value)
+    => value switch
+    {
+        null => "<null>",
+        EntityReference reference => $"{reference.LogicalName}:{reference.Id}:{reference.Name}",
+        OptionSetValue option => option.Value.ToString(),
+        _ => value.ToString() ?? "<empty>"
+    };
+
+static XElement BuildSitemapGroup(SitemapGroupSpec group)
+{
+    var element = new XElement("Group",
+        new XAttribute("Id", group.Id),
+        new XAttribute("IntroducedVersion", "7.0.0.0"),
+        new XAttribute("IsProfile", "false"),
+        BuildTitles(group.Title));
+
+    foreach (var subArea in group.SubAreas)
+    {
+        element.Add(BuildSitemapSubArea(subArea));
+    }
+
+    return element;
+}
+
+static XElement BuildSitemapSubArea(SitemapSubAreaSpec subArea)
+{
+    var element = new XElement("SubArea",
+        new XAttribute("Id", subArea.Id),
+        new XAttribute("Icon", $"$webresource:{subArea.IconWebResourceName}"),
+        new XAttribute("Client", "All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web"),
+        new XAttribute("AvailableOffline", subArea.IsWebResource ? "false" : "true"),
+        new XAttribute("PassParams", "false"),
+        new XAttribute("Sku", "All,OnPremise,Live,SPLA"),
+        BuildTitles(subArea.Title));
+
+    if (subArea.EntityLogicalName != null)
+    {
+        element.SetAttributeValue("Entity", subArea.EntityLogicalName);
+    }
+
+    if (subArea.Url != null)
+    {
+        element.SetAttributeValue("Url", subArea.Url);
+    }
+
+    return element;
+}
+
+static XElement BuildTitles(string title)
+    => new("Titles",
+        new XElement("Title",
+            new XAttribute("LCID", "1033"),
+            new XAttribute("Title", title)));
+
+static IReadOnlyList<SitemapIconSpec> SitemapIconSpecs() => new[]
+{
+    new SitemapIconSpec("hx_/icons/service_request.svg", "Service Request Icon", "src/webresources/icons/service_request.svg"),
+    new SitemapIconSpec("hx_/icons/evidence_review.svg", "Evidence Review Icon", "src/webresources/icons/evidence_review.svg"),
+    new SitemapIconSpec("hx_/icons/routing_matrix.svg", "Routing Matrix Icon", "src/webresources/icons/routing_matrix.svg"),
+    new SitemapIconSpec("hx_/icons/department.svg", "Department Icon", "src/webresources/icons/department.svg"),
+    new SitemapIconSpec("hx_/icons/sla_policy.svg", "SLA Policy Icon", "src/webresources/icons/sla_policy.svg"),
+    new SitemapIconSpec("hx_/icons/service_category.svg", "Service Category Icon", "src/webresources/icons/service_category.svg"),
+    new SitemapIconSpec("hx_/icons/error_log.svg", "System Error Log Icon", "src/webresources/icons/error_log.svg"),
+    new SitemapIconSpec("hx_/icons/sync_log.svg", "External Sync Log Icon", "src/webresources/icons/sync_log.svg")
+};
+
+static IReadOnlyList<SitemapGroupSpec> NavigationGroups() => new[]
+{
+    new SitemapGroupSpec(
+        "group_hx_intake_work",
+        "Intake Work",
+        new[]
+        {
+            SitemapSubAreaSpec.Entity("subarea_hx_servicerequest", "Service Requests", "hx_servicerequest", "hx_/icons/service_request.svg"),
+            SitemapSubAreaSpec.Entity("subarea_hx_evidence_review", "Service Request Evidence Reviews", "hx_servicedocument", "hx_/icons/evidence_review.svg")
+        }),
+    new SitemapGroupSpec(
+        "group_hx_routing_configuration",
+        "Routing Configuration",
+        new[]
+        {
+            SitemapSubAreaSpec.WebResource("subarea_hx_routingmatrix", "Routing Matrix", "$webresource:hx_/routingmatrix.html", "hx_/icons/routing_matrix.svg"),
+            SitemapSubAreaSpec.Entity("subarea_hx_department", "Departments", "hx_department", "hx_/icons/department.svg"),
+            SitemapSubAreaSpec.Entity("subarea_hx_slapolicy", "SLA Policies", "hx_slapolicy", "hx_/icons/sla_policy.svg"),
+            SitemapSubAreaSpec.Entity("subarea_hx_servicecategory", "Service Categories", "hx_servicecategory", "hx_/icons/service_category.svg")
+        }),
+    new SitemapGroupSpec(
+        "group_hx_monitoring",
+        "Monitoring",
+        new[]
+        {
+            SitemapSubAreaSpec.Entity("subarea_hx_errorlog", "System Error Logs", "hx_errorlog", "hx_/icons/error_log.svg"),
+            SitemapSubAreaSpec.Entity("subarea_hx_externalsynclog", "External Sync Logs", "hx_externalsynclog", "hx_/icons/sync_log.svg")
+        })
+};
 
 static void EnsureModelDrivenExperience(IOrganizationService service)
 {
@@ -4435,6 +4616,26 @@ static void TryUpdateFlowDefinition(IOrganizationService service, Entity flow, E
 }
 
 internal sealed record FormSection(string Name, IReadOnlyList<FormField> Fields, int Columns = 1);
+
+internal sealed record SitemapIconSpec(string WebResourceName, string DisplayName, string SourcePath);
+
+internal sealed record SitemapGroupSpec(string Id, string Title, IReadOnlyList<SitemapSubAreaSpec> SubAreas);
+
+internal sealed record SitemapSubAreaSpec(
+    string Id,
+    string Title,
+    string? EntityLogicalName,
+    string? Url,
+    string IconWebResourceName)
+{
+    public bool IsWebResource => Url != null;
+
+    public static SitemapSubAreaSpec Entity(string id, string title, string entityLogicalName, string iconWebResourceName)
+        => new(id, title, entityLogicalName, null, iconWebResourceName);
+
+    public static SitemapSubAreaSpec WebResource(string id, string title, string url, string iconWebResourceName)
+        => new(id, title, null, url, iconWebResourceName);
+}
 
 internal sealed record FormField(
     string LogicalName,

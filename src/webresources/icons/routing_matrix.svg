@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Routing matrix">
+  <rect x="5" y="5" width="22" height="22" rx="2.5" fill="none" stroke="#0078d4" stroke-width="2"/>
+  <path d="M5 13h22M5 20h22M13 5v22M20 5v22" fill="none" stroke="#0078d4" stroke-width="2"/>
+  <circle cx="16.5" cy="16.5" r="2" fill="#0078d4"/>
+</svg>

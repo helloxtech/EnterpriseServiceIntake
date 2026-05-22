@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="External sync log">
+  <path d="M8 13a8 8 0 0 1 13.5-5.8L24 10" fill="none" stroke="#0078d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24 6v4h-4M24 19a8 8 0 0 1-13.5 5.8L8 22" fill="none" stroke="#0078d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M8 26v-4h4" fill="none" stroke="#0078d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
