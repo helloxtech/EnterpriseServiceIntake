@@ -315,12 +315,12 @@
       if (!match) {
         setPreview({
           status: "warning",
-          heading: "Mitacs review expected",
+          heading: "Routing rule missing",
           department: "Mitacs intake",
           sla: "Confirmed after submission",
-          approval: isHighImpactRequest() ? "Mitacs may review this request" : "To be confirmed",
-          documentation: isHighImpactRequest() ? "Impact details required" : "As needed",
-          note: "We will review this request after submission and confirm the right team."
+          approval: "To be confirmed",
+          documentation: "To be confirmed",
+          note: "No active routing rule matched these inputs. Mitacs will confirm the right team after submission."
         });
         return;
       }
@@ -340,8 +340,8 @@
         heading: "Preview temporarily unavailable",
         department: "Confirmed after submission",
         sla: "Confirmed after submission",
-        approval: isHighImpactRequest() ? "Mitacs may review this request" : "To be confirmed",
-        documentation: isHighImpactRequest() ? "Impact details required" : "Standard",
+        approval: "To be confirmed",
+        documentation: "To be confirmed",
         note: "We could not show an estimate right now. You can still submit the request."
       });
     }

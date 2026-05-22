@@ -3113,16 +3113,7 @@ static void SeedSampleData(IOrganizationService service)
         })
     };
 
-    UpsertRule(service, "Critical funding requests", 10, categories["Funding Agreement"], departments["Finance"],
-        slaPolicies["Critical - 4 hour response"], 752630003, 752630003, requiresApproval: true, requiresDocs: true);
-    UpsertRule(service, "High research partnership requests", 20, categories["Research Partnership"], departments["Research Operations"],
-        slaPolicies["High - 1 business day response"], 752630002, 752630002, requiresApproval: true, requiresDocs: true);
-    UpsertRule(service, "Technical support standard requests", 30, categories["Technical Support"], departments["IT Support"],
-        slaPolicies["Standard - 3 business day response"], 752630001, 752630001, requiresApproval: false, requiresDocs: false);
-    UpsertRule(service, "Event support standard requests", 40, categories["Event Support"], departments["Client Services"],
-        slaPolicies["Standard - 3 business day response"], 752630001, 752630001, requiresApproval: false, requiresDocs: false);
-    UpsertRule(service, "General low priority fallback", 90, categories["General Inquiry"], departments["General Intake"],
-        slaPolicies["Low - 5 business day response"], 752630000, 752630000, requiresApproval: false, requiresDocs: false);
+    SeedRoutingRuleMatrix(service, categories, departments, slaPolicies);
 
     var customerOneId = UpsertContact(service, "Customer One", "customer.one@example.com");
     var customerTwoId = UpsertContact(service, "Customer Two", "customer.two@example.com");
@@ -3290,6 +3281,103 @@ static Guid UpsertNamed(IOrganizationService service, string logicalName, string
 
     service.Update(entity);
     return entity.Id;
+}
+
+static void SeedRoutingRuleMatrix(
+    IOrganizationService service,
+    IReadOnlyDictionary<string, Guid> categories,
+    IReadOnlyDictionary<string, Guid> departments,
+    IReadOnlyDictionary<string, Guid> slaPolicies)
+{
+    var matrixCategories = new[]
+    {
+        new RoutingMatrixCategory("Funding Agreement", "Finance", DefaultDocumentationRequired: true),
+        new RoutingMatrixCategory("Research Partnership", "Research Operations", DefaultDocumentationRequired: true),
+        new RoutingMatrixCategory("Event Support", "Client Services", DefaultDocumentationRequired: false),
+        new RoutingMatrixCategory("Technical Support", "IT Support", DefaultDocumentationRequired: false),
+        new RoutingMatrixCategory("General Inquiry", "General Intake", DefaultDocumentationRequired: false)
+    };
+    var severityOptions = new[]
+    {
+        new RoutingMatrixOption("Low", 752630000, 0),
+        new RoutingMatrixOption("Medium", 752630001, 1),
+        new RoutingMatrixOption("High", 752630002, 2),
+        new RoutingMatrixOption("Critical", 752630003, 3)
+    };
+    var priorityOptions = new[]
+    {
+        new RoutingMatrixOption("Low", 752630000, 0),
+        new RoutingMatrixOption("Normal", 752630001, 1),
+        new RoutingMatrixOption("High", 752630002, 2),
+        new RoutingMatrixOption("Urgent", 752630003, 3)
+    };
+
+    var activeMatrixRuleNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    for (var categoryIndex = 0; categoryIndex < matrixCategories.Length; categoryIndex++)
+    {
+        var category = matrixCategories[categoryIndex];
+        foreach (var severity in severityOptions)
+        {
+            foreach (var priority in priorityOptions)
+            {
+                var ruleName = $"{category.CategoryName} - {severity.Label}/{priority.Label}";
+                var riskLevel = Math.Max(severity.RiskLevel, priority.RiskLevel);
+                var slaPolicyName = riskLevel switch
+                {
+                    >= 3 => "Critical - 4 hour response",
+                    2 => "High - 1 business day response",
+                    1 => "Standard - 3 business day response",
+                    _ => "Low - 5 business day response"
+                };
+                var requiresApproval = riskLevel >= 2;
+                var requiresDocumentation =
+                    category.DefaultDocumentationRequired ||
+                    severity.RiskLevel >= 2 ||
+                    priority.RiskLevel >= 2;
+                var sortOrder = ((categoryIndex + 1) * 100) + (severity.RiskLevel * 10) + priority.RiskLevel;
+
+                UpsertRule(
+                    service,
+                    ruleName,
+                    sortOrder,
+                    categories[category.CategoryName],
+                    departments[category.DepartmentName],
+                    slaPolicies[slaPolicyName],
+                    severity.Value,
+                    priority.Value,
+                    requiresApproval,
+                    requiresDocumentation);
+                activeMatrixRuleNames.Add(ruleName);
+            }
+        }
+    }
+
+    DeactivateRoutingRulesOutsideMatrix(service, activeMatrixRuleNames);
+    Console.WriteLine($"Seeded {activeMatrixRuleNames.Count} active routing/SLA matrix rules.");
+}
+
+static void DeactivateRoutingRulesOutsideMatrix(IOrganizationService service, ISet<string> activeMatrixRuleNames)
+{
+    var query = new QueryExpression("hx_routingrule")
+    {
+        ColumnSet = new ColumnSet("hx_name", "hx_active")
+    };
+
+    foreach (var rule in service.RetrieveMultiple(query).Entities)
+    {
+        var name = rule.GetAttributeValue<string>("hx_name") ?? string.Empty;
+        var active = rule.GetAttributeValue<bool?>("hx_active") ?? false;
+        if (!active || activeMatrixRuleNames.Contains(name))
+        {
+            continue;
+        }
+
+        service.Update(new Entity("hx_routingrule", rule.Id)
+        {
+            ["hx_active"] = false
+        });
+        Console.WriteLine($"Deactivated non-matrix routing rule: {name}");
+    }
 }
 
 static void UpsertRule(
@@ -4212,6 +4300,13 @@ internal sealed record DashboardComponent(
     public static DashboardComponent Grid(string id, string label, string targetEntityLogicalName, Guid viewId)
         => new(id, label, targetEntityLogicalName, "Grid", viewId, null);
 }
+
+internal sealed record RoutingMatrixCategory(
+    string CategoryName,
+    string DepartmentName,
+    bool DefaultDocumentationRequired);
+
+internal sealed record RoutingMatrixOption(string Label, int Value, int RiskLevel);
 
 internal sealed record FormControlClass(string Id)
 {
