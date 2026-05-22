@@ -156,7 +156,7 @@ There are two Service Request main forms by design, but coordinators do not need
 
 - External users authenticate to Power Pages and are associated to Contact rows.
 - Local Power Pages sign-in is configured to use email address instead of username, with unique email validation enabled so registration does not ask users to manage a separate username.
-- Power Pages table permissions allow authenticated global create for Service Request intake and contact-scoped read access for request ownership. Contact-scoped Service Request write is disabled.
+- Power Pages table permissions allow authenticated global create for Service Request intake and contact-scoped own-record access. Contact-scoped Service Request write is enabled only to support the native SharePoint document upload grid; protected routing, approval, sync, lifecycle, and internal-note fields are still hidden from the portal and rejected by the guard plugin for non-internal callers.
 - Power Pages Web API site settings use explicit field allowlists for Service Request, Service Category, Routing Rule, Department, and SLA Policy; `Webapi/error/innererror` is disabled.
 - Public read access is limited to reference/routing data required for SLA preview.
 - Internal-only fields such as `hx_internalresolutionnotes` are not exposed on portal pages, the column is configured as secured metadata, and the plugin rejects protected-field updates from callers outside the configured internal allowlist.

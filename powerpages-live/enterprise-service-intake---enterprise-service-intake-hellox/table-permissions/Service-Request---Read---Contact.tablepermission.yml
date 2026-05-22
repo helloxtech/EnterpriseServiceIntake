@@ -10,4 +10,4 @@ adx_entitypermission_webrole:
 adx_entitypermissionid: 661201d9-75ba-45bd-9454-8bd18d428bb5
 adx_read: true
 adx_scope: 756150001
-adx_write: false
+adx_write: true
