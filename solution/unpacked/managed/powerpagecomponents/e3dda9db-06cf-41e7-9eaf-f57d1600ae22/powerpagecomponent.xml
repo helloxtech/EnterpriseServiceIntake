@@ -1,6 +1,6 @@
 <powerpagecomponent powerpagecomponentid="e3dda9db-06cf-41e7-9eaf-f57d1600ae22">
   <content>{
-  "value": "hx_title,hx_description,hx_severity,hx_priority,hx_submittedon,hx_servicecategory,hx_customercontact,hx_confirmationnumber,hx_routingpreviewsummary"
+  "value": "hx_title,hx_description,hx_severity,hx_priority,hx_submittedon,hx_servicecategory,hx_Servicecategory,hx_customercontact,hx_Customercontact,hx_confirmationnumber,hx_routingpreviewsummary"
 }</content>
   <iscustomizable>1</iscustomizable>
   <name>Webapi/hx_servicerequest/fields</name>

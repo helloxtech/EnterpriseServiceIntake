@@ -200,7 +200,7 @@
   adx_value: Portal Search
 - adx_name: Webapi/hx_servicerequest/fields
   adx_sitesettingid: e3dda9db-06cf-41e7-9eaf-f57d1600ae22
-  adx_value: hx_title,hx_description,hx_severity,hx_priority,hx_submittedon,hx_servicecategory,hx_customercontact,hx_confirmationnumber,hx_routingpreviewsummary
+  adx_value: hx_title,hx_description,hx_severity,hx_priority,hx_submittedon,hx_servicecategory,hx_Servicecategory,hx_customercontact,hx_Customercontact,hx_confirmationnumber,hx_routingpreviewsummary
 - adx_name: Webapi/hx_department/enabled
   adx_sitesettingid: f545a0ed-3812-464e-9a1e-646eba8bfec8
   adx_value: true
