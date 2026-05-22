@@ -1,0 +1,13 @@
+<powerpagecomponent powerpagecomponentid="b6b6a43e-4ffa-4c62-8135-85c0f58af2ba">
+  <content>{
+  "value": "true"
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Authentication/Registration/LocalLoginByEmail</name>
+  <powerpagecomponenttype>9</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>8c12ac01-467a-4fa8-8034-50b8028de647</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

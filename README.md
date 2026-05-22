@@ -155,6 +155,7 @@ There are two Service Request main forms by design. `Service Request - Coordinat
 ## Security Strategy
 
 - External users authenticate to Power Pages and are associated to Contact rows.
+- Local Power Pages sign-in is configured to use email address instead of username, with unique email validation enabled so registration does not ask users to manage a separate username.
 - Power Pages table permissions allow authenticated global create for Service Request intake and contact-scoped read access for request ownership. Contact-scoped Service Request write is disabled.
 - Power Pages Web API site settings use explicit field allowlists for Service Request, Service Category, Routing Rule, Department, and SLA Policy; `Webapi/error/innererror` is disabled.
 - Public read access is limited to reference/routing data required for SLA preview.

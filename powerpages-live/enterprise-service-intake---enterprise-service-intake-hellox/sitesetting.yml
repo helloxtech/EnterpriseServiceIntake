@@ -160,6 +160,9 @@
 - adx_name: Authentication/Registration/OpenRegistrationEnabled
   adx_sitesettingid: b25ca61e-2a5e-415f-9d07-d437132e770c
   adx_value: true
+- adx_name: Authentication/Registration/LocalLoginByEmail
+  adx_sitesettingid: b6b6a43e-4ffa-4c62-8135-85c0f58af2ba
+  adx_value: true
 - adx_description: A date/time value in GMT format to represent the effective date of the current published terms and conditions. If the terms agreement is enabled, portal users that have not accepted the terms after this date will be asked to accept them the next time they sign in. If the date is not provided, and the terms agreement is enabled, the terms will be presented every time portal users sign in.
   adx_name: Authentication/Registration/TermsPublicationDate
   adx_sitesettingid: bd2b3b95-e8c9-4b8e-b346-517b0d7def70
@@ -167,6 +170,9 @@
   adx_name: HTTP/SameSite/Default
   adx_sitesettingid: c0220bca-fa18-43ee-815c-32d4db596b54
   adx_value: Lax
+- adx_name: Authentication/UserManager/UserValidator/RequireUniqueEmail
+  adx_sitesettingid: c41b9a7e-d66d-4a0b-9361-b262e1db1dbf
+  adx_value: true
 - adx_description: 'The default number of unauthenticated login attempts from an IP address before the IP address is blocked for Authentication/LoginThrottling/IpAddressTimeoutTimeSpan if the attempts occur within Authentication/LoginThrottling/MaxAttemptsTimeLimitTimeSpan amount of time. Default: 5'
   adx_name: Authentication/LoginThrottling/MaxInvaildAttemptsFromIPAddress
   adx_sitesettingid: c70305b1-7927-4fcd-9170-0940309d8453
